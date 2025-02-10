@@ -8,6 +8,7 @@ router.get("/", async (req, res) => {
     const result = await query("SELECT id, name, location, specialty FROM users WHERE userType='specialist'");
     res.json(result.rows);
   } catch (error) {
+    console.error("Error during  fetching specialists:", error);
     res.status(500).json({ error: "Failed to fetch specialists" });
   }
 });
@@ -23,6 +24,7 @@ router.get("/search", async (req, res) => {
     );
     res.json(result.rows);
   } catch (error) {
+    console.error("Error during search:", error);
     res.status(500).json({ error: "Search failed" });
   }
 });

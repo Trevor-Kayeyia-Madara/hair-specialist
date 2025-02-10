@@ -20,6 +20,7 @@ router.post("/register", async (req, res) => {
 
     res.json({ user: result.rows[0] });
   } catch (error) {
+    console.error("Error during login:", error);
     res.status(500).json({ error: "User already exists" });
   }
 });
@@ -39,6 +40,7 @@ router.post("/login", async (req, res) => {
       res.status(401).json({ error: "Invalid credentials" });
     }
   } catch (error) {
+    console.error("Error during login:", error);
     res.status(500).json({ error: "Login failed" });
   }
 });
