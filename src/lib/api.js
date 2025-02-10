@@ -9,3 +9,11 @@ export const registerUser = async (userData) => {
 export const loginUser = async (credentials) => {
   return axios.post(`${API_URL}/auth/login`, credentials);
 };
+
+export const getSpecialists = async () => {
+  return axios.get(`${API_URL}/specialists`);
+};
+
+export const searchSpecialists = async (query) => {
+  return axios.get(`${API_URL}/specialists/search`, { params: query });
+};

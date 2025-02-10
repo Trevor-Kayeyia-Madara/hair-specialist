@@ -13,7 +13,6 @@ const Login = () => {
       const { data } = await loginUser({ email, password });
       localStorage.setItem("token", data.token);
       navigate("/dashboard");
-    // eslint-disable-next-line no-unused-vars
     } catch (error) {
       alert("Invalid credentials");
     }
