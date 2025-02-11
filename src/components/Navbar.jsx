@@ -33,7 +33,7 @@ const Navbar = ({ isLoggedIn, userProfile }) => {
                 <a href="/login" className="text-white bg-blue-500 hover:bg-blue-400 px-4 py-2 rounded-lg transition-colors">
                   Login
                 </a>
-                <a href="/signup" className="text-blue-600 bg-white hover:bg-blue-50 px-4 py-2 rounded-lg transition-colors">
+                <a href="/sign-up" className="text-blue-600 bg-white hover:bg-blue-50 px-4 py-2 rounded-lg transition-colors">
                   Sign Up
                 </a>
               </>
