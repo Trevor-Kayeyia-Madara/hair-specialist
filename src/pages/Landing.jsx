@@ -1,10 +1,11 @@
 import {useState} from 'react'
 import SpecialistCard from '../components/SpecialistCard';
 import ReviewCard from '../components/ReviewCard';
-
+import Navbar from '../components/Navbar';
 
 const Landing = () => {
     const [email, setEmail] = useState("");
+    const [searchQuery, setSearchQuery] = useState("");
 
     const specialists = [
         {
@@ -55,34 +56,32 @@ const Landing = () => {
         },
       ];
   return (
-    <div className="font-montserrat">
-    <section className="relative h-[600px] flex items-center justify-center">
-      <div className="absolute inset-0">
-      <img src="/assets/images/salon-hero.jpg" alt="Modern hair salon interior with elegant styling stations" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-black bg-opacity-50"></div>
-      </div>
-
-      <div className="relative text-center text-white px-4">
-        <h1 className="text-4xl md:text-6xl font-playfair mb-6">
+    <div className="min-h-screen bg-gray-50">
+       <Navbar isLoggedIn={false} />
+    
+       <div className="flex flex-col items-center justify-center px-4 py-20 bg-gradient-to-r from-blue-500 to-purple-600 text-white">
+        <h1 className="text-4xl md:text-6xl font-bold text-center font-montserrat mb-4">
           Find Your Perfect Hair Specialist
         </h1>
-        <p className="text-xl mb-8">
+        <p className="text-xl md:text-2xl text-center font-roboto mb-8 text-blue-100">
           Book appointments with top hair specialists in your area
         </p>
-
-        <div className="max-w-2xl mx-auto flex">
-          <input
-            type="text"
-            placeholder="Enter your location"
-            className="flex-1 px-6 py-4 rounded-l-lg text-gray-800 focus:outline-none"
-          />
-          <button className="bg-blue-600 hover:bg-blue-700 px-8 py-4 rounded-r-lg transition-colors">
-            <i className="fas fa-search"></i>
-          </button>
+        <div className="w-full max-w-2xl">
+          <div className="flex bg-white rounded-lg shadow-lg p-2">
+            <input
+              type="text"
+              placeholder="Enter your location..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="flex-grow px-4 py-3 text-gray-700 focus:outline-none font-roboto"
+              name="location"
+            />
+            <button className="bg-blue-600 text-white px-8 py-3 rounded-md hover:bg-blue-700 transition-colors font-montserrat">
+              Search
+            </button>
+          </div>
         </div>
       </div>
-    </section>
-
     <section className="py-20 px-4 bg-gray-50">
       <div className="max-w-6xl mx-auto">
         <h2 className="text-3xl font-playfair text-center mb-12">
