@@ -5,6 +5,10 @@ import SignUp from "./pages/SignUp";
 import Search from "./pages/Search";
 import BookingFlow from "./pages/BookingFlow";
 import UserDashboard from "./pages/UserDashboard";
+import Reviews from "./pages/Reviews";
+import SpecialistDashboard from "./pages/SpecialistDashboard";
+import SpecialistProfile from "./pages/SpecialistProfile";
+import Payment from "./pages/Payment";
 function App() {
   return (
     <Router>
@@ -15,6 +19,10 @@ function App() {
           <Route path ="/search" element={<Search />} />
           <Route path="/booking" element={<BookingFlow />} />
           <Route path="/dashboard" element={<UserDashboard  />} />
+          <Route path="/reviews" element={<Reviews  />} />
+          <Route path="/specialist-dashboard" element={<SpecialistDashboard />} />
+          <Route path="/specialist/id" element={<SpecialistProfile />} />
+          <Route path="/payment" element={<Payment  />} />
         </Routes>
     </Router>
   )
