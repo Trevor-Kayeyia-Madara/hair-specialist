@@ -153,7 +153,7 @@ const Landing = () => {
           Join our platform and grow your business
         </p>
         <a
-          href="/signup"
+          href="/sign-up"
           className="inline-block bg-white text-blue-600 px-8 py-4 rounded-lg hover:bg-blue-50 transition-colors"
         >
           Join as a Specialist
