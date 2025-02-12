@@ -32,7 +32,7 @@ const SignUp = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/auth/signup', {
+      const response = await fetch('https://backend-es6y.onrender.com/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
