@@ -3,9 +3,11 @@ import { useState } from 'react';
 const SignUp = () => {
   const [userType, setUserType] = useState('customer');
   const [formData, setFormData] = useState({
+    full_name: '', // Added full_name
     email: '',
     password: '',
   });
+  
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -65,6 +67,7 @@ const SignUp = () => {
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
+        <input type="text" name="full_name" placeholder="Full Name" value={formData.full_name}  onChange={handleInputChange}  required  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"/>
           <input type="email" name="email" placeholder="Email Address" value={formData.email} onChange={handleInputChange} required className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
           <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleInputChange} required className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
           {error && <div className="text-red-500 text-sm">{error}</div>}
