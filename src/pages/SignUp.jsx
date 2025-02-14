@@ -5,10 +5,6 @@ const SignUp = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    name: '',
-    location: '',
-    confirmPassword: '',
-    specialty: '', // Only for specialists
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -20,41 +16,35 @@ const SignUp = () => {
       [name]: value,
     }));
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-
     setError('');
     setLoading(true);
-
+  
     try {
-      const response = await fetch('https://backend-es6y.onrender.com/api/auth/signup', {
+      const response = await fetch('https://backend-es6y.onrender.com/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...formData,
+          full_name: formData.full_name, // Include full_name in the request
+          email: formData.email,
+          password: formData.password,
           userType,
         }),
       });
-
+  
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || 'Signup failed');
-
-      if (userType === 'customer') {
-        window.location.href = '/dashboard';
-      } else if (userType === 'specialist') {
-        window.location.href = '/specialist-dashboard';
-      }
+  
+      // Redirect based on user type
+      window.location.href = userType === 'customer' ? '/dashboard' : '/specialist-dashboard';
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
@@ -75,14 +65,8 @@ const SignUp = () => {
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input type="text" name="name" placeholder="Your Full Name" value={formData.name} onChange={handleInputChange} required className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
           <input type="email" name="email" placeholder="Email Address" value={formData.email} onChange={handleInputChange} required className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
           <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleInputChange} required className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
-          <input type="password" name="confirmPassword" placeholder="Confirm Password" value={formData.confirmPassword} onChange={handleInputChange} required className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
-          <input type="text" name="location" placeholder="Enter Location" value={formData.location} onChange={handleInputChange} required className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
-          {userType === 'specialist' && (
-            <input type="text" name="specialty" placeholder="Your Specialty" value={formData.specialty} onChange={handleInputChange} required className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
-          )}
           {error && <div className="text-red-500 text-sm">{error}</div>}
           <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors">
             {loading ? 'Signing Up...' : `Sign Up as ${userType === 'customer' ? 'Customer' : 'Specialist'}`}
