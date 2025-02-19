@@ -22,23 +22,35 @@ const Login = () => {
     e.preventDefault();
     setError("");
     setLoading(true);
+  
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: formData.email,
-        password: formData.password,
-      });
-
-      if (error) throw error;
-
-      const userType = data.user?.user_metadata?.userType || "customer";
-      localStorage.setItem("userType", userType);
-      navigate(userType === "customer" ? "/dashboard" : "/specialist-dashboard");
+      // Fetch user details from 'users' table
+      const { data: userData, error: userError } = await supabase
+        .from("users")
+        .select("id, email, password, userType") // Fetch required fields
+        .eq("email", formData.email)
+        .single();
+  
+      if (userError) throw new Error("Invalid email or user does not exist.");
+  
+      // Check password (assuming stored passwords are in plaintext for now)
+      if (userData.password !== formData.password) {
+        throw new Error("Invalid password.");
+      }
+  
+      // Store user type in localStorage
+      localStorage.setItem("userType", userData.userType);
+      localStorage.setItem("userId", userData.id);
+  
+      // Redirect based on user type
+      navigate(userData.userType === "customer" ? "/dashboard" : "/specialist-dashboard");
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-6">
