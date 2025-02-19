@@ -27,7 +27,7 @@ const Login = () => {
       // Fetch user details from 'users' table
       const { data: userData, error: userError } = await supabase
         .from("users")
-        .select("id, email, password, userType") // Fetch required fields
+        .select("email, password,") // Fetch required fields
         .eq("email", formData.email)
         .single();
   
