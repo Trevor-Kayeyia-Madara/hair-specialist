@@ -1,8 +1,9 @@
 import {useState} from 'react'
 import ChatWindow from '../components/ChatWindow';
+
 const UserDashboard = () => {
     const [activeTab, setActiveTab] = useState("upcoming");
-    const [currentUser] = useState({
+      const [currentUser] = useState({
       id: "1",
       name: "Jessica Smith",
       email: "jessica@example.com",
@@ -249,6 +250,14 @@ const UserDashboard = () => {
         </div>
       ),
     };
+    const handleLogout = () => {
+      // Clear authentication data (localStorage/sessionStorage)
+      localStorage.removeItem("authToken");
+      sessionStorage.removeItem("authToken");
+
+      // Redirect to login page
+      window.location.href = '/login';
+  };
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -258,6 +267,12 @@ const UserDashboard = () => {
               <h1 className="text-2xl font-bold mb-2">
                 Welcome back, {currentUser.name}!
               </h1>
+              <button 
+                        onClick={handleLogout} 
+                        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                    >
+                        Logout
+                    </button>
               {nextAppointment && (
                 <p className="text-gray-600">
                   Your next appointment is on{" "}
