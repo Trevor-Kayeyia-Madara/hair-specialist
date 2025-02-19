@@ -1,13 +1,18 @@
 import { useState } from 'react';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const SignUp = () => {
   const [userType, setUserType] = useState('customer');
   const [formData, setFormData] = useState({
-    full_name: '', // Added full_name
+    full_name: '',
     email: '',
     password: '',
   });
-  
+
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -18,26 +23,38 @@ const SignUp = () => {
       [name]: value,
     }));
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
-  
+
     try {
-      const response = await fetch('https://backend-es6y.onrender.com/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          full_name: formData.full_name, // Include full_name in the request
-          email: formData.email,
-          password: formData.password,
-          userType,
-        }),
+      // Create user in Supabase authentication
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
       });
-  
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || 'Signup failed');
-  
+
+      if (error) throw error;
+
+      const user = data.user;
+      if (user) {
+        // Store additional user data in "profiles" table
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert([
+            {
+              id: user.id, // Use the same ID from Supabase auth
+              full_name: formData.full_name,
+              email: formData.email,
+              userType,
+            },
+          ]);
+
+        if (profileError) throw profileError;
+      }
+
       // Redirect based on user type
       window.location.href = userType === 'customer' ? '/dashboard' : '/specialist-dashboard';
     } catch (err) {
@@ -46,7 +63,6 @@ const SignUp = () => {
       setLoading(false);
     }
   };
-  
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
@@ -67,11 +83,39 @@ const SignUp = () => {
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
-        <input type="text" name="full_name" placeholder="Full Name" value={formData.full_name}  onChange={handleInputChange}  required  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"/>
-          <input type="email" name="email" placeholder="Email Address" value={formData.email} onChange={handleInputChange} required className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
-          <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleInputChange} required className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+          <input
+            type="text"
+            name="full_name"
+            placeholder="Full Name"
+            value={formData.full_name}
+            onChange={handleInputChange}
+            required
+            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+          />
+          <input
+            type="email"
+            name="email"
+            placeholder="Email Address"
+            value={formData.email}
+            onChange={handleInputChange}
+            required
+            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+          />
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={handleInputChange}
+            required
+            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+          />
           {error && <div className="text-red-500 text-sm">{error}</div>}
-          <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors">
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors"
+          >
             {loading ? 'Signing Up...' : `Sign Up as ${userType === 'customer' ? 'Customer' : 'Specialist'}`}
           </button>
         </form>
