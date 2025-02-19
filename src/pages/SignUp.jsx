@@ -1,19 +1,19 @@
-import { useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
+import { useState } from "react";
+import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const SignUp = () => {
-  const [userType, setUserType] = useState('customer');
+  const [userType, setUserType] = useState("customer");
   const [formData, setFormData] = useState({
-    full_name: '',
-    email: '',
-    password: '',
+    full_name: "",
+    email: "",
+    password: "",
   });
 
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleInputChange = (e) => {
@@ -26,37 +26,33 @@ const SignUp = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
     try {
-      // Create user in Supabase authentication
-      const { data, error } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
+      // Hash password using Supabase built-in cryptographic functions
+      const { data, error: hashError } = await supabase.rpc("hash_password", {
+        raw_password: formData.password,
       });
 
-      if (error) throw error;
+      if (hashError) throw hashError;
 
-      const user = data.user;
-      if (user) {
-        // Store additional user data in "profiles" table
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert([
-            {
-              id: user.id, // Use the same ID from Supabase auth
-              full_name: formData.full_name,
-              email: formData.email,
-              userType,
-            },
-          ]);
+      const hashedPassword = data;
 
-        if (profileError) throw profileError;
-      }
+      // Store user data in the database
+      const { error: insertError } = await supabase.from("users").insert([
+        {
+          full_name: formData.full_name,
+          email: formData.email,
+          password: hashedPassword, // Store hashed password
+          userType,
+        },
+      ]);
+
+      if (insertError) throw insertError;
 
       // Redirect based on user type
-      window.location.href = userType === 'customer' ? '/dashboard' : '/specialist-dashboard';
+      window.location.href = userType === "customer" ? "/dashboard" : "/specialist-dashboard";
     } catch (err) {
       setError(err.message);
     } finally {
@@ -70,14 +66,18 @@ const SignUp = () => {
         <h1 className="text-2xl font-bold text-center mb-8 font-roboto">Create an Account</h1>
         <div className="flex gap-4 mb-6">
           <button
-            onClick={() => setUserType('customer')}
-            className={`flex-1 py-3 rounded-lg font-medium ${userType === 'customer' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'}`}
+            onClick={() => setUserType("customer")}
+            className={`flex-1 py-3 rounded-lg font-medium ${
+              userType === "customer" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600"
+            }`}
           >
             Customer
           </button>
           <button
-            onClick={() => setUserType('specialist')}
-            className={`flex-1 py-3 rounded-lg font-medium ${userType === 'specialist' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'}`}
+            onClick={() => setUserType("specialist")}
+            className={`flex-1 py-3 rounded-lg font-medium ${
+              userType === "specialist" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600"
+            }`}
           >
             Specialist
           </button>
@@ -116,7 +116,7 @@ const SignUp = () => {
             disabled={loading}
             className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors"
           >
-            {loading ? 'Signing Up...' : `Sign Up as ${userType === 'customer' ? 'Customer' : 'Specialist'}`}
+            {loading ? "Signing Up..." : `Sign Up as ${userType === "customer" ? "Customer" : "Specialist"}`}
           </button>
         </form>
         <p className="text-center mt-4 text-gray-600">
