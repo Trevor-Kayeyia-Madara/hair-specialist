@@ -1,15 +1,13 @@
-import {useState} from 'react'
+import {useState, useEffect} from 'react';
 import ChatWindow from '../components/ChatWindow';
 
 const UserDashboard = () => {
     const [activeTab, setActiveTab] = useState("upcoming");
-      const [currentUser] = useState({
-      id: "1",
-      name: "Jessica Smith",
-      email: "jessica@example.com",
-      avatar: "/avatar1.jpg",
-    });
-  
+    const [currentUser, setCurrentUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    
+    
     const [nextAppointment] = useState({
       date: "2025-02-15T10:00:00",
       specialist: {
@@ -250,6 +248,41 @@ const UserDashboard = () => {
         </div>
       ),
     };
+    useEffect(() => {
+      const fetchUserDetails = async () => {
+        try {
+          const authToken = localStorage.getItem("authToken"); // Retrieve stored token
+          if (!authToken) {
+            throw new Error("User not authenticated");
+          }
+  
+          const response = await fetch("https://backend-es6y.onrender.com/api/user", {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authToken}`, // Send token in the request
+            },
+          });
+  
+          if (!response.ok) {
+            throw new Error("Failed to fetch user details");
+          }
+  
+          const userData = await response.json();
+          setCurrentUser(userData); // Store user details
+        } catch (err) {
+          setError(err.message);
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      fetchUserDetails();
+    }, []);
+  
+    if (loading) return <p>Loading user data...</p>;
+    if (error) return <p>Error: {error}</p>;
+
     const handleLogout = () => {
       // Clear authentication data (localStorage/sessionStorage)
       localStorage.removeItem("authToken");
