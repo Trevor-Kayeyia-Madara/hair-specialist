@@ -1,6 +1,12 @@
 /* eslint-disable react/no-unescaped-entities */
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {createClient} from "@supabase/supabase-js";
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -17,17 +23,16 @@ const Login = () => {
     setError("");
     setLoading(true);
     try {
-      const response = await fetch("https://backend-es6y.onrender.com/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password,
       });
-      const data = await response.json();
 
-      if (!response.ok) throw new Error(data.message || "Invalid credentials");
+      if (error) throw error;
 
-      localStorage.setItem("userType", data.userType);
-      navigate(data.userType === "customer" ? "/dashboard" : "/specialist-dashboard");
+      const userType = data.user?.user_metadata?.userType || "customer";
+      localStorage.setItem("userType", userType);
+      navigate(userType === "customer" ? "/dashboard" : "/specialist-dashboard");
     } catch (err) {
       setError(err.message);
     } finally {
