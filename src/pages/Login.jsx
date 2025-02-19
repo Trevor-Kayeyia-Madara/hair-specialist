@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/no-unescaped-entities */
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -16,14 +15,10 @@ const Login = () => {
 
   useEffect(() => {
     // Auto-login if session exists
-    const checkSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data?.session) {
-        const { user } = data.session;
-        redirectUser(user.id);
-      }
-    };
-    checkSession();
+    const userId = localStorage.getItem("userId");
+    if (userId) {
+      redirectUser(userId);
+    }
   }, []);
 
   const handleInputChange = (e) => {
@@ -36,28 +31,23 @@ const Login = () => {
     setLoading(true);
 
     try {
-      // Authenticate with Supabase Auth
-      const { data, error: authError } = await supabase.auth.signInWithPassword({
-        email: formData.email,
-        password: formData.password,
-      });
-
-      if (authError) throw new Error("Invalid email or password.");
-
-      const user = data.user;
-
-      // Fetch user details from 'users' table
+      // Fetch user from the database
       const { data: userData, error: userError } = await supabase
         .from("users")
-        .select("id, userType")
-        .eq("id", user.id)
+        .select("id, email, password, userType")
+        .eq("email", formData.email)
         .single();
 
-      if (userError) throw new Error("User not found.");
+      if (userError || !userData) throw new Error("Invalid email or user does not exist.");
+
+      // Check password (Ensure passwords are hashed in production)
+      if (userData.password !== formData.password) {
+        throw new Error("Invalid password.");
+      }
 
       // Store session data
-      localStorage.setItem("userType", userData.userType);
       localStorage.setItem("userId", userData.id);
+      localStorage.setItem("userType", userData.userType);
 
       // Redirect user
       redirectUser(userData.id);
@@ -70,7 +60,6 @@ const Login = () => {
 
   const redirectUser = async (userId) => {
     const { data } = await supabase.from("users").select("userType").eq("id", userId).single();
-
     if (data?.userType === "customer") {
       navigate("/dashboard");
     } else {
