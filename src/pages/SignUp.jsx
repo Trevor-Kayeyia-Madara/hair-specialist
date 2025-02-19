@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { createClient } from "@supabase/supabase-js";
+import { EyeIcon, EyeOffIcon } from "lucide-react"; // For eye icons
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -15,6 +16,7 @@ const SignUp = () => {
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // Toggle state for password visibility
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -30,16 +32,15 @@ const SignUp = () => {
     setLoading(true);
 
     try {
-      // Hash password using Supabase built-in cryptographic functions
+      // Hash password using Supabase function
       const { data, error: hashError } = await supabase.rpc("hash_password", {
         raw_password: formData.password,
       });
 
       if (hashError) throw hashError;
-
       const hashedPassword = data;
 
-      // Store user data in the database
+      // Insert user data into the database
       const { error: insertError } = await supabase.from("users").insert([
         {
           full_name: formData.full_name,
@@ -101,15 +102,24 @@ const SignUp = () => {
             required
             className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
           />
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleInputChange}
-            required
-            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
-          />
+          <div className="relative w-full">
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={handleInputChange}
+              required
+              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 pr-12"
+            />
+            <button
+              type="button"
+              className="absolute right-3 top-3 text-gray-600"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <EyeOffIcon size={20} /> : <EyeIcon size={20} />}
+            </button>
+          </div>
           {error && <div className="text-red-500 text-sm">{error}</div>}
           <button
             type="submit"
