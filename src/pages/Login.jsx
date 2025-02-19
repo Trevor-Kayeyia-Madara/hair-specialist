@@ -1,18 +1,30 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/no-unescaped-entities */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {createClient} from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Auto-login if session exists
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data?.session) {
+        const { user } = data.session;
+        redirectUser(user.id);
+      }
+    };
+    checkSession();
+  }, []);
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -22,35 +34,49 @@ const Login = () => {
     e.preventDefault();
     setError("");
     setLoading(true);
-  
+
     try {
+      // Authenticate with Supabase Auth
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (authError) throw new Error("Invalid email or password.");
+
+      const user = data.user;
+
       // Fetch user details from 'users' table
       const { data: userData, error: userError } = await supabase
         .from("users")
-        .select("email, password, userType") // Fetch required fields
-        .eq("email", formData.email)
+        .select("id, userType")
+        .eq("id", user.id)
         .single();
-  
-      if (userError) throw new Error("Invalid email or user does not exist.");
-  
-      // Check password (assuming stored passwords are in plaintext for now)
-      if (userData.password !== formData.password) {
-        throw new Error("Invalid password.");
-      }
-  
-      // Store user type in localStorage
+
+      if (userError) throw new Error("User not found.");
+
+      // Store session data
       localStorage.setItem("userType", userData.userType);
       localStorage.setItem("userId", userData.id);
-  
-      // Redirect based on user type
-      navigate(userData.userType === "customer" ? "/dashboard" : "/specialist-dashboard");
+
+      // Redirect user
+      redirectUser(userData.id);
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };
-  
+
+  const redirectUser = async (userId) => {
+    const { data } = await supabase.from("users").select("userType").eq("id", userId).single();
+
+    if (data?.userType === "customer") {
+      navigate("/dashboard");
+    } else {
+      navigate("/specialist-dashboard");
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-6">
