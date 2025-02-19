@@ -1,25 +1,12 @@
 /* eslint-disable react/no-unescaped-entities */
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { createClient } from "@supabase/supabase-js";
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    // Auto-login if session exists
-    const userId = localStorage.getItem("userId");
-    if (userId) {
-      redirectUser(userId);
-    }
-  }, []);
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -29,41 +16,28 @@ const Login = () => {
     e.preventDefault();
     setError("");
     setLoading(true);
-
+  
     try {
-      // Fetch user from the database
-      const { data: userData, error: userError } = await supabase
-        .from("users")
-        .select("id, email, password, userType")
-        .eq("email", formData.email)
-        .single();
-
-      if (userError || !userData) throw new Error("Invalid email or user does not exist.");
-
-      // Check password (Ensure passwords are hashed in production)
-      if (userData.password !== formData.password) {
-        throw new Error("Invalid password.");
-      }
-
-      // Store session data
-      localStorage.setItem("userId", userData.id);
-      localStorage.setItem("userType", userData.userType);
-
+      const response = await fetch("https://backend-es6y.onrender.com/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: formData.email, password: formData.password }),
+      });
+  
+      const result = await response.json();
+  
+      if (!response.ok) throw new Error(result.message);
+  
       // Redirect user
-      redirectUser(userData.id);
+      if (result.userType === "customer") {
+        navigate("/dashboard");
+      } else {
+        navigate("/specialist-dashboard");
+      }
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const redirectUser = async (userId) => {
-    const { data } = await supabase.from("users").select("userType").eq("id", userId).single();
-    if (data?.userType === "customer") {
-      navigate("/dashboard");
-    } else {
-      navigate("/specialist-dashboard");
     }
   };
 
