@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { EyeIcon, EyeOffIcon } from "lucide-react"; // For eye icons
+import bcrypt from "bcryptjs";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -25,22 +26,15 @@ const SignUp = () => {
       [name]: value,
     }));
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
-
+  
     try {
-      // Hash password using Supabase function
-      const { data, error: hashError } = await supabase.rpc("hash_password", {
-        raw_password: formData.password,
-      });
-
-      if (hashError) throw hashError;
-      const hashedPassword = data;
-
-      // Insert user data into the database
+      // Hash password before storing
+      const hashedPassword = await bcrypt.hash(formData.password, 10);
+  
       const { error: insertError } = await supabase.from("users").insert([
         {
           full_name: formData.full_name,
@@ -49,10 +43,10 @@ const SignUp = () => {
           userType,
         },
       ]);
-
+  
       if (insertError) throw insertError;
-
-      // Redirect based on user type
+  
+      // Redirect user
       window.location.href = userType === "customer" ? "/dashboard" : "/specialist-dashboard";
     } catch (err) {
       setError(err.message);
@@ -60,7 +54,6 @@ const SignUp = () => {
       setLoading(false);
     }
   };
-
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
       <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
