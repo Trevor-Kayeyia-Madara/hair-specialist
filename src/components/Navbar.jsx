@@ -1,10 +1,23 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 
-const Navbar = ({ isLoggedIn, userProfile }) => {
+const Navbar = ({ isLoggedIn, setIsLoggedIn, userProfile }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // Remove session data (modify based on your authentication method)
+    localStorage.removeItem("authToken"); // If using localStorage
+    sessionStorage.removeItem("authToken"); // If using sessionStorage
+
+    // Update authentication state
+    setIsLoggedIn(false);
+
+    // Redirect to login page
+    navigate("/login");
+  };
 
   return (
     <nav className="bg-gradient-to-r from-blue-400 to-blue-600 shadow-lg">
@@ -41,10 +54,9 @@ const Navbar = ({ isLoggedIn, userProfile }) => {
             ) : (
               <div className="relative">
                 <div className="flex items-center space-x-2">
-                 <Link to="/profile" className="text-white hover:text-blue-100 transition-colors">
-                 <Link to="/dashboard" className="text-white hover:text-blue-100 transition-colors">
-                      Dashboard
-                  </Link></Link>
+                  <Link to="/dashboard" className="text-white hover:text-blue-100 transition-colors">
+                    Dashboard
+                  </Link>
                   <button 
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)} 
                     className="text-white focus:outline-none ml-2"
@@ -63,9 +75,12 @@ const Navbar = ({ isLoggedIn, userProfile }) => {
                     <Link to="/settings" className="block px-4 py-2 text-gray-700 hover:bg-blue-50">
                       Settings
                     </Link>
-                    <Link to="/logout" className="block px-4 py-2 text-gray-700 hover:bg-blue-50">
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-blue-50"
+                    >
                       Logout
-                    </Link>
+                    </button>
                   </div>
                 )}
               </div>
@@ -118,9 +133,12 @@ const Navbar = ({ isLoggedIn, userProfile }) => {
                 <Link to="/settings" className="block text-white py-2">
                   Settings
                 </Link>
-                <Link to="/logout" className="block text-white py-2">
+                <button
+                  onClick={handleLogout}
+                  className="block w-full text-left text-white py-2"
+                >
                   Logout
-                </Link>
+                </button>
               </div>
             )}
           </div>
@@ -133,6 +151,7 @@ const Navbar = ({ isLoggedIn, userProfile }) => {
 // PropTypes validation
 Navbar.propTypes = {
   isLoggedIn: PropTypes.bool.isRequired,
+  setIsLoggedIn: PropTypes.func.isRequired,
   userProfile: PropTypes.shape({
     avatar: PropTypes.string,
     name: PropTypes.string
