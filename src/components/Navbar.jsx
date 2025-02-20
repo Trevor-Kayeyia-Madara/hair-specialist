@@ -42,18 +42,20 @@ const Navbar = ({ isLoggedIn, userProfile }) => {
                 <div className="flex items-center space-x-2">
                   <a href="/user-dashboard" className="flex items-center space-x-2 text-white">
                     <img src={userProfile?.avatar || "/default-avatar.jpg"} alt="Profile" className="w-8 h-8 rounded-full" />
-                    <span>User Dashboard</span>
+                    <span>{userProfile?.name || "Dashboard"}</span>
                   </a>
                   <button 
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)} 
                     className="text-white focus:outline-none ml-2"
+                    aria-expanded={isDropdownOpen}
+                    aria-label="User menu"
                   >
                     <i className="fas fa-chevron-down"></i>
                   </button>
                 </div>
 
                 {isDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2">
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-10">
                     <a href="/profile" className="block px-4 py-2 text-gray-700 hover:bg-blue-50">
                       Profile
                     </a>
@@ -69,7 +71,12 @@ const Navbar = ({ isLoggedIn, userProfile }) => {
             )}
           </div>
 
-          <button onClick={() => setIsOpen(!isOpen)} className="md:hidden text-white focus:outline-none">
+          <button 
+            onClick={() => setIsOpen(!isOpen)} 
+            className="md:hidden text-white focus:outline-none"
+            aria-expanded={isOpen}
+            aria-label="Menu"
+          >
             <i className={`fas ${isOpen ? "fa-times" : "fa-bars"}`}></i>
           </button>
         </div>
@@ -98,7 +105,7 @@ const Navbar = ({ isLoggedIn, userProfile }) => {
               <div className="mt-4 space-y-2">
                 <a href="/user-dashboard" className="text-white py-2 flex items-center space-x-2">
                   <img src={userProfile?.avatar || "/default-avatar.jpg"} alt="Profile" className="w-8 h-8 rounded-full" />
-                  <span>User Dashboard</span>
+                  <span>{userProfile?.name || "Dashboard"}</span>
                 </a>
                 <a href="/profile" className="block text-white py-2">
                   Profile
@@ -123,7 +130,16 @@ Navbar.propTypes = {
   isLoggedIn: PropTypes.bool.isRequired,
   userProfile: PropTypes.shape({
     avatar: PropTypes.string,
+    name: PropTypes.string
   }),
+};
+
+// Default props
+Navbar.defaultProps = {
+  userProfile: {
+    avatar: "/default-avatar.jpg",
+    name: "User"
+  }
 };
 
 export default Navbar;

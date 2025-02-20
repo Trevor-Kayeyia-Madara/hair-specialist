@@ -1,4 +1,4 @@
-import {useState} from 'react'
+import {useState, useEffect} from 'react'
 import SpecialistCard from '../components/SpecialistCard';
 import ReviewCard from '../components/ReviewCard';
 import Navbar from '../components/Navbar';
@@ -6,6 +6,26 @@ import Navbar from '../components/Navbar';
 const Landing = () => {
     const [email, setEmail] = useState("");
     const [searchQuery, setSearchQuery] = useState("");
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [userProfile, setUserProfile] = useState(null);
+    
+    // Check if user is logged in when component mounts
+    useEffect(() => {
+      // Check for token in localStorage
+      const token = localStorage.getItem("authToken");
+      if (token) {
+        // You could validate the token here or make an API call
+        // to get the current user's profile
+        setIsLoggedIn(true);
+        
+        // For demo purposes, we'll set a mock user profile
+        // In a real app, you would fetch this from your API
+        setUserProfile({
+          name: "Maria Rodriguez",
+          avatar: "/avatar1.jpg",
+        });
+      }
+    }, []);
 
     const specialists = [
         {
@@ -34,8 +54,7 @@ const Landing = () => {
         },
       ];
     
-    
-      const reviews = [
+    const reviews = [
         {
           user: {
             name: "Sarah Thompson",
@@ -55,9 +74,10 @@ const Landing = () => {
           text: "Great experience from start to finish. My stylist understood exactly what I wanted and delivered beyond expectations.",
         },
       ];
+      
   return (
     <div className="min-h-screen bg-gray-50">
-       <Navbar isLoggedIn={false} />
+       <Navbar isLoggedIn={isLoggedIn} userProfile={userProfile} />
     
        <div className="flex flex-col items-center justify-center px-4 py-20 bg-gradient-to-r from-blue-500 to-purple-600 text-white">
         <h1 className="text-4xl md:text-6xl font-bold text-center font-montserrat mb-4">
@@ -82,6 +102,7 @@ const Landing = () => {
           </div>
         </div>
       </div>
+    
     <section className="py-20 px-4 bg-gray-50">
       <div className="max-w-6xl mx-auto">
         <h2 className="text-3xl font-playfair text-center mb-12">
@@ -144,22 +165,24 @@ const Landing = () => {
       </div>
     </section>
 
-    <section className="py-20 px-4 bg-blue-600 text-white">
-      <div className="max-w-4xl mx-auto text-center">
-        <h2 className="text-3xl font-playfair mb-6">
-          Are You a Hair Specialist?
-        </h2>
-        <p className="text-xl mb-8">
-          Join our platform and grow your business
-        </p>
-        <a
-          href="/sign-up"
-          className="inline-block bg-white text-blue-600 px-8 py-4 rounded-lg hover:bg-blue-50 transition-colors"
-        >
-          Join as a Specialist
-        </a>
-      </div>
-    </section>
+    {!isLoggedIn && (
+      <section className="py-20 px-4 bg-blue-600 text-white">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl font-playfair mb-6">
+            Are You a Hair Specialist?
+          </h2>
+          <p className="text-xl mb-8">
+            Join our platform and grow your business
+          </p>
+          <a
+            href="/sign-up"
+            className="inline-block bg-white text-blue-600 px-8 py-4 rounded-lg hover:bg-blue-50 transition-colors"
+          >
+            Join as a Specialist
+          </a>
+        </div>
+      </section>
+    )}
 
     <section className="py-20 px-4">
       <div className="max-w-xl mx-auto text-center">
