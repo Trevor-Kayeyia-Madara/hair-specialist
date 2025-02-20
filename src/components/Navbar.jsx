@@ -41,14 +41,10 @@ const Navbar = ({ isLoggedIn, userProfile }) => {
             ) : (
               <div className="relative">
                 <div className="flex items-center space-x-2">
-                  <Link to="/dashboard" className="flex items-center space-x-2 text-white">
-                    <img 
-                      src={userProfile?.avatar || "/assets/images/avatar.png"} 
-                      alt="Profile" 
-                      className="w-8 h-8 rounded-full" 
-                    />
-                    <span>{userProfile?.name || "Dashboard"}</span>
-                  </Link>
+                 <Link to="/profile" className="text-white hover:text-blue-100 transition-colors">
+                 <Link to="/dashboard" className="text-white hover:text-blue-100 transition-colors">
+                      Dashboard
+                  </Link></Link>
                   <button 
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)} 
                     className="text-white focus:outline-none ml-2"
