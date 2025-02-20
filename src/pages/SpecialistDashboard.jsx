@@ -1,8 +1,33 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import {  useParams } from "react-router-dom";
+import axios from "axios";
 
 const SpecialistDashboard = () => {
   const [selectedTab, setSelectedTab] = useState("profile");
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const { id } = useParams(); // Get specialist ID from URL
+
+  useEffect(() => {
+    if (selectedTab === "profile") {
+      fetchProfile();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedTab]);
+
+  const fetchProfile = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`https://backend-es6y.onrender.com/specialists/${id}`);
+      setProfile(response.data);
+      setError(null);
+    } catch  {
+      setError("Failed to fetch profile data.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -11,9 +36,9 @@ const SpecialistDashboard = () => {
         <h2 className="text-2xl font-bold mb-6">Dashboard</h2>
         <ul>
           <li>
-          <Link to="/specialist-profile" className="block w-full text-left p-2 rounded hover:bg-gray-200">
+            <button onClick={() => setSelectedTab("profile")} className="block w-full text-left p-2 rounded hover:bg-gray-200">
               Profile
-            </Link>
+            </button>
           </li>
           <li>
             <button onClick={() => setSelectedTab("appointments")} className="block w-full text-left p-2 rounded hover:bg-gray-200">
@@ -33,7 +58,21 @@ const SpecialistDashboard = () => {
         {selectedTab === "profile" && (
           <div className="bg-white p-6 rounded shadow-md">
             <h2 className="text-xl font-bold mb-4">Profile</h2>
-            <p>No user data available.</p>
+            {loading ? (
+              <p>Loading...</p>
+            ) : error ? (
+              <p className="text-red-500">{error}</p>
+            ) : profile ? (
+              <div>
+                <p><strong>Name:</strong> {profile.users?.full_name}</p>
+                <p><strong>Email:</strong> {profile.users?.email}</p>
+                <p><strong>Speciality:</strong> {profile.speciality}</p>
+                <p><strong>Service Rates:</strong> {profile.service_rates}</p>
+                <p><strong>Joined:</strong> {new Date(profile.created_at).toLocaleDateString()}</p>
+              </div>
+            ) : (
+              <p>No user data available.</p>
+            )}
           </div>
         )}
 
