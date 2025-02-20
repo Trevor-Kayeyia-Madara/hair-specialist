@@ -30,7 +30,7 @@ const Login = () => {
   
       // Redirect user
       if (result.userType === "customer") {
-        navigate("/dashboard");
+        navigate("/");
       } else {
         navigate("/specialist-dashboard");
       }
