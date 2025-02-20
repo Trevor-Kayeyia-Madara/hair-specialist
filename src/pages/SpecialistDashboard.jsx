@@ -71,8 +71,15 @@ const SpecialistDashboard = () => {
             Specialist Dashboard
           </h1>
           <div className="flex items-center space-x-4">
-            <span className="text-gray-600">Welcome, Sarah</span>
-            <i className="fas fa-user-circle text-2xl text-gray-600"></i>
+          {loading ? (
+        <p>Loading...</p>
+      ) : user ? (
+        <span className="text-gray-600">Welcome, {user.full_name}!</span>
+       
+      ) : (
+        <p>Failed to fetch user data.</p>
+      )}
+       <i className="fas fa-user-circle text-2xl text-gray-600"></i>
           </div>
         </div>
       </div>
