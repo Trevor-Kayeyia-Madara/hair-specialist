@@ -298,7 +298,7 @@ const UserDashboard = () => {
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-2xl font-bold mb-2">
-                Welcome back, {currentUser.name}!
+                Welcome back,  {currentUser?.name}!
               </h1>
               <button 
                         onClick={handleLogout} 

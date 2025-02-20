@@ -1,10 +1,6 @@
 import { useState } from "react";
-import { createClient } from "@supabase/supabase-js";
+import axios from "axios";
 import bcrypt from "bcryptjs";
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const SignUp = () => {
   const [userType, setUserType] = useState("customer");
@@ -31,25 +27,23 @@ const SignUp = () => {
     setLoading(true);
 
     try {
-      // Hash password using bcrypt
+      // Hash the password before sending it to the backend
       const hashedPassword = await bcrypt.hash(formData.password, 10);
-      
-      // Store user data in the database
-      const { error: insertError } = await supabase.from("users").insert([
-        {
-          full_name: formData.full_name,
-          email: formData.email,
-          password: hashedPassword, // Store hashed password
-          userType,
-        },
-      ]);
 
-      if (insertError) throw insertError;
+      // Send user data to the backend API
+      const response = await axios.post("https://backend-es6y.onrender.com/api/signup", {
+        full_name: formData.full_name,
+        email: formData.email,
+        password: hashedPassword,
+        userType,
+      });
 
       // Redirect based on user type
-      window.location.href = userType === "customer" ? "/dashboard" : "/specialist-dashboard";
+      if (response.data.success) {
+        window.location.href = userType === "customer" ? "/dashboard" : "/specialist-dashboard";
+      }
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || "An error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
