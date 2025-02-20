@@ -59,12 +59,12 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn, userProfile }) => {
                 </Link>
 
                 {/* Logout Button - Use button instead of Link */}
-                <button
+                <Link
                   onClick={handleLogout}
-                  className="text-white bg-red-500 hover:bg-red-400 px-4 py-2 rounded-lg transition-colors"
+                  className="text-white hover:text-blue-100 transition-colors"
                 >
                   Logout
-                </button>
+                </Link>
               </div>
             )}
           </div>
