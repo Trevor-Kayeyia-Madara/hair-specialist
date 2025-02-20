@@ -4,7 +4,6 @@ import PropTypes from "prop-types";
 
 const Navbar = ({ isLoggedIn, setIsLoggedIn, userProfile }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -57,32 +56,19 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn, userProfile }) => {
                   <Link to="/dashboard" className="text-white hover:text-blue-100 transition-colors">
                     Dashboard
                   </Link>
-                  <button 
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)} 
-                    className="text-white focus:outline-none ml-2"
-                    aria-expanded={isDropdownOpen}
-                    aria-label="User menu"
-                  >
-                    <i className="fas fa-chevron-down"></i>
-                  </button>
-                </div>
+                              <Link 
+              to="#" 
+              className="block px-4 py-2 text-gray-700 hover:bg-blue-50"
+              onClick={() => {
+                localStorage.removeItem("token"); // Clear session (adjust this to match your auth storage method)
+                sessionStorage.removeItem("user"); // Remove user session
+                window.location.href = "/login"; // Redirect to login page
+              }}
+            >
+              Logout
+            </Link>
 
-                {isDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-10">
-                    <Link to="/profile" className="block px-4 py-2 text-gray-700 hover:bg-blue-50">
-                      Profile
-                    </Link>
-                    <Link to="/settings" className="block px-4 py-2 text-gray-700 hover:bg-blue-50">
-                      Settings
-                    </Link>
-                    <button
-                      onClick={handleLogout}
-                      className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-blue-50"
-                    >
-                      Logout
-                    </button>
-                  </div>
-                )}
+                </div>
               </div>
             )}
           </div>
