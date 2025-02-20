@@ -106,13 +106,13 @@ const UserDashboard = () => {
         <>
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-bold">Dashboard</h2>
-            {sessionActive && (
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-              >
-                Logout
-              </button>
+                        {currentUser && (
+                            <button
+                              onClick={handleLogout}
+                              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                            >
+                              Logout
+                            </button>
             )}
           </div>
           <div className="flex gap-4">
