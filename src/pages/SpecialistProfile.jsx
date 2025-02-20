@@ -11,6 +11,7 @@ const SpecialistProfile = () => {
   const [selectedSlot, setSelectedSlot] = useState(null);
 
   useEffect(() => {
+    console.log("Fetching specialist with ID:", id); // Debugging
     const fetchSpecialist = async () => {
       try {
         const response = await fetch(`https://backend-es6y.onrender.com/specialists/${id}`);
