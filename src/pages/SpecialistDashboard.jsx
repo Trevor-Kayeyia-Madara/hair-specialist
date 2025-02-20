@@ -1,8 +1,11 @@
 /* eslint-disable react/no-unescaped-entities */
 /* eslint-disable no-unused-vars */
-import {useState} from 'react'
+import {useState, useEffect} from 'react'
+import axios from "axios";
 
 const SpecialistDashboard = () => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
     const [selectedTab, setSelectedTab] = useState("services");
     const [services, setServices] = useState([
       { id: 1, name: "Hair Cut", duration: "30", price: "30" },
@@ -38,6 +41,27 @@ const SpecialistDashboard = () => {
         time: "11:45",
       },
     ]);
+    useEffect(() => {
+      const fetchUser = async () => {
+        try {
+          const token = localStorage.getItem("token"); // Assuming token is stored after login
+          if (!token) throw new Error("No authentication token found");
+  
+          const response = await axios.get("https://backend-es6y.onrender.com/api/user", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+  
+          setUser(response.data); // Example: { full_name: "Gabriel Amani" }
+        } catch (error) {
+          console.error("Error fetching user:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      fetchUser();
+    }, []);
+  
   return (
     <div className="min-h-screen bg-gray-50">
     <nav className="bg-white shadow-lg">
