@@ -1,6 +1,6 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
-import avatar from "../../public/assets/images/avatar/png"
 
 const Navbar = ({ isLoggedIn, userProfile }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -11,40 +11,44 @@ const Navbar = ({ isLoggedIn, userProfile }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           <div className="flex-shrink-0">
-            <a href="/" className="font-playfair text-2xl text-white">
+            <Link to="/" className="font-playfair text-2xl text-white">
               Hair Specialist Finder
-            </a>
+            </Link>
           </div>
 
           <div className="hidden md:flex items-center space-x-8">
-            <a href="/" className="text-white hover:text-blue-100 transition-colors">
+            <Link to="/" className="text-white hover:text-blue-100 transition-colors">
               Home
-            </a>
-            <a href="/search" className="text-white hover:text-blue-100 transition-colors">
+            </Link>
+            <Link to="/search" className="text-white hover:text-blue-100 transition-colors">
               Search
-            </a>
-            <a href="/booking" className="text-white hover:text-blue-100 transition-colors">
+            </Link>
+            <Link to="/booking" className="text-white hover:text-blue-100 transition-colors">
               Appointments
-            </a>
+            </Link>
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
             {!isLoggedIn ? (
               <>
-                <a href="/login" className="text-white bg-blue-500 hover:bg-blue-400 px-4 py-2 rounded-lg transition-colors">
+                <Link to="/login" className="text-white bg-blue-500 hover:bg-blue-400 px-4 py-2 rounded-lg transition-colors">
                   Login
-                </a>
-                <a href="/sign-up" className="text-blue-600 bg-white hover:bg-blue-50 px-4 py-2 rounded-lg transition-colors">
+                </Link>
+                <Link to="/sign-up" className="text-blue-600 bg-white hover:bg-blue-50 px-4 py-2 rounded-lg transition-colors">
                   Sign Up
-                </a>
+                </Link>
               </>
             ) : (
               <div className="relative">
                 <div className="flex items-center space-x-2">
-                  <a href="/dashboard" className="flex items-center space-x-2 text-white">
-                    <img src={userProfile?.avatar || avatar} alt="Profile" className="w-8 h-8 rounded-full" />
+                  <Link to="/dashboard" className="flex items-center space-x-2 text-white">
+                    <img 
+                      src={userProfile?.avatar || "/assets/images/avatar.png"} 
+                      alt="Profile" 
+                      className="w-8 h-8 rounded-full" 
+                    />
                     <span>{userProfile?.name || "Dashboard"}</span>
-                  </a>
+                  </Link>
                   <button 
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)} 
                     className="text-white focus:outline-none ml-2"
@@ -57,15 +61,15 @@ const Navbar = ({ isLoggedIn, userProfile }) => {
 
                 {isDropdownOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-10">
-                    <a href="/profile" className="block px-4 py-2 text-gray-700 hover:bg-blue-50">
+                    <Link to="/profile" className="block px-4 py-2 text-gray-700 hover:bg-blue-50">
                       Profile
-                    </a>
-                    <a href="/settings" className="block px-4 py-2 text-gray-700 hover:bg-blue-50">
+                    </Link>
+                    <Link to="/settings" className="block px-4 py-2 text-gray-700 hover:bg-blue-50">
                       Settings
-                    </a>
-                    <a href="/logout" className="block px-4 py-2 text-gray-700 hover:bg-blue-50">
+                    </Link>
+                    <Link to="/logout" className="block px-4 py-2 text-gray-700 hover:bg-blue-50">
                       Logout
-                    </a>
+                    </Link>
                   </div>
                 )}
               </div>
@@ -84,39 +88,43 @@ const Navbar = ({ isLoggedIn, userProfile }) => {
 
         {isOpen && (
           <div className="md:hidden pb-4">
-            <a href="/" className="block text-white py-2">
+            <Link to="/" className="block text-white py-2">
               Home
-            </a>
-            <a href="/search" className="block text-white py-2">
+            </Link>
+            <Link to="/search" className="block text-white py-2">
               Search
-            </a>
-            <a href="/booking" className="block text-white py-2">
+            </Link>
+            <Link to="/booking" className="block text-white py-2">
               Appointments
-            </a>
+            </Link>
             {!isLoggedIn ? (
               <div className="mt-4 space-y-2">
-                <a href="/login" className="block text-center text-white bg-blue-500 hover:bg-blue-400 px-4 py-2 rounded-lg">
+                <Link to="/login" className="block text-center text-white bg-blue-500 hover:bg-blue-400 px-4 py-2 rounded-lg">
                   Login
-                </a>
-                <a href="/sign-up" className="block text-center text-blue-600 bg-white hover:bg-blue-50 px-4 py-2 rounded-lg">
+                </Link>
+                <Link to="/sign-up" className="block text-center text-blue-600 bg-white hover:bg-blue-50 px-4 py-2 rounded-lg">
                   Sign Up
-                </a>
+                </Link>
               </div>
             ) : (
               <div className="mt-4 space-y-2">
-                <a href="/user-dashboard" className="text-white py-2 flex items-center space-x-2">
-                  <img src={userProfile?.avatar || "/default-avatar.jpg"} alt="Profile" className="w-8 h-8 rounded-full" />
+                <Link to="/dashboard" className="text-white py-2 flex items-center space-x-2">
+                  <img 
+                    src={userProfile?.avatar || "/assets/images/avatar.png"} 
+                    alt="Profile" 
+                    className="w-8 h-8 rounded-full" 
+                  />
                   <span>{userProfile?.name || "Dashboard"}</span>
-                </a>
-                <a href="/profile" className="block text-white py-2">
+                </Link>
+                <Link to="/profile" className="block text-white py-2">
                   Profile
-                </a>
-                <a href="/settings" className="block text-white py-2">
+                </Link>
+                <Link to="/settings" className="block text-white py-2">
                   Settings
-                </a>
-                <a href="/logout" className="block text-white py-2">
+                </Link>
+                <Link to="/logout" className="block text-white py-2">
                   Logout
-                </a>
+                </Link>
               </div>
             )}
           </div>
@@ -138,7 +146,7 @@ Navbar.propTypes = {
 // Default props
 Navbar.defaultProps = {
   userProfile: {
-    avatar: "/default-avatar.jpg",
+    avatar: "/assets/images/avatar.png",
     name: "User"
   }
 };
