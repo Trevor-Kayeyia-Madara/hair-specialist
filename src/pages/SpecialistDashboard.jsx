@@ -76,9 +76,9 @@ const SpecialistDashboard = () => {
               {loading ? (
                 <p>Loading...</p>
               ) : user ? (
-                <Link to="/specialist/:id" className="text-gray-600">
-                  View Profile
-                </Link>
+                <Link to={`/specialists/${user.id}`} className="text-gray-600">
+                View Profile
+              </Link>              
               ) : (
                 <p>Failed to fetch user data.</p>
               )}
