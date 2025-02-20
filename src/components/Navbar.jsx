@@ -1,5 +1,5 @@
 import { useState } from "react";
-import PropTypes from "prop-types"; // ✅ Import PropTypes
+import PropTypes from "prop-types";
 
 const Navbar = ({ isLoggedIn, userProfile }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -39,10 +39,18 @@ const Navbar = ({ isLoggedIn, userProfile }) => {
               </>
             ) : (
               <div className="relative">
-                <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="flex items-center space-x-2 text-white focus:outline-none">
-                  <img src={userProfile?.avatar || "/default-avatar.jpg"} alt="Profile" className="w-8 h-8 rounded-full" />
-                  <i className="fas fa-chevron-down"></i>
-                </button>
+                <div className="flex items-center space-x-2">
+                  <a href="/user-dashboard" className="flex items-center space-x-2 text-white">
+                    <img src={userProfile?.avatar || "/default-avatar.jpg"} alt="Profile" className="w-8 h-8 rounded-full" />
+                    <span>User Dashboard</span>
+                  </a>
+                  <button 
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)} 
+                    className="text-white focus:outline-none ml-2"
+                  >
+                    <i className="fas fa-chevron-down"></i>
+                  </button>
+                </div>
 
                 {isDropdownOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2">
@@ -82,12 +90,16 @@ const Navbar = ({ isLoggedIn, userProfile }) => {
                 <a href="/login" className="block text-center text-white bg-blue-500 hover:bg-blue-400 px-4 py-2 rounded-lg">
                   Login
                 </a>
-                <a href="/signup" className="block text-center text-blue-600 bg-white hover:bg-blue-50 px-4 py-2 rounded-lg">
+                <a href="/sign-up" className="block text-center text-blue-600 bg-white hover:bg-blue-50 px-4 py-2 rounded-lg">
                   Sign Up
                 </a>
               </div>
             ) : (
               <div className="mt-4 space-y-2">
+                <a href="/user-dashboard" className="text-white py-2 flex items-center space-x-2">
+                  <img src={userProfile?.avatar || "/default-avatar.jpg"} alt="Profile" className="w-8 h-8 rounded-full" />
+                  <span>User Dashboard</span>
+                </a>
                 <a href="/profile" className="block text-white py-2">
                   Profile
                 </a>
@@ -106,11 +118,11 @@ const Navbar = ({ isLoggedIn, userProfile }) => {
   );
 };
 
-// ✅ Add PropTypes validation
+// PropTypes validation
 Navbar.propTypes = {
-  isLoggedIn: PropTypes.bool.isRequired, // Ensures isLoggedIn is a required boolean
+  isLoggedIn: PropTypes.bool.isRequired,
   userProfile: PropTypes.shape({
-    avatar: PropTypes.string, // Ensures userProfile.avatar is a string
+    avatar: PropTypes.string,
   }),
 };
 
