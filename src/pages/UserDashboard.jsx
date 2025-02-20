@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
 import ChatWindow from "../components/ChatWindow";
 
 const UserDashboard = () => {
@@ -6,12 +7,14 @@ const UserDashboard = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error] = useState(null);
-  const [sessionActive, setSessionActive] = useState(false); // New state for session tracking
+  const [sessionActive, setSessionActive] = useState(false);
+
+  const navigate = useNavigate(); // Hook for navigation
 
   useEffect(() => {
-    // Simulate fetching user session data (Replace with actual API call)
+    // Simulate fetching user session data
     setTimeout(() => {
-      const sessionData = JSON.parse(localStorage.getItem("userSession")); // Example storage check
+      const sessionData = JSON.parse(localStorage.getItem("userSession"));
 
       if (sessionData) {
         setCurrentUser(sessionData);
@@ -23,7 +26,15 @@ const UserDashboard = () => {
     }, 1000);
   }, []);
 
-  const [upcomingAppointments] = useState([
+  // Logout function
+  const handleLogout = () => {
+    localStorage.removeItem("userSession"); // Remove session from storage
+    setCurrentUser(null);
+    setSessionActive(false);
+    navigate("/login"); // Redirect to login page
+  };
+
+  const upcomingAppointments = [
     {
       id: 1,
       date: "2025-02-15T10:00:00",
@@ -36,7 +47,7 @@ const UserDashboard = () => {
       specialist: { name: "Mike Wilson", avatar: "/specialist2.jpg" },
       service: "Haircut & Style",
     },
-  ]);
+  ];
 
   const tabContent = {
     upcoming: (
@@ -71,7 +82,7 @@ const UserDashboard = () => {
         ))}
       </div>
     ),
-    messages: sessionActive ? ( // Show chat only if session is active
+    messages: sessionActive ? (
       <div className="flex gap-4">
         <div className="w-1/3 bg-white rounded-lg shadow-md p-4">
           <h3 className="font-semibold mb-4">Your Specialists</h3>
@@ -93,16 +104,30 @@ const UserDashboard = () => {
         <p className="text-red-500">{error}</p>
       ) : (
         <>
-          <h2 className="text-xl font-bold mb-4">Dashboard</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold">Dashboard</h2>
+            {sessionActive && (
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+              >
+                Logout
+              </button>
+            )}
+          </div>
           <div className="flex gap-4">
             <button
-              className={`px-4 py-2 ${activeTab === "upcoming" ? "bg-blue-600 text-white" : "bg-gray-200"} rounded-lg`}
+              className={`px-4 py-2 ${
+                activeTab === "upcoming" ? "bg-blue-600 text-white" : "bg-gray-200"
+              } rounded-lg`}
               onClick={() => setActiveTab("upcoming")}
             >
               Upcoming Appointments
             </button>
             <button
-              className={`px-4 py-2 ${activeTab === "messages" ? "bg-blue-600 text-white" : "bg-gray-200"} rounded-lg`}
+              className={`px-4 py-2 ${
+                activeTab === "messages" ? "bg-blue-600 text-white" : "bg-gray-200"
+              } rounded-lg`}
               onClick={() => setActiveTab("messages")}
             >
               Messages
