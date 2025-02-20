@@ -1,5 +1,6 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
+import avatar from "../../public/assets/images/avatar/png"
 
 const Navbar = ({ isLoggedIn, userProfile }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -41,7 +42,7 @@ const Navbar = ({ isLoggedIn, userProfile }) => {
               <div className="relative">
                 <div className="flex items-center space-x-2">
                   <a href="/dashboard" className="flex items-center space-x-2 text-white">
-                    <img src={userProfile?.avatar || "/default-avatar.jpg"} alt="Profile" className="w-8 h-8 rounded-full" />
+                    <img src={userProfile?.avatar || avatar} alt="Profile" className="w-8 h-8 rounded-full" />
                     <span>{userProfile?.name || "Dashboard"}</span>
                   </a>
                   <button 
