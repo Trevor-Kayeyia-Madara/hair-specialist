@@ -7,9 +7,9 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn, userProfile }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // Remove session data (modify based on your authentication method)
-    localStorage.removeItem("authToken"); // If using localStorage
-    sessionStorage.removeItem("authToken"); // If using sessionStorage
+    // Ensure you remove the correct auth token
+    localStorage.removeItem("authToken"); // Remove auth token from localStorage
+    sessionStorage.removeItem("authToken"); // Remove auth token from sessionStorage
 
     // Update authentication state
     setIsLoggedIn(false);
@@ -28,6 +28,7 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn, userProfile }) => {
             </Link>
           </div>
 
+          {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-8">
             <Link to="/" className="text-white hover:text-blue-100 transition-colors">
               Home
@@ -40,6 +41,7 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn, userProfile }) => {
             </Link>
           </div>
 
+          {/* Auth Section */}
           <div className="hidden md:flex items-center space-x-4">
             {!isLoggedIn ? (
               <>
@@ -51,28 +53,23 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn, userProfile }) => {
                 </Link>
               </>
             ) : (
-              <div className="relative">
-                <div className="flex items-center space-x-2">
-                  <Link to="/dashboard" className="text-white hover:text-blue-100 transition-colors">
-                    Dashboard
-                  </Link>
-                              <Link 
-              to="#" 
-              className="block px-4 py-2 text-gray-700 hover:bg-blue-50"
-              onClick={() => {
-                localStorage.removeItem("token"); // Clear session (adjust this to match your auth storage method)
-                sessionStorage.removeItem("user"); // Remove user session
-                window.location.href = "/login"; // Redirect to login page
-              }}
-            >
-              Logout
-            </Link>
+              <div className="relative flex items-center space-x-4">
+                <Link to="/dashboard" className="text-white hover:text-blue-100 transition-colors">
+                  Dashboard
+                </Link>
 
-                </div>
+                {/* Logout Button - Use button instead of Link */}
+                <button
+                  onClick={handleLogout}
+                  className="text-white bg-red-500 hover:bg-red-400 px-4 py-2 rounded-lg transition-colors"
+                >
+                  Logout
+                </button>
               </div>
             )}
           </div>
 
+          {/* Mobile Menu Toggle */}
           <button 
             onClick={() => setIsOpen(!isOpen)} 
             className="md:hidden text-white focus:outline-none"
@@ -83,6 +80,7 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn, userProfile }) => {
           </button>
         </div>
 
+        {/* Mobile Menu */}
         {isOpen && (
           <div className="md:hidden pb-4">
             <Link to="/" className="block text-white py-2">
@@ -119,9 +117,11 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn, userProfile }) => {
                 <Link to="/settings" className="block text-white py-2">
                   Settings
                 </Link>
+
+                {/* Logout Button for Mobile */}
                 <button
                   onClick={handleLogout}
-                  className="block w-full text-left text-white py-2"
+                  className="block w-full text-left text-white py-2 bg-red-500 hover:bg-red-400 rounded-lg"
                 >
                   Logout
                 </button>
