@@ -26,15 +26,20 @@ const Login = () => {
   
       const result = await response.json();
   
-      if (!response.ok) throw new Error(result.message);
-  
+      if (!response.ok) throw new Error(result.message || "Login failed");
+
       // Redirect user
-      if (result.userType === "customer") {
-        navigate("/");
+      if (result.userType) {
+        if (result.userType === "customer") {
+          navigate("/");
+        } else {
+          navigate("/specialist-dashboard");
+        }
       } else {
-        navigate("/specialist-dashboard");
+        throw new Error("User  type not found");
       }
     } catch (err) {
+      console.error(err); // Log the error for debugging
       setError(err.message);
     } finally {
       setLoading(false);
