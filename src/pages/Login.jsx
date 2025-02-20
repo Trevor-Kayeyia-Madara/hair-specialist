@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -79,6 +80,7 @@ const Login = () => {
           >
             {loading ? "Signing in..." : "Sign In"}
           </button>
+          Not having an account? <Link to="/sign-up">Sign up</Link>
         </form>
       </div>
     </div>
