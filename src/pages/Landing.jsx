@@ -7,6 +7,7 @@ const Landing = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [loggedIn, setLoggedIn] = useState(false);
     const [userProfile, setUserProfile] = useState(null);
+    const [specialists, setSpecialists] = useState([]);
 
     useEffect(() => {
         const checkSession = async () => {
@@ -26,7 +27,7 @@ const Landing = () => {
                 if (response.ok) {
                     setLoggedIn(true);
                     const data = await response.json();
-                    setUserProfile(data.user); // Fetch user profile when logged in
+                    setUserProfile(data.user);
                 } else {
                     setLoggedIn(false);
                     setUserProfile(null);
@@ -42,32 +43,23 @@ const Landing = () => {
         checkSession();
     }, []);
 
-    const specialists = [
-        {
-            name: "Sarah Johnson",
-            title: "Hair Color Specialist",
-            image: "/specialist1.jpg",
-            rating: 5,
-            specialties: ["Balayage", "Color Correction", "Highlights"],
-            location: "New York, NY",
-        },
-        {
-            name: "Emily Chen",
-            title: "Styling Expert",
-            image: "/specialist2.jpg",
-            rating: 4,
-            specialties: ["Bridal", "Updos", "Cutting"],
-            location: "Los Angeles, CA",
-        },
-        {
-            name: "Rachel Martinez",
-            title: "Texture Specialist",
-            image: "/specialist3.jpg",
-            rating: 5,
-            specialties: ["Curly Hair", "Extensions", "Natural Hair"],
-            location: "Miami, FL",
-        },
-    ];
+    useEffect(() => {
+        const fetchSpecialists = async () => {
+            try {
+                const response = await fetch("https://backend-es6y.onrender.com/api/specialists");
+                if (response.ok) {
+                    const data = await response.json();
+                    setSpecialists(data);
+                } else {
+                    console.error("Failed to fetch specialists");
+                }
+            } catch (error) {
+                console.error("Error fetching specialists:", error);
+            }
+        };
+
+        fetchSpecialists();
+    }, []);
 
     const reviews = [
         {
@@ -92,7 +84,6 @@ const Landing = () => {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            {/* Pass the correct prop name */}
             <Navbar isLoggedIn={loggedIn} userProfile={userProfile} />
 
             <div className="flex flex-col items-center justify-center px-4 py-20 bg-gradient-to-r from-blue-500 to-purple-600 text-white">
@@ -134,29 +125,9 @@ const Landing = () => {
                 <div className="max-w-6xl mx-auto">
                     <h2 className="text-3xl font-playfair text-center mb-16">How It Works</h2>
                     <div className="grid md:grid-cols-3 gap-12">
-                        {[
-                            {
-                                icon: "fa-search",
-                                title: "Search",
-                                description: "Find the perfect specialist based on your preferences",
-                            },
-                            {
-                                icon: "fa-calendar",
-                                title: "Book",
-                                description: "Schedule your appointment at your preferred time",
-                            },
-                            {
-                                icon: "fa-star",
-                                title: "Enjoy",
-                                description: "Get amazing results and share your experience",
-                            },
-                        ].map((step, index) => (
+                        {["Search", "Book", "Enjoy"].map((step, index) => (
                             <div key={index} className="text-center">
-                                <div className="w-16 h-16 mx-auto mb-6 bg-blue-100 rounded-full flex items-center justify-center">
-                                    <i className={`fas ${step.icon} text-2xl text-blue-600`}></i>
-                                </div>
-                                <h3 className="text-xl font-semibold mb-4">{step.title}</h3>
-                                <p className="text-gray-600">{step.description}</p>
+                                <h3 className="text-xl font-semibold mb-4">{step}</h3>
                             </div>
                         ))}
                     </div>
