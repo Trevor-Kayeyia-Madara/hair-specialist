@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import bcrypt from "bcryptjs";
 
 const SignUp = () => {
+  const navigate = useNavigate();
   const [userType, setUserType] = useState("customer");
   const [formData, setFormData] = useState({
     full_name: "",
@@ -38,9 +40,9 @@ const SignUp = () => {
         userType,
       });
 
-      // Redirect based on user type
+      // Redirect to login page on successful signup
       if (response.data.success) {
-        window.location.href = userType === "customer" ? "/dashboard" : "/specialist-dashboard";
+        navigate("/login");
       }
     } catch (err) {
       setError(err.response?.data?.message || "An error occurred. Please try again.");
