@@ -40,7 +40,7 @@ const Navbar = ({ isLoggedIn, userProfile }) => {
             ) : (
               <div className="relative">
                 <div className="flex items-center space-x-2">
-                  <a href="/user-dashboard" className="flex items-center space-x-2 text-white">
+                  <a href="/dashboard" className="flex items-center space-x-2 text-white">
                     <img src={userProfile?.avatar || "/default-avatar.jpg"} alt="Profile" className="w-8 h-8 rounded-full" />
                     <span>{userProfile?.name || "Dashboard"}</span>
                   </a>
