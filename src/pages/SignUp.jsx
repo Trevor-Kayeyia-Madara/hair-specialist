@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import bcrypt from "bcryptjs";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -29,32 +28,26 @@ const SignUp = () => {
     setLoading(true);
 
     try {
-        // Hash the password before sending it to the backend
-        const hashedPassword = await bcrypt.hash(formData.password, 10);
+      // Send user data to the backend API without hashing
+      const response = await axios.post("https://backend-es6y.onrender.com/api/signup", {
+        full_name: formData.full_name,
+        email: formData.email,
+        password: formData.password,
+        userType,
+      });
 
-        // Send user data to the backend API
-        const response = await axios.post("https://backend-es6y.onrender.com/api/signup", {
-            full_name: formData.full_name,  // Ensure full_name is sent
-            email: formData.email,
-            password: hashedPassword,
-            userType,
-        });
+      if (response.data.token) {
+        localStorage.setItem("token", response.data.token);
+      }
 
-        if (response.data.token) {
-            // Store the token if needed
-            localStorage.setItem("token", response.data.token);
-        }
-
-        // Redirect to login page on successful signup
-        navigate("/login");
-
+      navigate("/login");
     } catch (err) {
-        console.error("Signup Error:", err.response?.data || err);
-        setError(err.response?.data?.message || "An error occurred. Please try again.");
+      console.error("Signup Error:", err.response?.data || err);
+      setError(err.response?.data?.message || "An error occurred. Please try again.");
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-};
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
