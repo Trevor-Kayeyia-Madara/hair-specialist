@@ -41,7 +41,7 @@ const Login = () => {
       const timeoutId = setTimeout(() => controller.abort(), 30000);
 
       const url = resetMode
-        ? "https://backend-es6y.onrender.com/api/reset-password"
+        ? "https://backend-es6y.onrender.com/api/update-password"
         : "https://backend-es6y.onrender.com/api/login";
 
       const body = resetMode
