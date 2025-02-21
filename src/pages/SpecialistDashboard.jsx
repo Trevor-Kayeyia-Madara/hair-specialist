@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import {  useParams } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 
 const SpecialistDashboard = () => {
@@ -9,25 +9,25 @@ const SpecialistDashboard = () => {
   const [error, setError] = useState(null);
   const { id } = useParams(); // Get specialist ID from URL
 
-  useEffect(() => {
-    if (selectedTab === "profile") {
-      fetchProfile();
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedTab]);
-
-  const fetchProfile = async () => {
+  // Use useCallback to memoize fetchProfile
+  const fetchProfile = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`https://backend-es6y.onrender.com/specialists/${id}`);
+      const response = await axios.get(`https://backend-es6y.onrender.com/specialist_profile/${id}`);
       setProfile(response.data);
       setError(null);
-    } catch  {
+    } catch {
       setError("Failed to fetch profile data.");
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]); // Dependency on `id` to refetch if it changes
+
+  useEffect(() => {
+    if (selectedTab === "profile") {
+      fetchProfile();
+    }
+  }, [selectedTab, fetchProfile]); // Add fetchProfile to dependencies
 
   return (
     <div className="flex min-h-screen bg-gray-100">
