@@ -14,39 +14,42 @@ const Login = () => {
     if (error) setError("");
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-  
-    try {
-      const response = await fetch("https://backend-es6y.onrender.com/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: formData.email, password: formData.password }),
-      });
-  
-      const result = await response.json();
-  
-      if (!response.ok) throw new Error(result.message || "Login failed. Please try again.");
-  
-      if (result.token) {
-        localStorage.setItem("authToken", result.token);
+    // handle Submit
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      setError("");
+      setLoading(true);
+    
+      try {
+        const response = await fetch("https://backend-es6y.onrender.com/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: formData.email, password: formData.password }),
+        });
+    
+        const result = await response.json();
+    
+        if (!response.ok) throw new Error(result.message || "Login failed. Please try again.");
+    
+        if (result.token) {
+          localStorage.setItem("authToken", result.token);
+        }
+    
+        // Adjust how the ID is extracted based on API response structure
+        const specialistId = result.specialistId || result.user?.id || result.id; 
+    
+        if (result.userType === "specialist" && specialistId) {
+          navigate(`/specialist-dashboard/${specialistId}`); // Navigate with correct ID
+        } else {
+          navigate("/"); // Default for customers
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
       }
-  
-      // Ensure the API returns user ID
-      if (result.userType === "specialist" && result.id) {
-        navigate(`/specialist-dashboard/${result.id}`); // Navigate to the specialist dashboard with ID
-      } else {
-        navigate("/"); // Default navigation for customers
-      }
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-  
+    };
+    
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-6">
       <div className="max-w-md w-full bg-white p-6 rounded-lg shadow-md">
