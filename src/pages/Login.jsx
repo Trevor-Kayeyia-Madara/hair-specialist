@@ -34,13 +34,19 @@ const Login = () => {
         localStorage.setItem("authToken", result.token);
       }
 
-      navigate(result.userType === "customer" ? "/" : "/specialist-dashboard/${result.id}");
+      // Navigate to the specialist's dashboard with their ID
+      if (result.userType === "specialist") {
+        navigate(`/specialist-dashboard/${result.id}`);
+      } else {
+        navigate("/");
+      }
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-6">
