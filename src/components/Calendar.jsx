@@ -6,7 +6,7 @@ const Calendar = ({ availableDates, selectedDate, onDateSelect }) => {
       {availableDates.map((date, index) => (
         <button
           key={index}
-          className={`p-2 border ${selectedDate === date ? "bg-blue-500 text-white" : "bg-white"}`}
+          className={`p-2 border ${selectedDate && selectedDate.getTime() === date.getTime() ? "bg-blue-500 text-white" : "bg-white"}`}
           onClick={() => onDateSelect(date)}
         >
           {date.toDateString()}
