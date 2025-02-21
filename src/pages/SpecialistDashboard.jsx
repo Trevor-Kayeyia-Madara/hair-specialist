@@ -9,7 +9,7 @@ const SpecialistDashboard = () => {
   const [error, setError] = useState(null);
   const { id } = useParams(); // Get specialist ID from URL
 
-  // Use useCallback to memoize fetchProfile
+  // Fetch specialist profile
   const fetchProfile = useCallback(async () => {
     setLoading(true);
     try {
@@ -21,13 +21,13 @@ const SpecialistDashboard = () => {
     } finally {
       setLoading(false);
     }
-  }, [id]); // Dependency on `id` to refetch if it changes
+  }, [id]);
 
   useEffect(() => {
     if (selectedTab === "profile") {
       fetchProfile();
     }
-  }, [selectedTab, fetchProfile]); // Add fetchProfile to dependencies
+  }, [selectedTab, fetchProfile]);
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -35,59 +35,65 @@ const SpecialistDashboard = () => {
       <aside className="w-64 bg-white shadow-lg p-6">
         <h2 className="text-2xl font-bold mb-6">Dashboard</h2>
         <ul>
-          <li>
-            <button onClick={() => setSelectedTab("profile")} className="block w-full text-left p-2 rounded hover:bg-gray-200">
-              Profile
-            </button>
-          </li>
-          <li>
-            <button onClick={() => setSelectedTab("appointments")} className="block w-full text-left p-2 rounded hover:bg-gray-200">
-              Appointments
-            </button>
-          </li>
-          <li>
-            <button onClick={() => setSelectedTab("messages")} className="block w-full text-left p-2 rounded hover:bg-gray-200">
-              Messages
-            </button>
-          </li>
+          {["profile", "appointments", "messages"].map((tab) => (
+            <li key={tab}>
+              <button
+                onClick={() => setSelectedTab(tab)}
+                className={`block w-full text-left p-3 rounded-lg font-semibold ${
+                  selectedTab === tab ? "bg-blue-500 text-white" : "hover:bg-gray-200"
+                }`}
+              >
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              </button>
+            </li>
+          ))}
         </ul>
       </aside>
 
       {/* Main Content */}
       <main className="flex-1 p-6">
         {selectedTab === "profile" && (
-          <div className="bg-white p-6 rounded shadow-md">
-            <h2 className="text-xl font-bold mb-4">Profile</h2>
+          <div className="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md">
+            <h2 className="text-xl font-bold mb-4 text-center">Specialist Profile</h2>
             {loading ? (
-              <p>Loading...</p>
+              <p className="text-center">Loading...</p>
             ) : error ? (
-              <p className="text-red-500">{error}</p>
+              <p className="text-center text-red-500">{error}</p>
             ) : profile ? (
-              <div>
-                <p><strong>Name:</strong> {profile.full_name}</p>
-                <p><strong>Email:</strong> {profile.email}</p>
-                <p><strong>Speciality:</strong> {profile.speciality}</p>
-                <p><strong>Service Rates:</strong> {profile.service_rates}</p>
-                <p><strong>Location:</strong> {profile.location}</p>
-                <p><strong>Joined:</strong> {new Date(profile.user_created_at).toLocaleDateString()}</p>
-             </div>
+              <div className="flex flex-col items-center">
+                {/* Profile Image Placeholder */}
+                <div className="w-24 h-24 bg-gray-300 rounded-full mb-4 flex items-center justify-center">
+                  <span className="text-gray-700 text-lg">👤</span>
+                </div>
+
+                <h3 className="text-lg font-semibold">{profile.full_name}</h3>
+                <p className="text-gray-600">{profile.email}</p>
+
+                {/* Profile Details */}
+                <div className="mt-4 w-full border-t pt-4 text-sm text-gray-700">
+                  <p><strong>Speciality:</strong> {profile.speciality}</p>
+                  <p><strong>Service Rates:</strong> {profile.service_rates}</p>
+                  <p><strong>Location:</strong> {profile.location}</p>
+                  <p><strong>Joined:</strong> {new Date(profile.user_created_at).toLocaleDateString()}</p>
+                </div>
+              </div>
             ) : (
-              <p>No user data available.</p>
+              <p className="text-center">No user data available.</p>
             )}
           </div>
         )}
 
         {selectedTab === "appointments" && (
-          <div className="bg-white p-6 rounded shadow-md">
-            <h2 className="text-xl font-bold mb-4">Appointments</h2>
-            <p>No upcoming appointments.</p>
+          <div className="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md">
+            <h2 className="text-xl font-bold mb-4 text-center">Appointments</h2>
+            <p className="text-center">No upcoming appointments.</p>
           </div>
         )}
 
         {selectedTab === "messages" && (
-          <div className="bg-white p-6 rounded shadow-md">
-            <h2 className="text-xl font-bold mb-4">Messages</h2>
-            <p>No messages yet.</p>
+          <div className="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md">
+            <h2 className="text-xl font-bold mb-4 text-center">Messages</h2>
+            <p className="text-center">No messages yet.</p>
           </div>
         )}
       </main>
