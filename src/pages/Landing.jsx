@@ -86,21 +86,22 @@ const Landing = () => {
         <div className="min-h-screen bg-gray-50">
             <Navbar isLoggedIn={loggedIn} userProfile={userProfile} />
 
-            <div className="flex flex-col items-center justify-center px-4 py-20 bg-gradient-to-r from-blue-500 to-purple-600 text-white">
-                <h1 className="text-4xl md:text-6xl font-bold text-center font-montserrat mb-4">
+            {/* Hero Section */}
+            <div className="flex flex-col items-center justify-center px-4 py-12 md:py-20 bg-gradient-to-r from-blue-500 to-purple-600 text-white">
+                <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-center font-montserrat mb-4">
                     Find Your Perfect Hair Specialist
                 </h1>
-                <p className="text-xl md:text-2xl text-center font-roboto mb-8 text-blue-100">
+                <p className="text-lg md:text-xl lg:text-2xl text-center font-roboto mb-8 text-blue-100">
                     Book appointments with top hair specialists in your area
                 </p>
                 <div className="w-full max-w-2xl">
-                    <div className="flex bg-white rounded-lg shadow-lg p-2">
+                    <div className="flex flex-col md:flex-row bg-white rounded-lg shadow-lg p-2">
                         <input
                             type="text"
                             placeholder="Enter your location..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="flex-grow px-4 py-3 text-gray-700 focus:outline-none font-roboto"
+                            className="flex-grow px-4 py-3 text-gray-700 focus:outline-none font-roboto mb-2 md:mb-0"
                             name="location"
                         />
                         <button className="bg-blue-600 text-white px-8 py-3 rounded-md hover:bg-blue-700 transition-colors font-montserrat">
@@ -110,10 +111,11 @@ const Landing = () => {
                 </div>
             </div>
 
-            <section className="py-20 px-4 bg-gray-50">
+            {/* Featured Specialists Section */}
+            <section className="py-12 md:py-20 px-4 bg-gray-50">
                 <div className="max-w-6xl mx-auto">
-                    <h2 className="text-3xl font-playfair text-center mb-12">Featured Specialists</h2>
-                    <div className="flex flex-wrap justify-center gap-8">
+                    <h2 className="text-2xl md:text-3xl font-playfair text-center mb-8 md:mb-12">Featured Specialists</h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         {specialists.map((specialist, index) => (
                             <SpecialistCard key={index} specialist={specialist} />
                         ))}
@@ -121,10 +123,11 @@ const Landing = () => {
                 </div>
             </section>
 
-            <section className="py-20 px-4">
+            {/* How It Works Section */}
+            <section className="py-12 md:py-20 px-4">
                 <div className="max-w-6xl mx-auto">
-                    <h2 className="text-3xl font-playfair text-center mb-16">How It Works</h2>
-                    <div className="grid md:grid-cols-3 gap-12">
+                    <h2 className="text-2xl md:text-3xl font-playfair text-center mb-8 md:mb-16">How It Works</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         {["Search", "Book", "Enjoy"].map((step, index) => (
                             <div key={index} className="text-center">
                                 <h3 className="text-xl font-semibold mb-4">{step}</h3>
@@ -134,10 +137,11 @@ const Landing = () => {
                 </div>
             </section>
 
-            <section className="py-20 px-4 bg-gray-100">
+            {/* Customer Reviews Section */}
+            <section className="py-12 md:py-20 px-4 bg-gray-100">
                 <div className="max-w-6xl mx-auto">
-                    <h2 className="text-3xl font-playfair text-center mb-12">Customer Reviews</h2>
-                    <div className="flex flex-wrap justify-center gap-8">
+                    <h2 className="text-2xl md:text-3xl font-playfair text-center mb-8 md:mb-12">Customer Reviews</h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         {reviews.map((review, index) => (
                             <ReviewCard key={index} review={review} />
                         ))}
