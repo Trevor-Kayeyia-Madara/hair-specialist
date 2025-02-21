@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const SpecialistDashboard = () => {
@@ -8,6 +8,7 @@ const SpecialistDashboard = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { id } = useParams(); // Get specialist ID from URL
+  const navigate = useNavigate(); // Hook for navigation
 
   // Fetch specialist profile
   const fetchProfile = useCallback(async () => {
@@ -29,25 +30,39 @@ const SpecialistDashboard = () => {
     }
   }, [selectedTab, fetchProfile]);
 
+  const handleLogout = () => {
+    // Perform any logout logic (e.g., clearing tokens, session storage, etc.)
+    navigate("/login");
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar Navigation */}
-      <aside className="w-64 bg-white shadow-lg p-6">
-        <h2 className="text-2xl font-bold mb-6">Dashboard</h2>
-        <ul>
-          {["profile", "appointments", "messages"].map((tab) => (
-            <li key={tab}>
-              <button
-                onClick={() => setSelectedTab(tab)}
-                className={`block w-full text-left p-3 rounded-lg font-semibold ${
-                  selectedTab === tab ? "bg-blue-500 text-white" : "hover:bg-gray-200"
-                }`}
-              >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
-              </button>
-            </li>
-          ))}
-        </ul>
+      <aside className="w-64 bg-white shadow-lg p-6 flex flex-col justify-between h-screen">
+        <div>
+          <h2 className="text-2xl font-bold mb-6">Dashboard</h2>
+          <ul>
+            {["profile", "appointments", "messages"].map((tab) => (
+              <li key={tab}>
+                <button
+                  onClick={() => setSelectedTab(tab)}
+                  className={`block w-full text-left p-3 rounded-lg font-semibold ${
+                    selectedTab === tab ? "bg-blue-500 text-white" : "hover:bg-gray-200"
+                  }`}
+                >
+                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+        {/* Logout Button */}
+        <button
+          onClick={handleLogout}
+          className="w-full mt-4 p-3 bg-red-500 text-white rounded-lg hover:bg-red-600"
+        >
+          Log Out
+        </button>
       </aside>
 
       {/* Main Content */}
@@ -65,11 +80,8 @@ const SpecialistDashboard = () => {
                 <div className="w-24 h-24 bg-gray-300 rounded-full mb-4 flex items-center justify-center">
                   <span className="text-gray-700 text-lg">👤</span>
                 </div>
-
                 <h3 className="text-lg font-semibold">{profile.full_name}</h3>
                 <p className="text-gray-600">{profile.email}</p>
-
-                {/* Profile Details */}
                 <div className="mt-4 w-full border-t pt-4 text-sm text-gray-700">
                   <p><strong>Speciality:</strong> {profile.speciality}</p>
                   <p><strong>Service Rates:</strong> {profile.service_rates}</p>
@@ -82,14 +94,12 @@ const SpecialistDashboard = () => {
             )}
           </div>
         )}
-
         {selectedTab === "appointments" && (
           <div className="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-xl font-bold mb-4 text-center">Appointments</h2>
             <p className="text-center">No upcoming appointments.</p>
           </div>
         )}
-
         {selectedTab === "messages" && (
           <div className="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-xl font-bold mb-4 text-center">Messages</h2>
