@@ -14,41 +14,47 @@ const Login = () => {
     if (error) setError("");
   };
 
-    // handle Submit
-    const handleSubmit = async (e) => {
-      e.preventDefault();
-      setError("");
-      setLoading(true);
-    
-      try {
-        const response = await fetch("https://backend-es6y.onrender.com/api/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: formData.email, password: formData.password }),
-        });
-    
-        const result = await response.json();
-    
-        if (!response.ok) throw new Error(result.message || "Login failed. Please try again.");
-    
-        if (result.token) {
-          localStorage.setItem("authToken", result.token);
-        }
-    
-        // Adjust how the ID is extracted based on API response structure
-        const id = result.specialistId || result.user?.id || result.id; 
-    
-        if (result.userType === "specialist" && id) {
-          navigate(`/specialist-dashboard/${id}`); // Navigate with correct ID
-        } else {
-          navigate("/"); // Default for customers
-        }
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+  
+    try {
+      const response = await fetch("https://backend-es6y.onrender.com/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: formData.email, password: formData.password }),
+      });
+  
+      const result = await response.json();
+      console.log("Login Response:", result); // Debugging: check API response
+  
+      if (!response.ok) throw new Error(result.message || "Login failed. Please try again.");
+  
+      if (result.token) {
+        localStorage.setItem("authToken", result.token);
       }
-    };
+  
+      // Extract ID and userType
+      const userType = result.userType || result.user?.userType;
+      const id = result.specialistId || result.user?.id || result.id;
+  
+      console.log("Extracted userType:", userType); // Debugging userType
+      console.log("Extracted ID:", id); // Debugging ID
+  
+      if (userType === "specialist" && id) {
+        navigate(`/specialist-dashboard/${id}`); // Navigate with correct ID
+      } else {
+        navigate("/"); // Default for customers
+      }
+    } catch (err) {
+      console.error("Login Error:", err.message); // Log errors
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
     
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-6">
