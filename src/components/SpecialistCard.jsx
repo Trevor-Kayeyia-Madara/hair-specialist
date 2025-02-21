@@ -1,4 +1,5 @@
 import PropTypes from "prop-types";
+import { Link } from "react-router-dom";
 
 const SpecialistCard = ({ specialist }) => {
   const { id, full_name, speciality, service_rates, location, created_at } =
@@ -21,12 +22,12 @@ const SpecialistCard = ({ specialist }) => {
         </p>
       </div>
 
-      <a
-        href={`/booking/${id}`}
+      <Link
+        to={`/booking/${id}`}
         className="mt-4 block text-center bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition duration-300"
       >
         Book Now
-      </a>
+      </Link>
     </div>
   );
 };

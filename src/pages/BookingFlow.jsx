@@ -1,13 +1,30 @@
- 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import ServiceCard from "../components/ServiceCard";
 import Calendar from "../components/Calendar";
 
 const BookingFlow = () => {
+  const { id } = useParams();
+  const [specialist, setSpecialist] = useState(null);
   const [booking, setBooking] = useState({
     service: null,
     date: null,
   });
+
+  useEffect(() => {
+    // Fetch specialist details (Replace with actual API call)
+    const fetchSpecialist = async () => {
+      try {
+        const response = await fetch(`/api/specialists/${id}`);
+        const data = await response.json();
+        setSpecialist(data);
+      } catch (error) {
+        console.error("Error fetching specialist:", error);
+      }
+    };
+
+    fetchSpecialist();
+  }, [id]);
 
   const services = [
     {
@@ -39,9 +56,20 @@ const BookingFlow = () => {
     setBooking({ ...booking, date });
   };
 
+  if (!specialist) {
+    return <div className="text-center mt-10">Loading specialist details...</div>;
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 font-montserrat">
       <div className="max-w-4xl mx-auto space-y-12">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-8">
+            Booking for {specialist.full_name}
+          </h2>
+          <p className="text-lg text-gray-700">{specialist.speciality}</p>
+        </div>
+
         <div>
           <h2 className="text-2xl font-bold text-gray-900 mb-8">
             Select a Service
