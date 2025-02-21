@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -26,16 +25,19 @@ const Login = () => {
         body: JSON.stringify({ email: formData.email, password: formData.password }),
       });
 
-      const result = await response.json();
+      if (!response.ok) {
+        const errorResult = await response.json();
+        throw new Error(errorResult.message || "Login failed. Please try again.");
+      }
 
-      if (!response.ok) throw new Error(result.message || "Login failed. Please try again.");
+      const result = await response.json();
+      console.log("Login response:", result); // Debugging API response
 
       if (result.token) {
         localStorage.setItem("authToken", result.token);
       }
 
-      // Navigate to the specialist's dashboard with their ID
-      if (result.userType === "specialist") {
+      if (result.userType === "specialist" && result.id) {
         navigate(`/specialist-dashboard/${result.id}`);
       } else {
         navigate("/");
@@ -46,7 +48,6 @@ const Login = () => {
       setLoading(false);
     }
   };
-
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-6">
@@ -86,7 +87,10 @@ const Login = () => {
           >
             {loading ? "Signing in..." : "Sign In"}
           </button>
-          Not having an account? <Link to="/sign-up">Sign up</Link>
+
+          <p className="text-center mt-2">
+            Not having an account? <Link to="/sign-up" className="text-blue-600 hover:underline">Sign up</Link>
+          </p>
         </form>
       </div>
     </div>
