@@ -36,10 +36,10 @@ const Login = () => {
         }
     
         // Adjust how the ID is extracted based on API response structure
-        const specialistId = result.specialistId || result.user?.id || result.id; 
+        const id = result.specialistId || result.user?.id || result.id; 
     
-        if (result.userType === "specialist" && specialistId) {
-          navigate(`/specialist-dashboard/${specialistId}`); // Navigate with correct ID
+        if (result.userType === "specialist" && id) {
+          navigate(`/specialist-dashboard/${id}`); // Navigate with correct ID
         } else {
           navigate("/"); // Default for customers
         }
