@@ -13,7 +13,7 @@ const SpecialistDashboard = () => {
   const fetchProfile = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`https://backend-es6y.onrender.com/specialists/${id}`);
+      const response = await axios.get(`https://backend-es6y.onrender.com/api/specialists/${id}`);
       setProfile(response.data);
       setError(null);
     } catch {
