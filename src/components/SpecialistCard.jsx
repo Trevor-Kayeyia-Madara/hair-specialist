@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 const SpecialistCard = ({ specialist }) => {
   const {
     id,
+    full_name,
     speciality,
     service_rates,
     location,
@@ -11,6 +12,7 @@ const SpecialistCard = ({ specialist }) => {
 
   return (
     <div className="specialist-card">
+      <h2>{full_name}</h2>
       <h2>{speciality}</h2>
       <p><strong>Service Rates:</strong> {service_rates}</p>
       <p><strong>Location:</strong> {location}</p>
@@ -24,6 +26,7 @@ const SpecialistCard = ({ specialist }) => {
 SpecialistCard.propTypes = {
   specialist: PropTypes.shape({
     id: PropTypes.number.isRequired,
+    full_name: PropTypes.string.isRequired,
     speciality: PropTypes.string.isRequired,
     service_rates: PropTypes.string,
     location: PropTypes.string,
