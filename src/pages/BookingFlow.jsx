@@ -12,8 +12,7 @@ const BookingFlow = () => {
   });
 
   useEffect(() => {
-    // Fetch specialist details (Replace with actual API call)
-    const fetchSpecialist = async (id) => {
+    const fetchSpecialist = async () => { // Remove 'id' parameter here
       try {
         const response = await fetch(`https://backend-es6y.onrender.com/api/specialists/${id}`);
         
@@ -28,8 +27,13 @@ const BookingFlow = () => {
       }
     };
 
-    fetchSpecialist();
-  }, [id]);
+    if (id) { // Ensure ID is valid before fetching
+      fetchSpecialist();
+    } else {
+      console.error("No ID provided for fetching specialist");
+    }
+}, [id]);
+
 
   const services = [
     {
