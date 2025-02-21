@@ -14,7 +14,6 @@ const BookingFlow = () => {
     date: null,
   });
 
-  // Fetch booked dates from API
   useEffect(() => {
     const fetchBookedDates = async () => {
       try {
@@ -25,9 +24,10 @@ const BookingFlow = () => {
         console.error("Error fetching booked dates:", error);
       }
     };
-
+  
     fetchBookedDates();
   }, []);
+  
 
   useEffect(() => {
     const fetchSpecialist = async () => {
