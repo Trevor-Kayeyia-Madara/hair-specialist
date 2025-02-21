@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -25,23 +26,15 @@ const Login = () => {
         body: JSON.stringify({ email: formData.email, password: formData.password }),
       });
 
-      if (!response.ok) {
-        const errorResult = await response.json();
-        throw new Error(errorResult.message || "Login failed. Please try again.");
-      }
-
       const result = await response.json();
-      console.log("Login response:", result); // Debugging API response
+
+      if (!response.ok) throw new Error(result.message || "Login failed. Please try again.");
 
       if (result.token) {
         localStorage.setItem("authToken", result.token);
       }
 
-      if (result.userType === "specialist" && result.id) {
-        navigate(`/specialist-dashboard/${result.id}`);
-      } else {
-        navigate("/");
-      }
+      navigate(result.userType === "customer" ? "/" : "/specialist-dashboard");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -87,10 +80,7 @@ const Login = () => {
           >
             {loading ? "Signing in..." : "Sign In"}
           </button>
-
-          <p className="text-center mt-2">
-            Not having an account? <Link to="/sign-up" className="text-blue-600 hover:underline">Sign up</Link>
-          </p>
+          Not having an account? <Link to="/sign-up">Sign up</Link>
         </form>
       </div>
     </div>

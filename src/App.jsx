@@ -20,7 +20,7 @@ function App() {
           <Route path="/booking/:id" element={<BookingFlow />} />
           <Route path="/dashboard" element={<UserDashboard  />} />
           <Route path="/reviews" element={<Reviews  />} />
-          <Route path="/specialist-dashboard/:id" element={<SpecialistDashboard />} />
+          <Route path="/specialist-dashboard" element={<SpecialistDashboard />} />
           <Route path="/specialists/:id" element={<SpecialistProfile />} />
           <Route path="/payment" element={<Payment  />} />
         </Routes>

@@ -1,6 +1,5 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import {  useParams } from "react-router-dom";
 import axios from "axios";
 
 const SpecialistDashboard = () => {
@@ -8,31 +7,22 @@ const SpecialistDashboard = () => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
-
-  // Fetch session data (example: from local storage or context)
-  const userSession = JSON.parse(localStorage.getItem("user"));
+  const { id } = useParams(); // Get specialist ID from URL
 
   useEffect(() => {
-    if (!userSession || !userSession.token) {
-      navigate("/login"); // Redirect to login if not authenticated
-    } else if (selectedTab === "profile") {
-      fetchProfile(userSession.id);
+    if (selectedTab === "profile") {
+      fetchProfile();
     }
-  }, [selectedTab, userSession, navigate]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedTab]);
 
-  const fetchProfile = async (userId) => {
+  const fetchProfile = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(
-        `https://backend-es6y.onrender.com/api/specialists/${userId}`,
-        {
-          headers: { Authorization: `Bearer ${userSession.token}` },
-        }
-      );
+      const response = await axios.get(`https://backend-es6y.onrender.com/api/specialists/${id}`);
       setProfile(response.data);
       setError(null);
-    } catch {
+    } catch  {
       setError("Failed to fetch profile data.");
     } finally {
       setLoading(false);
@@ -46,26 +36,17 @@ const SpecialistDashboard = () => {
         <h2 className="text-2xl font-bold mb-6">Dashboard</h2>
         <ul>
           <li>
-            <button
-              onClick={() => setSelectedTab("profile")}
-              className="block w-full text-left p-2 rounded hover:bg-gray-200"
-            >
+            <button onClick={() => setSelectedTab("profile")} className="block w-full text-left p-2 rounded hover:bg-gray-200">
               Profile
             </button>
           </li>
           <li>
-            <button
-              onClick={() => setSelectedTab("appointments")}
-              className="block w-full text-left p-2 rounded hover:bg-gray-200"
-            >
+            <button onClick={() => setSelectedTab("appointments")} className="block w-full text-left p-2 rounded hover:bg-gray-200">
               Appointments
             </button>
           </li>
           <li>
-            <button
-              onClick={() => setSelectedTab("messages")}
-              className="block w-full text-left p-2 rounded hover:bg-gray-200"
-            >
+            <button onClick={() => setSelectedTab("messages")} className="block w-full text-left p-2 rounded hover:bg-gray-200">
               Messages
             </button>
           </li>
@@ -83,22 +64,11 @@ const SpecialistDashboard = () => {
               <p className="text-red-500">{error}</p>
             ) : profile ? (
               <div>
-                <p>
-                  <strong>Name:</strong> {profile.users?.full_name}
-                </p>
-                <p>
-                  <strong>Email:</strong> {profile.users?.email}
-                </p>
-                <p>
-                  <strong>Speciality:</strong> {profile.speciality}
-                </p>
-                <p>
-                  <strong>Service Rates:</strong> {profile.service_rates}
-                </p>
-                <p>
-                  <strong>Joined:</strong>{" "}
-                  {new Date(profile.created_at).toLocaleDateString()}
-                </p>
+                <p><strong>Name:</strong> {profile.users?.full_name}</p>
+                <p><strong>Email:</strong> {profile.users?.email}</p>
+                <p><strong>Speciality:</strong> {profile.speciality}</p>
+                <p><strong>Service Rates:</strong> {profile.service_rates}</p>
+                <p><strong>Joined:</strong> {new Date(profile.created_at).toLocaleDateString()}</p>
               </div>
             ) : (
               <p>No user data available.</p>
