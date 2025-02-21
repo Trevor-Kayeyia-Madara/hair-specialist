@@ -1,22 +1,21 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import axios from "axios";
 import ServiceCard from "../components/ServiceCard";
 import Calendar from "../components/Calendar";
-import axios from "axios";
 
 const BookingFlow = () => {
   const { id } = useParams();
   const [specialist, setSpecialist] = useState(null);
   const [services, setServices] = useState([]);
   const [availableDates, setAvailableDates] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(null);
   const [booking, setBooking] = useState({
     service: null,
     date: null,
   });
 
-   // Fetch booked dates from API
-   useEffect(() => {
+  // Fetch booked dates from API
+  useEffect(() => {
     const fetchBookedDates = async () => {
       try {
         const response = await axios.get("https://backend-es6y.onrender.com/api/booked-dates");
@@ -30,35 +29,11 @@ const BookingFlow = () => {
     fetchBookedDates();
   }, []);
 
-  // Handle date selection and make a booking
-  const handleDateSelect = async (date) => {
-    setSelectedDate(date);
-    
-    const appointmentData = {
-      customer_id: 1, // Replace with actual logged-in user ID
-      specialist_id: 2, // Replace with actual specialist ID
-      service_id: 3, // Replace with actual service ID
-      date: date.toISOString().split("T")[0], // Format as YYYY-MM-DD
-      time: "14:00:00", // Set a default time or let user select
-      status: "pending",
-    };
-
-    try {
-      const response = await axios.post("https://backend-es6y.onrender.com/api/appointments", appointmentData);
-      alert("Appointment booked successfully!");
-      console.log("Appointment:", response.data);
-    } catch (error) {
-      console.error("Error booking appointment:", error);
-      alert("Failed to book appointment.");
-    }
-  };
-
   useEffect(() => {
     const fetchSpecialist = async () => {
       try {
-        const response = await fetch(`https://backend-es6y.onrender.com/api/specialists/${id}`);
-        const data = await response.json();
-        setSpecialist(data);
+        const response = await axios.get(`https://backend-es6y.onrender.com/api/specialists/${id}`);
+        setSpecialist(response.data);
       } catch (error) {
         console.error("Error fetching specialist:", error);
       }
@@ -66,9 +41,8 @@ const BookingFlow = () => {
 
     const fetchServices = async () => {
       try {
-        const response = await fetch("https://backend-es6y.onrender.com/api/services");
-        const data = await response.json();
-        setServices(data);
+        const response = await axios.get("https://backend-es6y.onrender.com/api/services");
+        setServices(response.data);
       } catch (error) {
         console.error("Error fetching services:", error);
       }
@@ -83,7 +57,34 @@ const BookingFlow = () => {
   }, [id]);
 
   const handleServiceSelect = (service) => {
-    setBooking({ ...booking, service });
+    setBooking(prev => ({ ...prev, service }));
+  };
+
+  const handleDateSelect = async (date) => {
+    setBooking(prev => ({ ...prev, date }));
+
+    if (!booking.service) {
+      alert("Please select a service first!");
+      return;
+    }
+
+    const appointmentData = {
+      customer_id: 1, // Replace with actual logged-in user ID
+      specialist_id: specialist.id, // Get specialist ID dynamically
+      service_id: booking.service.id, // Ensure service ID is set
+      date: date.toISOString().split("T")[0], // Format as YYYY-MM-DD
+      time: "14:00:00", // Default time or user selection
+      status: "pending",
+    };
+
+    try {
+      const response = await axios.post("https://backend-es6y.onrender.com/api/appointments", appointmentData);
+      alert("Appointment booked successfully!");
+      console.log("Appointment:", response.data);
+    } catch (error) {
+      console.error("Error booking appointment:", error);
+      alert("Failed to book appointment.");
+    }
   };
 
   if (!specialist) {
@@ -120,10 +121,10 @@ const BookingFlow = () => {
         <div>
           <h2 className="text-2xl font-bold text-gray-900 mb-8">Choose a Date</h2>
           <Calendar
-        availableDates={availableDates}
-        selectedDate={selectedDate}
-        onDateSelect={handleDateSelect}
-      />
+            availableDates={availableDates}
+            selectedDate={booking.date}
+            onDateSelect={handleDateSelect}
+          />
         </div>
       </div>
     </div>
