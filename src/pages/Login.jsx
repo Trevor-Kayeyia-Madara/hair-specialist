@@ -34,7 +34,7 @@ const Login = () => {
         localStorage.setItem("authToken", result.token);
       }
 
-      navigate(result.userType === "customer" ? "/" : "/specialist-dashboard");
+      navigate(result.userType === "customer" ? "/" : "/specialist-dashboard/${result.id}");
     } catch (err) {
       setError(err.message);
     } finally {
