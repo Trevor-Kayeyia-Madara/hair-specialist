@@ -6,16 +6,16 @@ import Calendar from "../components/Calendar";
 const BookingFlow = () => {
   const { id } = useParams();
   const [specialist, setSpecialist] = useState(null);
+  const [services, setServices] = useState([]);
   const [booking, setBooking] = useState({
     service: null,
     date: null,
   });
 
   useEffect(() => {
-    const fetchSpecialist = async () => { // Remove 'id' parameter here
+    const fetchSpecialist = async () => {
       try {
         const response = await fetch(`https://backend-es6y.onrender.com/api/specialists/${id}`);
-        
         const data = await response.json();
         setSpecialist(data);
       } catch (error) {
@@ -23,35 +23,23 @@ const BookingFlow = () => {
       }
     };
 
-    if (id) { // Ensure ID is valid before fetching
+    const fetchServices = async () => {
+      try {
+        const response = await fetch("https://backend-es6y.onrender.com/api/services");
+        const data = await response.json();
+        setServices(data);
+      } catch (error) {
+        console.error("Error fetching services:", error);
+      }
+    };
+
+    if (id) {
       fetchSpecialist();
+      fetchServices();
     } else {
       console.error("No ID provided for fetching specialist");
     }
-}, [id]);
-
-
-  const services = [
-    {
-      name: "Haircut & Style",
-      duration: 60,
-      price: 85.0,
-      description:
-        "Professional haircut and styling tailored to your preferences",
-    },
-    {
-      name: "Color & Highlights",
-      duration: 120,
-      price: 150.0,
-      description: "Full color or highlights to transform your look",
-    },
-    {
-      name: "Balayage",
-      duration: 180,
-      price: 200.0,
-      description: "Hand-painted highlights for a natural, graduated color",
-    },
-  ];
+  }, [id]);
 
   const handleServiceSelect = (service) => {
     setBooking({ ...booking, service });
@@ -76,24 +64,24 @@ const BookingFlow = () => {
         </div>
 
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-8">
-            Select a Service
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-8">Select a Service</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {services.map((service, index) => (
-              <ServiceCard
-                key={index}
-                service={service}
-                onSelect={handleServiceSelect}
-              />
-            ))}
+            {services.length > 0 ? (
+              services.map((service) => (
+                <ServiceCard
+                  key={service.id}
+                  service={service}
+                  onSelect={handleServiceSelect}
+                />
+              ))
+            ) : (
+              <p className="text-gray-500">No services available</p>
+            )}
           </div>
         </div>
 
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-8">
-            Choose a Date
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-8">Choose a Date</h2>
           <Calendar
             availableSlots={[new Date()]}
             selectedSlot={booking.date}
