@@ -13,9 +13,14 @@ const BookingFlow = () => {
 
   useEffect(() => {
     // Fetch specialist details (Replace with actual API call)
-    const fetchSpecialist = async () => {
+    const fetchSpecialist = async (id) => {
       try {
         const response = await fetch(`https://backend-es6y.onrender.com/api/specialists/${id}`);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+    
         const data = await response.json();
         setSpecialist(data);
       } catch (error) {
