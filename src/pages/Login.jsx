@@ -20,6 +20,7 @@ const Login = () => {
     setLoading(true);
   
     try {
+      // Step 1: Login Request
       const response = await fetch("https://backend-es6y.onrender.com/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -27,7 +28,7 @@ const Login = () => {
       });
   
       const result = await response.json();
-      console.log("Full API Response:", JSON.stringify(result, null, 2)); // Debug full response
+      console.log("Login Response:", JSON.stringify(result, null, 2)); // Debugging response
   
       if (!response.ok) throw new Error(result.message || "Login failed. Please try again.");
   
@@ -35,20 +36,32 @@ const Login = () => {
         localStorage.setItem("authToken", result.token);
       }
   
-      // Extract userType and ID
-      const userType = result.userType || result.user?.userType;
-      const id = result.specialistId || result.user?.id || result.id;
+      // Step 2: Fetch User Details to Get ID
+      const userDetailsResponse = await fetch("https://backend-es6y.onrender.com/api/user-details", {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${result.token}`, // Pass the token
+          "Content-Type": "application/json",
+        },
+      });
   
-      console.log("Extracted userType:", userType); // Debug userType
-      console.log("Extracted ID:", id); // Debug ID
+      const userDetails = await userDetailsResponse.json();
+      console.log("User Details Response:", JSON.stringify(userDetails, null, 2));
   
-      if (userType === "specialist" && id) {
-        navigate(`/specialist-dashboard/${id}`); // Navigate with correct ID
+      if (!userDetailsResponse.ok) throw new Error("Failed to fetch user details");
+  
+      // Step 3: Extract ID from the User Data
+      const id = userDetails.id || userDetails.specialistId;
+      console.log("Extracted ID:", id);
+  
+      // Step 4: Navigate to the Correct Page
+      if (result.userType === "specialist" && id) {
+        navigate(`/specialist-dashboard/${id}`); // Redirect with specialist ID
       } else {
-        navigate("/"); // Default for customers
+        navigate("/"); // Default navigation for customers
       }
     } catch (err) {
-      console.error("Login Error:", err.message); // Log errors
+      console.error("Login Error:", err.message);
       setError(err.message);
     } finally {
       setLoading(false);
