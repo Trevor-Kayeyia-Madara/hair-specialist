@@ -82,11 +82,12 @@ const BookingFlow = () => {
 
         <div>
           <h2 className="text-2xl font-bold text-gray-900 mb-8">Choose a Date</h2>
-          <Calendar
-            availableSlots={[new Date()]}
-            selectedSlot={booking.date}
-            onSelectSlot={handleDateSelect}
+                    <Calendar
+                    availableDates={[new Date(2025, 2, 15), new Date(2025, 4, 20), new Date(2025, 6, 10)]}
+                    selectedDate={booking.date}
+                    onDateSelect={handleDateSelect}
           />
+
         </div>
       </div>
     </div>
