@@ -27,7 +27,7 @@ const Login = () => {
       });
   
       const result = await response.json();
-      console.log("Login Response:", result); // Debugging: check API response
+      console.log("Full API Response:", JSON.stringify(result, null, 2)); // Debug full response
   
       if (!response.ok) throw new Error(result.message || "Login failed. Please try again.");
   
@@ -35,12 +35,12 @@ const Login = () => {
         localStorage.setItem("authToken", result.token);
       }
   
-      // Extract ID and userType
+      // Extract userType and ID
       const userType = result.userType || result.user?.userType;
       const id = result.specialistId || result.user?.id || result.id;
   
-      console.log("Extracted userType:", userType); // Debugging userType
-      console.log("Extracted ID:", id); // Debugging ID
+      console.log("Extracted userType:", userType); // Debug userType
+      console.log("Extracted ID:", id); // Debug ID
   
       if (userType === "specialist" && id) {
         navigate(`/specialist-dashboard/${id}`); // Navigate with correct ID
