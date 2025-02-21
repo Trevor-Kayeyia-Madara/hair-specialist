@@ -7,7 +7,7 @@ const ServiceCard = ({ service, onSelect }) => {
     >
       <h3 className="font-playfair text-2xl mb-4">{service.name}</h3>
       <div className="font-montserrat text-3xl font-bold text-blue-600 mb-4">
-        ${service.price}
+        KES{service.price}
       </div>
       <p className="text-gray-600 mb-6">{service.description}</p>
       <ul className="space-y-3 mb-6">
