@@ -64,12 +64,13 @@ const SpecialistDashboard = () => {
               <p className="text-red-500">{error}</p>
             ) : profile ? (
               <div>
-                <p><strong>Name:</strong> {profile.users?.full_name}</p>
-                <p><strong>Email:</strong> {profile.users?.email}</p>
+                <p><strong>Name:</strong> {profile.full_name}</p>
+                <p><strong>Email:</strong> {profile.email}</p>
                 <p><strong>Speciality:</strong> {profile.speciality}</p>
                 <p><strong>Service Rates:</strong> {profile.service_rates}</p>
-                <p><strong>Joined:</strong> {new Date(profile.created_at).toLocaleDateString()}</p>
-              </div>
+                <p><strong>Location:</strong> {profile.location}</p>
+                <p><strong>Joined:</strong> {new Date(profile.user_created_at).toLocaleDateString()}</p>
+             </div>
             ) : (
               <p>No user data available.</p>
             )}
