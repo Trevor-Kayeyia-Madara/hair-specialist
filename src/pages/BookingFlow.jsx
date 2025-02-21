@@ -2,15 +2,56 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import ServiceCard from "../components/ServiceCard";
 import Calendar from "../components/Calendar";
+import axios from "axios";
 
 const BookingFlow = () => {
   const { id } = useParams();
   const [specialist, setSpecialist] = useState(null);
   const [services, setServices] = useState([]);
+  const [availableDates, setAvailableDates] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(null);
   const [booking, setBooking] = useState({
     service: null,
     date: null,
   });
+
+   // Fetch booked dates from API
+   useEffect(() => {
+    const fetchBookedDates = async () => {
+      try {
+        const response = await axios.get("https://backend-es6y.onrender.com/api/booked-dates");
+        const bookedDates = response.data.map(dateStr => new Date(dateStr));
+        setAvailableDates(bookedDates);
+      } catch (error) {
+        console.error("Error fetching booked dates:", error);
+      }
+    };
+
+    fetchBookedDates();
+  }, []);
+
+  // Handle date selection and make a booking
+  const handleDateSelect = async (date) => {
+    setSelectedDate(date);
+    
+    const appointmentData = {
+      customer_id: 1, // Replace with actual logged-in user ID
+      specialist_id: 2, // Replace with actual specialist ID
+      service_id: 3, // Replace with actual service ID
+      date: date.toISOString().split("T")[0], // Format as YYYY-MM-DD
+      time: "14:00:00", // Set a default time or let user select
+      status: "pending",
+    };
+
+    try {
+      const response = await axios.post("hhttps://backend-es6y.onrender.com/api/appointments", appointmentData);
+      alert("Appointment booked successfully!");
+      console.log("Appointment:", response.data);
+    } catch (error) {
+      console.error("Error booking appointment:", error);
+      alert("Failed to book appointment.");
+    }
+  };
 
   useEffect(() => {
     const fetchSpecialist = async () => {
@@ -43,10 +84,6 @@ const BookingFlow = () => {
 
   const handleServiceSelect = (service) => {
     setBooking({ ...booking, service });
-  };
-
-  const handleDateSelect = (date) => {
-    setBooking({ ...booking, date });
   };
 
   if (!specialist) {
@@ -82,12 +119,11 @@ const BookingFlow = () => {
 
         <div>
           <h2 className="text-2xl font-bold text-gray-900 mb-8">Choose a Date</h2>
-                    <Calendar
-                    availableDates={[new Date(2025, 2, 15), new Date(2025, 4, 20), new Date(2025, 6, 10)]}
-                    selectedDate={booking.date}
-                    onDateSelect={handleDateSelect}
-          />
-
+          <Calendar
+        availableDates={availableDates}
+        selectedDate={selectedDate}
+        onDateSelect={handleDateSelect}
+      />
         </div>
       </div>
     </div>
