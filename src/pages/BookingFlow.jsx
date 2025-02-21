@@ -44,7 +44,7 @@ const BookingFlow = () => {
     };
 
     try {
-      const response = await axios.post("hhttps://backend-es6y.onrender.com/api/appointments", appointmentData);
+      const response = await axios.post("https://backend-es6y.onrender.com/api/appointments", appointmentData);
       alert("Appointment booked successfully!");
       console.log("Appointment:", response.data);
     } catch (error) {
