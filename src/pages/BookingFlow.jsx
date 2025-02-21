@@ -15,7 +15,7 @@ const BookingFlow = () => {
     // Fetch specialist details (Replace with actual API call)
     const fetchSpecialist = async () => {
       try {
-        const response = await fetch(`/api/specialists/${id}`);
+        const response = await fetch(`https://backend-es6y.onrender.com/api/specialists/${id}`);
         const data = await response.json();
         setSpecialist(data);
       } catch (error) {
