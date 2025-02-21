@@ -37,7 +37,7 @@ const Login = () => {
       }
   
       // Step 2: Fetch User Details to Get ID
-      const userDetailsResponse = await fetch("https://backend-es6y.onrender.com/api/user-details", {
+      const userDetailsResponse = await fetch("https://backend-es6y.onrender.com/api/user", {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${result.token}`, // Pass the token
