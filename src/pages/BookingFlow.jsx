@@ -18,6 +18,8 @@ const BookingFlow = () => {
     const fetchBookedDates = async () => {
       try {
         const response = await axios.get("https://backend-es6y.onrender.com/api/booked-dates");
+        
+        // Convert date strings to actual Date objects
         const bookedDates = response.data.map(dateStr => new Date(dateStr));
         setAvailableDates(bookedDates);
       } catch (error) {
@@ -27,7 +29,6 @@ const BookingFlow = () => {
   
     fetchBookedDates();
   }, []);
-  
 
   useEffect(() => {
     const fetchSpecialist = async () => {
@@ -61,17 +62,17 @@ const BookingFlow = () => {
   };
 
   const handleDateSelect = async (date) => {
-    setBooking(prev => ({ ...prev, date }));
-
     if (!booking.service) {
       alert("Please select a service first!");
       return;
     }
 
+    setBooking(prev => ({ ...prev, date }));
+
     const appointmentData = {
       customer_id: 1, // Replace with actual logged-in user ID
-      specialist_id: specialist.id, // Get specialist ID dynamically
-      service_id: booking.service.id, // Ensure service ID is set
+      specialist_id: specialist.id,
+      service_id: booking.service.id,
       date: date.toISOString().split("T")[0], // Format as YYYY-MM-DD
       time: "14:00:00", // Default time or user selection
       status: "pending",
