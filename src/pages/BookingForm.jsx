@@ -16,7 +16,7 @@ const BookingForm = ({ customerId }) => {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const response = await fetch("/api/services");
+        const response = await fetch("https://backend-es6y.onrender.com/api/services");
         if (!response.ok) throw new Error("Failed to fetch services");
         const data = await response.json();
         setServices(data);
@@ -36,7 +36,7 @@ const BookingForm = ({ customerId }) => {
     setMessage("");
 
     if (!date || !time || !selectedService) {
-      setMessage("Please fill in all fields.");
+      setMessage("⚠️ Please fill in all fields.");
       setLoading(false);
       return;
     }
@@ -58,7 +58,7 @@ const BookingForm = ({ customerId }) => {
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Booking failed");
 
-      setMessage("Appointment booked successfully!");
+      setMessage("✅ Appointment booked successfully!");
       setDate("");
       setTime("");
       setSelectedService("");
@@ -70,66 +70,72 @@ const BookingForm = ({ customerId }) => {
   };
 
   return (
-    <div className="max-w-lg mx-auto p-6 bg-white shadow-md rounded-lg">
-      <h2 className="text-2xl font-semibold text-gray-800 mb-4">Book an Appointment</h2>
-      
-      {message && <p className="mb-4 text-center text-red-600">{message}</p>}
+    <div className="flex justify-center items-center min-h-screen bg-gray-100 px-4">
+      <div className="max-w-md w-full bg-white shadow-lg rounded-2xl p-6 space-y-6">
+        <h2 className="text-3xl font-bold text-center text-gray-800">📅 Book an Appointment</h2>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Service Selection */}
-        <div>
-          <label className="block text-gray-700 font-medium">Select Service</label>
-          <select
-            value={selectedService}
-            onChange={(e) => setSelectedService(e.target.value)}
-            className="w-full p-2 border rounded focus:outline-none focus:ring focus:ring-blue-300"
+        {message && (
+          <p className={`text-center p-3 rounded-lg ${message.includes("⚠️") ? "bg-red-100 text-red-600" : "bg-green-100 text-green-700"}`}>
+            {message}
+          </p>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Service Selection */}
+          <div>
+            <label className="block text-gray-700 font-medium mb-1">Select Service</label>
+            <select
+              value={selectedService}
+              onChange={(e) => setSelectedService(e.target.value)}
+              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none bg-gray-50"
+            >
+              <option value="">Choose a service</option>
+              {services.length > 0 ? (
+                services.map((service) => (
+                  <option key={service.id} value={service.id}>
+                    {service.name}
+                  </option>
+                ))
+              ) : (
+                <option disabled>No services available</option>
+              )}
+            </select>
+          </div>
+
+          {/* Date Selection */}
+          <div>
+            <label className="block text-gray-700 font-medium mb-1">Select Date</label>
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none bg-gray-50"
+              required
+            />
+          </div>
+
+          {/* Time Selection */}
+          <div>
+            <label className="block text-gray-700 font-medium mb-1">Select Time</label>
+            <input
+              type="time"
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
+              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none bg-gray-50"
+              required
+            />
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            className="w-full bg-gradient-to-r from-blue-600 to-blue-400 text-white font-semibold py-3 rounded-lg shadow-md hover:from-blue-700 hover:to-blue-500 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={loading}
           >
-            <option value="">Choose a service</option>
-            {services.length > 0 ? (
-              services.map((service) => (
-                <option key={service.id} value={service.id}>
-                  {service.name}
-                </option>
-              ))
-            ) : (
-              <option disabled>No services available</option>
-            )}
-          </select>
-        </div>
-
-        {/* Date Selection */}
-        <div>
-          <label className="block text-gray-700 font-medium">Select Date</label>
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="w-full p-2 border rounded focus:outline-none focus:ring focus:ring-blue-300"
-            required
-          />
-        </div>
-
-        {/* Time Selection */}
-        <div>
-          <label className="block text-gray-700 font-medium">Select Time</label>
-          <input
-            type="time"
-            value={time}
-            onChange={(e) => setTime(e.target.value)}
-            className="w-full p-2 border rounded focus:outline-none focus:ring focus:ring-blue-300"
-            required
-          />
-        </div>
-
-        {/* Submit Button */}
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition duration-300"
-          disabled={loading}
-        >
-          {loading ? "Booking..." : "Book Appointment"}
-        </button>
-      </form>
+            {loading ? "⏳ Booking..." : "📌 Book Appointment"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
