@@ -36,14 +36,25 @@ const BookingFlow = () => {
   const [booking, setBooking] = useState({
     service: null,
     date: null,
+    time: null,
   });
 
   const handleDateSelect = (date) => {
-    setBooking((prev) => ({ ...prev, date }));
+    setBooking((prev) => ({ ...prev, date, time: null })); // Reset time when date changes
+  };
+
+  const handleTimeSelect = (time) => {
+    setBooking((prev) => ({ ...prev, time }));
   };
 
   const handleServiceSelect = (service) => {
     setBooking((prev) => ({ ...prev, service }));
+  };
+
+  const handleSubmitBooking = () => {
+    // Implement your booking submission logic here
+    console.log("Submitting booking:", booking);
+    // Example: Call API to submit booking details
   };
 
   if (loadingDates || loadingSpecialist || loadingServices) {
@@ -87,6 +98,36 @@ const BookingFlow = () => {
                 )}
               </div>
             </div>
+
+            {booking.service && (
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-8">Select a Time</h2>
+                {/* Replace with your time selection component */}
+                <select
+                  value={booking.time || ""}
+                  onChange={(e) => handleTimeSelect(e.target.value)}
+                  className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                >
+                  <option value="">Select a time</option>
+                  {/* Example options, replace with actual available times */}
+                  <option value="09:00">09:00 AM</option>
+                  <option value="10:00">10:00 AM</option>
+                  <option value="11:00">11:00 AM</option>
+                  {/* Add dynamically fetched available times based on selected date */}
+                </select>
+              </div>
+            )}
+
+            {booking.service && booking.time && (
+              <div className="mt-8">
+                <button
+                  onClick={handleSubmitBooking}
+                  className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md"
+                >
+                  Confirm Booking
+                </button>
+              </div>
+            )}
           </>
         )}
       </div>
