@@ -4,6 +4,9 @@ import { Link } from "react-router-dom";
 const SpecialistCard = ({ specialist }) => {
   const { id, full_name, speciality, rating, location, created_at } = specialist;
 
+  // Ensure id is always a string (important for route matching)
+  const specialistId = String(id);
+
   // Ensure rating is a float and limit to 1 decimal place
   const formattedRating = rating ? parseFloat(rating).toFixed(1) : "N/A";
 
@@ -41,13 +44,13 @@ const SpecialistCard = ({ specialist }) => {
 
       <div className="mt-4 flex flex-col gap-2">
         <Link
-          to={`/booking/${id}`}
+          to={`/booking/${specialistId}`}
           className="block text-center bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition duration-300"
         >
           Book Now
         </Link>
         <Link
-          to={`/chat/${id}`}
+          to={`/chat/${specialistId}`}
           className="block text-center bg-green-600 text-white font-semibold py-2 rounded-lg hover:bg-green-700 transition duration-300"
         >
           Chat Now
@@ -60,7 +63,7 @@ const SpecialistCard = ({ specialist }) => {
 // ✅ Define PropTypes for validation
 SpecialistCard.propTypes = {
   specialist: PropTypes.shape({
-    id: PropTypes.number.isRequired,
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired, // Ensure compatibility
     full_name: PropTypes.string.isRequired,
     speciality: PropTypes.string.isRequired,
     rating: PropTypes.oneOfType([PropTypes.string, PropTypes.number]), // Allow both for conversion

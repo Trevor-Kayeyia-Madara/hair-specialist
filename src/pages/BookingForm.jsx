@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
 const BookingForm = () => {
-  const { id: userId } = useParams(); // This is actually the user_id
+  const { id } = useParams(); // This is actually the user_id
   const [specialistId, setSpecialistId] = useState(null);
   const [services, setServices] = useState([]);
   const [selectedService, setSelectedService] = useState("");
@@ -18,7 +18,7 @@ const BookingForm = () => {
   useEffect(() => {
     const fetchSpecialistId = async () => {
       try {
-        const response = await fetch(`https://backend-es6y.onrender.com/api/specialists/user/${userId}`);
+        const response = await fetch(`https://backend-es6y.onrender.com/api/specialists/${id}`);
         if (!response.ok) throw new Error("Failed to fetch specialist ID");
         const data = await response.json();
         setSpecialistId(data.id); // Get the actual specialist profile ID
@@ -29,7 +29,7 @@ const BookingForm = () => {
     };
 
     fetchSpecialistId();
-  }, [userId]);
+  }, [id]);
 
   // Fetch services
   useEffect(() => {
