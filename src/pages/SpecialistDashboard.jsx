@@ -1,20 +1,28 @@
 import { useState, useEffect, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { io } from "socket.io-client";
 import axios from "axios";
+
+// Backend API URL
+const SOCKET_SERVER_URL = "https://backend-es6y.onrender.com";
 
 const SpecialistDashboard = () => {
   const [selectedTab, setSelectedTab] = useState("profile");
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { id } = useParams(); // Get specialist ID from URL
+  const { id } = useParams(); // Specialist ID from URL
   const navigate = useNavigate(); // Hook for navigation
+  const [messages, setMessages] = useState([]);
+  
+  // ✅ Store socket in state
+  const [socket, setSocket] = useState(null);
 
-  // Fetch specialist profile
+  // Fetch Specialist Profile
   const fetchProfile = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`https://backend-es6y.onrender.com/api/specialists/${id}`);
+      const response = await axios.get(`${SOCKET_SERVER_URL}/api/specialists/${id}`);
       setProfile(response.data);
       setError(null);
     } catch {
@@ -30,9 +38,48 @@ const SpecialistDashboard = () => {
     }
   }, [selectedTab, fetchProfile]);
 
+  // Fetch messages
+  const fetchMessages = useCallback(async () => {
+    try {
+      const response = await axios.get(`${SOCKET_SERVER_URL}/api/messages/${id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      setMessages(response.data);
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    if (selectedTab === "messages") {
+      fetchMessages();
+    }
+  }, [selectedTab, fetchMessages]);
+
+  // ✅ Connect to Socket.IO and listen for real-time updates
+  useEffect(() => {
+    if (!id) return;
+
+    const newSocket = io(SOCKET_SERVER_URL); // ✅ Create socket connection
+    setSocket(newSocket); // ✅ Store socket instance in state
+
+    // ✅ Listen for new messages and update UI
+    newSocket.on("receiveMessage", (message) => {
+      if (message.receiverId === id) {
+        setMessages((prev) => [...prev, message]);
+      }
+    });
+
+    // ✅ Ensure socket is used inside `useEffect`
+    newSocket.emit("joinRoom", { specialistId: id });
+
+    return () => {
+      newSocket.disconnect(); // ✅ Proper cleanup on unmount
+    };
+  }, [id]);
+
   const handleLogout = () => {
-    // Perform any logout logic (e.g., clearing tokens, session storage, etc.)
-    navigate("/login");
+    navigate("/login"); // Redirect to login on logout
   };
 
   return (
@@ -94,16 +141,36 @@ const SpecialistDashboard = () => {
             )}
           </div>
         )}
+
         {selectedTab === "appointments" && (
           <div className="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-xl font-bold mb-4 text-center">Appointments</h2>
             <p className="text-center">No upcoming appointments.</p>
           </div>
         )}
+
         {selectedTab === "messages" && (
           <div className="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-xl font-bold mb-4 text-center">Messages</h2>
-            <p className="text-center">No messages yet.</p>
+            {messages.length === 0 ? (
+              <p className="text-center">No messages yet.</p>
+            ) : (
+              <ul className="divide-y divide-gray-200">
+                {messages.map((msg, index) => (
+                  <li key={index} className="p-3 hover:bg-gray-100 flex justify-between items-center">
+                    <span className="text-sm">
+                      <strong>{msg.senderName}</strong>: {msg.message.length > 20 ? msg.message.slice(0, 20) + "..." : msg.message}
+                    </span>
+                    <Link
+                      to={`/chat/${msg.senderId}`}
+                      className="bg-blue-500 text-white px-3 py-1 rounded-lg text-xs hover:bg-blue-600"
+                    >
+                      Open Chat
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         )}
       </main>
