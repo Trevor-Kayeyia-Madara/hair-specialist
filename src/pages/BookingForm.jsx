@@ -8,7 +8,6 @@ const BookingForm = () => {
   const [selectedService, setSelectedService] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
-  const [status] = useState("Pending");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [customerName, setCustomerName] = useState("");
@@ -76,14 +75,23 @@ const BookingForm = () => {
           service_id: selectedService,
           date,
           time,
-          status,
+          status: "Pending", // Initial status
         }),
       });
   
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Booking failed");
   
-      setMessage("✅ Appointment booked successfully!");
+      // Appointment booked successfully, update status to "Booked"
+      const appointmentId = result.appointment[0].id;
+      await fetch(`https://backend-es6y.onrender.com/api/appointments/${appointmentId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "Booked" }),
+      });
+  
+      setMessage("✅ Appointment booked successfully! Status: Booked");
+
   
       // Reset form fields
       setCustomerName("");
@@ -108,6 +116,7 @@ const BookingForm = () => {
       setLoading(false);
     }
   };
+  
   
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 px-4">
