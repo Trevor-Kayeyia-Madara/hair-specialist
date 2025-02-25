@@ -39,12 +39,20 @@ const SpecialistCard = ({ specialist }) => {
         </p>
       </div>
 
-      <Link
-        to={`/booking/${id}`}
-        className="mt-4 block text-center bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition duration-300"
-      >
-        Book Now
-      </Link>
+      <div className="mt-4 flex flex-col gap-2">
+        <Link
+          to={`/booking/${id}`}
+          className="block text-center bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition duration-300"
+        >
+          Book Now
+        </Link>
+        <Link
+          to={`/chat/${id}`}
+          className="block text-center bg-green-600 text-white font-semibold py-2 rounded-lg hover:bg-green-700 transition duration-300"
+        >
+          Chat Now
+        </Link>
+      </div>
     </div>
   );
 };

@@ -9,6 +9,7 @@ import Reviews from "./pages/Reviews";
 import SpecialistDashboard from "./pages/SpecialistDashboard";
 import SpecialistProfile from "./pages/SpecialistProfile";
 import Payment from "./pages/Payment";
+import ChatWindow from "./components/ChatWindow";
 function App() {
   return (
     <Router>
@@ -18,6 +19,7 @@ function App() {
           <Route path="/sign-up" element={<SignUp />} />
           <Route path ="/search" element={<Search />} />
           <Route path="/booking/:id" element={<BookingForm />} />
+          <Route path="/chat/:id" element={<ChatWindow />} />
           <Route path="/dashboard" element={<UserDashboard  />} />
           <Route path="/reviews" element={<Reviews  />} />
           <Route path="/specialist-dashboard/:id" element={<SpecialistDashboard />} />
