@@ -19,7 +19,7 @@ function App() {
           <Route path="/sign-up" element={<SignUp />} />
           <Route path ="/search" element={<Search />} />
           <Route path="/booking/:id" element={<BookingForm />} />
-          <Route path="/chat" element={<ChatWindow />} />
+          <Route path="/chat/:id" element={<ChatWindow />} />
           <Route path="/dashboard" element={<UserDashboard  />} />
           <Route path="/reviews" element={<Reviews  />} />
           <Route path="/specialist-dashboard/:id" element={<SpecialistDashboard />} />
