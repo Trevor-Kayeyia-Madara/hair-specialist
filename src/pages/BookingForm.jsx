@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
 const BookingForm = () => {
-  const { id } = useParams(); // This is actually the user_id
-  const [specialistId, setSpecialistId] = useState(null);
+  const { id } = useParams(); // This is actually the specialist's ID
+  const [specialistName, setSpecialistName] = useState("");
   const [services, setServices] = useState([]);
   const [selectedService, setSelectedService] = useState("");
   const [date, setDate] = useState("");
@@ -12,23 +12,22 @@ const BookingForm = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [customerName, setCustomerName] = useState("");
-  const [specialistName, setSpecialistName] = useState("");
 
-  // First, fetch the correct specialist_id using the user_id
+  // Fetch specialist details (name) using the id from params
   useEffect(() => {
-    const fetchSpecialistId = async () => {
+    const fetchSpecialistDetails = async () => {
       try {
         const response = await fetch(`https://backend-es6y.onrender.com/api/specialists/${id}`);
-        if (!response.ok) throw new Error("Failed to fetch specialist ID");
+        if (!response.ok) throw new Error("Failed to fetch specialist details");
         const data = await response.json();
-        setSpecialistId(data.id); // Get the actual specialist profile ID
+        setSpecialistName(data.users.full_name);
       } catch (error) {
-        console.error("Error fetching specialist ID:", error);
-        setSpecialistId(null);
+        console.error("Error fetching specialist details:", error);
+        setSpecialistName("Unknown Specialist");
       }
     };
 
-    fetchSpecialistId();
+    fetchSpecialistDetails();
   }, [id]);
 
   // Fetch services
@@ -48,25 +47,6 @@ const BookingForm = () => {
     fetchServices();
   }, []);
 
-  // Fetch specialist details using the correct specialist_id
-  useEffect(() => {
-    if (!specialistId) return; // Wait until specialistId is set
-
-    const fetchSpecialistDetails = async () => {
-      try {
-        const response = await fetch(`https://backend-es6y.onrender.com/api/specialists/${specialistId}`);
-        if (!response.ok) throw new Error("Failed to fetch specialist details");
-        const data = await response.json();
-        setSpecialistName(data.users.full_name);
-      } catch (error) {
-        console.error("Error fetching specialist details:", error);
-        setSpecialistName("");
-      }
-    };
-
-    fetchSpecialistDetails();
-  }, [specialistId]);
-
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -85,7 +65,7 @@ const BookingForm = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           customer_name: customerName,
-          specialist_id: specialistId, // Use the correct specialist ID
+          specialist_id: id, // Use the id directly from params
           service_id: selectedService,
           date,
           time,
