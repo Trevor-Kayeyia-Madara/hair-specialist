@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
 const BookingForm = () => {
-  const { id } = useParams();
+  const { id } = useParams(); // This ID should be the specialist_profile ID
   const [services, setServices] = useState([]);
   const [selectedService, setSelectedService] = useState("");
   const [date, setDate] = useState("");
@@ -10,8 +10,9 @@ const BookingForm = () => {
   const [status] = useState("Pending");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [customerName, setCustomerName] = useState(""); // Allow customer to input name
+  const [customerName, setCustomerName] = useState(""); 
   const [specialistName, setSpecialistName] = useState(""); 
+  const [specialistId, setSpecialistId] = useState(id); // Store correct specialist ID
 
   // Fetch available services
   useEffect(() => {
@@ -37,6 +38,9 @@ const BookingForm = () => {
         const response = await fetch(`https://backend-es6y.onrender.com/api/specialists/${id}`);
         if (!response.ok) throw new Error("Failed to fetch specialist details");
         const data = await response.json();
+
+        // Set correct specialist ID from specialist_profile
+        setSpecialistId(data.specialist_id);
         setSpecialistName(data.users.full_name);
       } catch (error) {
         console.error("Error fetching specialist details:", error);
@@ -64,8 +68,8 @@ const BookingForm = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          customer_name: customerName, // Send the entered customer name
-          specialist_id: id,
+          customer_name: customerName,
+          specialist_id: specialistId, // Use the corrected specialist_id
           service_id: selectedService,
           date,
           time,
@@ -100,7 +104,7 @@ const BookingForm = () => {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Customer Name (Now Editable) */}
+          {/* Customer Name */}
           <div>
             <label className="block text-gray-700 font-medium mb-1">Customer Name</label>
             <input
@@ -113,7 +117,7 @@ const BookingForm = () => {
             />
           </div>
 
-          {/* Specialist Name (Still Read-Only) */}
+          {/* Specialist Name */}
           <div>
             <label className="block text-gray-700 font-medium mb-1">Specialist Name</label>
             <input
