@@ -1,135 +1,92 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import ServiceCard from "../components/ServiceCard";
-import Calendar from "../components/Calendar";
-
-const useFetch = (url) => {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(url);
-        setData(response.data);
-      } catch (err) {
-        setError(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [url]);
-
-  return { data, loading, error };
-};
 
 const BookingFlow = () => {
   const { id } = useParams();
-  const { data: bookedDates, loading: loadingDates } = useFetch("https://backend-es6y.onrender.com/api/booked-dates");
-  const { data: specialist, loading: loadingSpecialist } = useFetch(`https://backend-es6y.onrender.com/api/specialists/${id}`);
-  const { data: services, loading: loadingServices } = useFetch("https://backend-es6y.onrender.com/api/services");
+  const [user, setUser] = useState({ full_name: "", email: "" });
+  const [specialist, setSpecialist] = useState(null);
+  const [services, setServices] = useState([]);
+  const [booking, setBooking] = useState({ service_id: "", date: "", time: "" });
 
-  const [booking, setBooking] = useState({
-    service: null,
-    date: null,
-    time: null,
-  });
+  useEffect(() => {
+    // Fetch user session data
+    axios.get("https://backend-es6y.onrender.com/api/user-session")
+      .then(res => setUser(res.data))
+      .catch(err => console.error("Error fetching user session", err));
 
-  const handleDateSelect = (date) => {
-    setBooking((prev) => ({ ...prev, date, time: null })); // Reset time when date changes
+    // Fetch specialist details
+    axios.get(`https://backend-es6y.onrender.com/api/specialists/${id}`)
+      .then(res => setSpecialist(res.data))
+      .catch(err => console.error("Error fetching specialist", err));
+
+    // Fetch available services
+    axios.get("https://backend-es6y.onrender.com/api/services")
+      .then(res => setServices(res.data))
+      .catch(err => console.error("Error fetching services", err));
+  }, [id]);
+
+  const handleChange = (e) => {
+    setBooking({ ...booking, [e.target.name]: e.target.value });
   };
 
-  const handleTimeSelect = (time) => {
-    setBooking((prev) => ({ ...prev, time }));
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post("https://backend-es6y.onrender.com/api/appointments", {
+        customer_id: user.id,
+        specialist_id: specialist.id,
+        service_id: booking.service_id,
+        date: booking.date,
+        time: booking.time,
+        status: "pending"
+      });
+      alert("Booking confirmed!");
+    } catch (error) {
+      console.error("Error submitting booking", error);
+    }
   };
 
-  const handleServiceSelect = (service) => {
-    setBooking((prev) => ({ ...prev, service }));
-  };
-
-  const handleSubmitBooking = () => {
-    // Implement your booking submission logic here
-    console.log("Submitting booking:", booking);
-    // Example: Call API to submit booking details
-  };
-
-  if (loadingDates || loadingSpecialist || loadingServices) {
-    return <div className="text-center mt-10">Loading...</div>;
-  }
+  if (!specialist || !user.full_name) return <div>Loading...</div>;
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 font-montserrat">
-      <div className="max-w-4xl mx-auto space-y-12">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-8">Choose a Date</h2>
-          <Calendar
-            availableDates={bookedDates.map((dateStr) => new Date(dateStr))}
-            selectedDate={booking.date}
-            onDateSelect={handleDateSelect}
-          />
-        </div>
-
-        {booking.date && (
-          <>
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-8">
-                Booking for {specialist.full_name}
-              </h2>
-              <p className="text-lg text-gray-700">{specialist.speciality}</p>
-            </div>
-
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-8">Select a Service</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {services.length > 0 ? (
-                  services.map((service) => (
-                    <ServiceCard
-                      key={service.id}
-                      service={service}
-                      onSelect={handleServiceSelect}
-                    />
-                  ))
-                ) : (
-                  <p className="text-gray-500">No services available</p>
-                )}
-              </div>
-            </div>
-
-            {booking.service && (
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-8">Select a Time</h2>
-                {/* Replace with your time selection component */}
-                <select
-                  value={booking.time || ""}
-                  onChange={(e) => handleTimeSelect(e.target.value)}
-                  className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                >
-                  <option value="">Select a time</option>
-                  {/* Example options, replace with actual available times */}
-                  <option value="09:00">09:00 AM</option>
-                  <option value="10:00">10:00 AM</option>
-                  <option value="11:00">11:00 AM</option>
-                  {/* Add dynamically fetched available times based on selected date */}
-                </select>
-              </div>
-            )}
-
-            {booking.service && booking.time && (
-              <div className="mt-8">
-                <button
-                  onClick={handleSubmitBooking}
-                  className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md"
-                >
-                  Confirm Booking
-                </button>
-              </div>
-            )}
-          </>
-        )}
+      <div className="max-w-2xl mx-auto bg-white p-8 shadow-md rounded-lg">
+        <h2 className="text-2xl font-bold mb-4">Book an Appointment</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label className="block text-gray-700">Full Name</label>
+            <input type="text" value={user.full_name} readOnly className="w-full p-2 border rounded" />
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700">Email</label>
+            <input type="email" value={user.email} readOnly className="w-full p-2 border rounded" />
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700">Specialist</label>
+            <input type="text" value={specialist.full_name} readOnly className="w-full p-2 border rounded" />
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700">Select a Service</label>
+            <select name="service_id" onChange={handleChange} required className="w-full p-2 border rounded">
+              <option value="">Choose a service</option>
+              {services.map(service => (
+                <option key={service.id} value={service.id}>{service.name}</option>
+              ))}
+            </select>
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700">Select Date</label>
+            <input type="date" name="date" onChange={handleChange} required className="w-full p-2 border rounded" />
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700">Select Time</label>
+            <input type="time" name="time" onChange={handleChange} required className="w-full p-2 border rounded" />
+          </div>
+          <button type="submit" className="bg-blue-500 text-white p-2 rounded w-full hover:bg-blue-600">
+            Confirm Booking
+          </button>
+        </form>
       </div>
     </div>
   );
