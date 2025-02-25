@@ -20,7 +20,7 @@ const BookingForm = () => {
         const response = await fetch(`https://backend-es6y.onrender.com/api/specialists/${id}`);
         if (!response.ok) throw new Error("Failed to fetch specialist details");
         const data = await response.json();
-        setSpecialistName(data.users.full_name);
+        setSpecialistName(data.full_name);
       } catch (error) {
         console.error("Error fetching specialist details:", error);
         setSpecialistName("Unknown Specialist");
