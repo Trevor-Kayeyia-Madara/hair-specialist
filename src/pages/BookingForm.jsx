@@ -35,8 +35,16 @@ const BookingForm = ({ customerId }) => {
   useEffect(() => {
     const fetchCustomerDetails = async () => {
       try {
-        // Replace with actual endpoint to fetch customer details based on session
-        const response = await fetch("https://backend-es6y.onrender.com/api/user");
+        // Get customer ID
+        const idResponse = await fetch("https://backend-es6y.onrender.com/api/customer-id", {
+          credentials: "include", // Ensure cookies/session are sent
+        });
+        if (!idResponse.ok) throw new Error("Failed to fetch customer ID");
+        const idData = await idResponse.json();
+        const customerId = idData.userId;
+
+        // Get customer full name using ID
+        const response = await fetch(`https://backend-es6y.onrender.com/api/users/${customerId}`);
         if (!response.ok) throw new Error("Failed to fetch customer details");
         const data = await response.json();
         setCustomerName(data.full_name); // Assuming full_name is part of the response
