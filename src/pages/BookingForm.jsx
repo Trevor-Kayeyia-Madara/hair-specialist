@@ -37,11 +37,12 @@ const BookingForm = () => {
   }, [id]);
   
 
-  // Fetch services
   useEffect(() => {
     const fetchServices = async () => {
+      if (!id) return; // Ensure ID exists
+  
       try {
-        const response = await fetch("https://backend-es6y.onrender.com/api/services");
+        const response = await fetch(`https://backend-es6y.onrender.com/api/services?specialistId=${id}`);
         if (!response.ok) throw new Error("Failed to fetch services");
         const data = await response.json();
         setServices(data);
@@ -50,10 +51,10 @@ const BookingForm = () => {
         setServices([]);
       }
     };
-
+  
     fetchServices();
-  }, []);
-
+  }, [id]);
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
