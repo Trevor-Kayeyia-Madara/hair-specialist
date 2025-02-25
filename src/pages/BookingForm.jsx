@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import PropTypes from "prop-types";
 
-const BookingForm = ({ customerId }) => {
+const BookingForm = () => {
   const { id } = useParams();
   const [services, setServices] = useState([]);
   const [selectedService, setSelectedService] = useState("");
@@ -11,8 +10,8 @@ const BookingForm = ({ customerId }) => {
   const [status] = useState("Pending");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [customerName, setCustomerName] = useState(""); // State for customer name
-  const [specialistName, setSpecialistName] = useState(""); // State for specialist name
+  const [customerName, setCustomerName] = useState(""); // Allow customer to input name
+  const [specialistName, setSpecialistName] = useState(""); 
 
   // Fetch available services
   useEffect(() => {
@@ -24,50 +23,24 @@ const BookingForm = ({ customerId }) => {
         setServices(data);
       } catch (error) {
         console.error("Error fetching services:", error);
-        setServices([]); // Ensure services is always an array
+        setServices([]);
       }
     };
 
     fetchServices();
   }, []);
 
-  // Fetch customer details based on logged-in session
-  useEffect(() => {
-    const fetchCustomerDetails = async () => {
-      try {
-        // Get customer ID
-        const idResponse = await fetch("https://backend-es6y.onrender.com/api/customer-id", {
-          credentials: "include", // Ensure cookies/session are sent
-        });
-        if (!idResponse.ok) throw new Error("Failed to fetch customer ID");
-        const idData = await idResponse.json();
-        const customerId = idData.userId;
-
-        // Get customer full name using ID
-        const response = await fetch(`https://backend-es6y.onrender.com/api/users/${customerId}`);
-        if (!response.ok) throw new Error("Failed to fetch customer details");
-        const data = await response.json();
-        setCustomerName(data.full_name); // Assuming full_name is part of the response
-      } catch (error) {
-        console.error("Error fetching customer details:", error);
-        setCustomerName(""); // Reset name if fetching fails
-      }
-    };
-
-    fetchCustomerDetails();
-  }, []);
-
-  // Fetch specialist details based on specialistId
+  // Fetch specialist details
   useEffect(() => {
     const fetchSpecialistDetails = async () => {
       try {
         const response = await fetch(`https://backend-es6y.onrender.com/api/specialists/${id}`);
         if (!response.ok) throw new Error("Failed to fetch specialist details");
         const data = await response.json();
-        setSpecialistName(data.users.full_name); // Assuming full_name of the specialist is part of the response
+        setSpecialistName(data.users.full_name);
       } catch (error) {
         console.error("Error fetching specialist details:", error);
-        setSpecialistName(""); // Reset name if fetching fails
+        setSpecialistName("");
       }
     };
 
@@ -80,7 +53,7 @@ const BookingForm = ({ customerId }) => {
     setLoading(true);
     setMessage("");
 
-    if (!date || !time || !selectedService) {
+    if (!customerName || !date || !time || !selectedService) {
       setMessage("⚠️ Please fill in all fields.");
       setLoading(false);
       return;
@@ -91,7 +64,7 @@ const BookingForm = ({ customerId }) => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          customer_id: customerId,
+          customer_name: customerName, // Send the entered customer name
           specialist_id: id,
           service_id: selectedService,
           date,
@@ -104,6 +77,7 @@ const BookingForm = ({ customerId }) => {
       if (!response.ok) throw new Error(result.error || "Booking failed");
 
       setMessage("✅ Appointment booked successfully!");
+      setCustomerName("");
       setDate("");
       setTime("");
       setSelectedService("");
@@ -126,18 +100,20 @@ const BookingForm = ({ customerId }) => {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Customer Name */}
+          {/* Customer Name (Now Editable) */}
           <div>
             <label className="block text-gray-700 font-medium mb-1">Customer Name</label>
             <input
               type="text"
               value={customerName}
+              onChange={(e) => setCustomerName(e.target.value)}
               className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none bg-gray-50"
-              readOnly
+              placeholder="Enter your name"
+              required
             />
           </div>
 
-          {/* Specialist Name */}
+          {/* Specialist Name (Still Read-Only) */}
           <div>
             <label className="block text-gray-700 font-medium mb-1">Specialist Name</label>
             <input
@@ -155,6 +131,7 @@ const BookingForm = ({ customerId }) => {
               value={selectedService}
               onChange={(e) => setSelectedService(e.target.value)}
               className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none bg-gray-50"
+              required
             >
               <option value="">Choose a service</option>
               {services.length > 0 ? (
@@ -205,11 +182,6 @@ const BookingForm = ({ customerId }) => {
       </div>
     </div>
   );
-};
-
-// PropTypes Validation
-BookingForm.propTypes = {
-  customerId: PropTypes.number.isRequired,
 };
 
 export default BookingForm;
