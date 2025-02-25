@@ -31,9 +31,16 @@ const SpecialistDashboard = () => {
   }, [selectedTab, fetchProfile]);
 
   const handleLogout = () => {
-    // Perform any logout logic (e.g., clearing tokens, session storage, etc.)
+    // ✅ Remove authentication token from local storage
+    localStorage.removeItem("token");
+  
+    // ✅ Clear session storage (if used)
+    sessionStorage.clear();
+  
+    // ✅ Redirect to login page
     navigate("/login");
   };
+  
 
   return (
     <div className="flex min-h-screen bg-gray-100">
