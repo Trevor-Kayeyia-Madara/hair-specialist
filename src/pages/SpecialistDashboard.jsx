@@ -5,17 +5,32 @@ import axios from "axios";
 const SpecialistDashboard = () => {
   const [selectedTab, setSelectedTab] = useState("profile");
   const [profile, setProfile] = useState(null);
+  const [updatedProfileData, setUpdatedProfileData] = useState({
+    full_name: "",
+    speciality: "",
+    service_rates: "",
+    location: "",
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { id } = useParams(); // Get specialist ID from URL
-  const navigate = useNavigate(); // Hook for navigation
+
+  const { id } = useParams();
+  const navigate = useNavigate();
 
   // Fetch specialist profile
   const fetchProfile = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`https://backend-es6y.onrender.com/api/specialists/${id}`);
+      const response = await axios.get(
+        `https://backend-es6y.onrender.com/api/specialists/${id}`
+      );
       setProfile(response.data);
+      setUpdatedProfileData({
+        full_name: response.data.full_name || "",
+        speciality: response.data.speciality || "",
+        service_rates: response.data.service_rates || "",
+        location: response.data.location || "",
+      });
       setError(null);
     } catch {
       setError("Failed to fetch profile data.");
@@ -30,17 +45,33 @@ const SpecialistDashboard = () => {
     }
   }, [selectedTab, fetchProfile]);
 
+  // Update profile handler
+  const updateProfile = async (updatedProfile) => {
+    setLoading(true);
+    try {
+      await axios.put(
+        `https://backend-es6y.onrender.com/api/specialists/${id}`,
+        updatedProfile
+      );
+      fetchProfile();
+      setError(null);
+    } catch {
+      setError("Failed to update profile.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleLogout = () => {
-    // ✅ Remove authentication token from local storage
     localStorage.removeItem("token");
-  
-    // ✅ Clear session storage (if used)
     sessionStorage.clear();
-  
-    // ✅ Redirect to login page
     navigate("/login");
   };
-  
+
+  const handleUpdateSubmit = (event) => {
+    event.preventDefault();
+    updateProfile(updatedProfileData);
+  };
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -54,7 +85,9 @@ const SpecialistDashboard = () => {
                 <button
                   onClick={() => setSelectedTab(tab)}
                   className={`block w-full text-left p-3 rounded-lg font-semibold ${
-                    selectedTab === tab ? "bg-blue-500 text-white" : "hover:bg-gray-200"
+                    selectedTab === tab
+                      ? "bg-blue-500 text-white"
+                      : "hover:bg-gray-200"
                   }`}
                 >
                   {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -76,7 +109,9 @@ const SpecialistDashboard = () => {
       <main className="flex-1 p-6">
         {selectedTab === "profile" && (
           <div className="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-bold mb-4 text-center">Specialist Profile</h2>
+            <h2 className="text-xl font-bold mb-4 text-center">
+              Specialist Profile
+            </h2>
             {loading ? (
               <p className="text-center">Loading...</p>
             ) : error ? (
@@ -90,11 +125,78 @@ const SpecialistDashboard = () => {
                 <h3 className="text-lg font-semibold">{profile.full_name}</h3>
                 <p className="text-gray-600">{profile.email}</p>
                 <div className="mt-4 w-full border-t pt-4 text-sm text-gray-700">
-                  <p><strong>Speciality:</strong> {profile.speciality}</p>
-                  <p><strong>Service Rates:</strong> {profile.service_rates}</p>
-                  <p><strong>Location:</strong> {profile.location}</p>
-                  <p><strong>Joined:</strong> {new Date(profile.user_created_at).toLocaleDateString()}</p>
+                  <p>
+                    <strong>Speciality:</strong> {profile.speciality}
+                  </p>
+                  <p>
+                    <strong>Service Rates:</strong> {profile.service_rates}
+                  </p>
+                  <p>
+                    <strong>Location:</strong> {profile.location}
+                  </p>
+                  <p>
+                    <strong>Joined:</strong>{" "}
+                    {new Date(profile.user_created_at).toLocaleDateString()}
+                  </p>
                 </div>
+
+                {/* Update Profile Form */}
+                <form onSubmit={handleUpdateSubmit} className="mt-4 w-full">
+                  <input
+                    type="text"
+                    placeholder="Full Name"
+                    value={updatedProfileData.full_name}
+                    onChange={(e) =>
+                      setUpdatedProfileData({
+                        ...updatedProfileData,
+                        full_name: e.target.value,
+                      })
+                    }
+                    className="w-full p-2 border rounded mb-2"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Speciality"
+                    value={updatedProfileData.speciality}
+                    onChange={(e) =>
+                      setUpdatedProfileData({
+                        ...updatedProfileData,
+                        speciality: e.target.value,
+                      })
+                    }
+                    className="w-full p-2 border rounded mb-2"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Service Rates"
+                    value={updatedProfileData.service_rates}
+                    onChange={(e) =>
+                      setUpdatedProfileData({
+                        ...updatedProfileData,
+                        service_rates: e.target.value,
+                      })
+                    }
+                    className="w-full p-2 border rounded mb-2"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Location"
+                    value={updatedProfileData.location}
+                    onChange={(e) =>
+                      setUpdatedProfileData({
+                        ...updatedProfileData,
+                        location: e.target.value,
+                      })
+                    }
+                    className="w-full p-2 border rounded mb-2"
+                  />
+                  <button
+                    type="submit"
+                    className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                  >
+                    Update Profile
+                  </button>
+                </form>
               </div>
             ) : (
               <p className="text-center">No user data available.</p>
