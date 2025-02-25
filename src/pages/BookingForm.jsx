@@ -13,22 +13,28 @@ const BookingForm = () => {
   const [message, setMessage] = useState("");
   const [customerName, setCustomerName] = useState("");
 
-  // Fetch specialist details (name) using the id from params
   useEffect(() => {
+    console.log("Fetching specialist details for ID:", id);
+  
     const fetchSpecialistDetails = async () => {
       try {
         const response = await fetch(`https://backend-es6y.onrender.com/api/specialists/${id}`);
-        if (!response.ok) throw new Error("Failed to fetch specialist details");
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Failed to fetch specialist details");
+        }
         const data = await response.json();
-        setSpecialistName(data.full_name);
+        console.log("Fetched Specialist Data:", data);
+        setSpecialistName(data.full_name || "Unknown Specialist");
       } catch (error) {
         console.error("Error fetching specialist details:", error);
         setSpecialistName("Unknown Specialist");
       }
     };
-
-    fetchSpecialistDetails();
+  
+    if (id) fetchSpecialistDetails();
   }, [id]);
+  
 
   // Fetch services
   useEffect(() => {
