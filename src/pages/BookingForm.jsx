@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import PropTypes from "prop-types";
 
 const BookingForm = ({ customerId }) => {
-  const { specialistId } = useParams();
+  const { id } = useParams();
   const [services, setServices] = useState([]);
   const [selectedService, setSelectedService] = useState("");
   const [date, setDate] = useState("");
@@ -53,7 +53,7 @@ const BookingForm = ({ customerId }) => {
   useEffect(() => {
     const fetchSpecialistDetails = async () => {
       try {
-        const response = await fetch(`https://backend-es6y.onrender.com/api/specialists/${specialistId}`);
+        const response = await fetch(`https://backend-es6y.onrender.com/api/specialists/${id}`);
         if (!response.ok) throw new Error("Failed to fetch specialist details");
         const data = await response.json();
         setSpecialistName(data.users.full_name); // Assuming full_name of the specialist is part of the response
@@ -64,7 +64,7 @@ const BookingForm = ({ customerId }) => {
     };
 
     fetchSpecialistDetails();
-  }, [specialistId]);
+  }, [id]);
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -84,7 +84,7 @@ const BookingForm = ({ customerId }) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           customer_id: customerId,
-          specialist_id: specialistId,
+          specialist_id: id,
           service_id: selectedService,
           date,
           time,
