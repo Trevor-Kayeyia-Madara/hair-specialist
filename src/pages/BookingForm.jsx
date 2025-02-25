@@ -11,6 +11,8 @@ const BookingForm = ({ customerId }) => {
   const [status] = useState("Pending");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [customerName, setCustomerName] = useState(""); // State for customer name
+  const [specialistName, setSpecialistName] = useState(""); // State for specialist name
 
   // Fetch available services
   useEffect(() => {
@@ -28,6 +30,41 @@ const BookingForm = ({ customerId }) => {
 
     fetchServices();
   }, []);
+
+  // Fetch customer details based on logged-in session
+  useEffect(() => {
+    const fetchCustomerDetails = async () => {
+      try {
+        // Replace with actual endpoint to fetch customer details based on session
+        const response = await fetch("https://backend-es6y.onrender.com/api/user");
+        if (!response.ok) throw new Error("Failed to fetch customer details");
+        const data = await response.json();
+        setCustomerName(data.full_name); // Assuming full_name is part of the response
+      } catch (error) {
+        console.error("Error fetching customer details:", error);
+        setCustomerName(""); // Reset name if fetching fails
+      }
+    };
+
+    fetchCustomerDetails();
+  }, []);
+
+  // Fetch specialist details based on specialistId
+  useEffect(() => {
+    const fetchSpecialistDetails = async () => {
+      try {
+        const response = await fetch(`https://backend-es6y.onrender.com/api/specialists/${specialistId}`);
+        if (!response.ok) throw new Error("Failed to fetch specialist details");
+        const data = await response.json();
+        setSpecialistName(data.users.full_name); // Assuming full_name of the specialist is part of the response
+      } catch (error) {
+        console.error("Error fetching specialist details:", error);
+        setSpecialistName(""); // Reset name if fetching fails
+      }
+    };
+
+    fetchSpecialistDetails();
+  }, [specialistId]);
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -81,6 +118,28 @@ const BookingForm = ({ customerId }) => {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Customer Name */}
+          <div>
+            <label className="block text-gray-700 font-medium mb-1">Customer Name</label>
+            <input
+              type="text"
+              value={customerName}
+              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none bg-gray-50"
+              readOnly
+            />
+          </div>
+
+          {/* Specialist Name */}
+          <div>
+            <label className="block text-gray-700 font-medium mb-1">Specialist Name</label>
+            <input
+              type="text"
+              value={specialistName}
+              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none bg-gray-50"
+              readOnly
+            />
+          </div>
+
           {/* Service Selection */}
           <div>
             <label className="block text-gray-700 font-medium mb-1">Select Service</label>
