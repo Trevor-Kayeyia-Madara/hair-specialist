@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
 const BookingForm = () => {
-  const { id } = useParams(); // This ID should be the specialist_profile ID
+  const { id: userId } = useParams(); // This is actually the user_id
+  const [specialistId, setSpecialistId] = useState(null);
   const [services, setServices] = useState([]);
   const [selectedService, setSelectedService] = useState("");
   const [date, setDate] = useState("");
@@ -10,11 +11,27 @@ const BookingForm = () => {
   const [status] = useState("Pending");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [customerName, setCustomerName] = useState(""); 
-  const [specialistName, setSpecialistName] = useState(""); 
-  const [specialistId, setSpecialistId] = useState(id); // Store correct specialist ID
+  const [customerName, setCustomerName] = useState("");
+  const [specialistName, setSpecialistName] = useState("");
 
-  // Fetch available services
+  // First, fetch the correct specialist_id using the user_id
+  useEffect(() => {
+    const fetchSpecialistId = async () => {
+      try {
+        const response = await fetch(`https://backend-es6y.onrender.com/api/specialists/user/${userId}`);
+        if (!response.ok) throw new Error("Failed to fetch specialist ID");
+        const data = await response.json();
+        setSpecialistId(data.id); // Get the actual specialist profile ID
+      } catch (error) {
+        console.error("Error fetching specialist ID:", error);
+        setSpecialistId(null);
+      }
+    };
+
+    fetchSpecialistId();
+  }, [userId]);
+
+  // Fetch services
   useEffect(() => {
     const fetchServices = async () => {
       try {
@@ -31,16 +48,15 @@ const BookingForm = () => {
     fetchServices();
   }, []);
 
-  // Fetch specialist details
+  // Fetch specialist details using the correct specialist_id
   useEffect(() => {
+    if (!specialistId) return; // Wait until specialistId is set
+
     const fetchSpecialistDetails = async () => {
       try {
-        const response = await fetch(`https://backend-es6y.onrender.com/api/specialists/${id}`);
+        const response = await fetch(`https://backend-es6y.onrender.com/api/specialists/${specialistId}`);
         if (!response.ok) throw new Error("Failed to fetch specialist details");
         const data = await response.json();
-
-        // Set correct specialist ID from specialist_profile
-        setSpecialistId(data.specialist_id);
         setSpecialistName(data.users.full_name);
       } catch (error) {
         console.error("Error fetching specialist details:", error);
@@ -49,7 +65,7 @@ const BookingForm = () => {
     };
 
     fetchSpecialistDetails();
-  }, [id]);
+  }, [specialistId]);
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -69,7 +85,7 @@ const BookingForm = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           customer_name: customerName,
-          specialist_id: specialistId, // Use the corrected specialist_id
+          specialist_id: specialistId, // Use the correct specialist ID
           service_id: selectedService,
           date,
           time,
@@ -104,7 +120,6 @@ const BookingForm = () => {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Customer Name */}
           <div>
             <label className="block text-gray-700 font-medium mb-1">Customer Name</label>
             <input
@@ -117,7 +132,6 @@ const BookingForm = () => {
             />
           </div>
 
-          {/* Specialist Name */}
           <div>
             <label className="block text-gray-700 font-medium mb-1">Specialist Name</label>
             <input
@@ -128,7 +142,6 @@ const BookingForm = () => {
             />
           </div>
 
-          {/* Service Selection */}
           <div>
             <label className="block text-gray-700 font-medium mb-1">Select Service</label>
             <select
@@ -150,7 +163,6 @@ const BookingForm = () => {
             </select>
           </div>
 
-          {/* Date Selection */}
           <div>
             <label className="block text-gray-700 font-medium mb-1">Select Date</label>
             <input
@@ -162,7 +174,6 @@ const BookingForm = () => {
             />
           </div>
 
-          {/* Time Selection */}
           <div>
             <label className="block text-gray-700 font-medium mb-1">Select Time</label>
             <input
@@ -174,7 +185,6 @@ const BookingForm = () => {
             />
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
             className="w-full bg-gradient-to-r from-blue-600 to-blue-400 text-white font-semibold py-3 rounded-lg shadow-md hover:from-blue-700 hover:to-blue-500 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
