@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 const BookingForm = () => {
   const { id } = useParams(); // This is actually the specialist's ID
@@ -12,6 +12,7 @@ const BookingForm = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [customerName, setCustomerName] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     console.log("Fetching specialist details for ID:", id);
@@ -53,47 +54,60 @@ const BookingForm = () => {
     fetchServices();
   }, []);
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setMessage("");
-
+  
     if (!customerName || !date || !time || !selectedService) {
       setMessage("⚠️ Please fill in all fields.");
       setLoading(false);
       return;
     }
-
+  
     try {
       const response = await fetch("https://backend-es6y.onrender.com/api/appointments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           customer_name: customerName,
-          specialist_id: id, // Use the id directly from params
+          specialist_id: id,
           service_id: selectedService,
           date,
           time,
           status,
         }),
       });
-
+  
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Booking failed");
-
+  
       setMessage("✅ Appointment booked successfully!");
+  
+      // Reset form fields
       setCustomerName("");
       setDate("");
       setTime("");
       setSelectedService("");
+  
+      // Navigate to Payment Page with details
+      navigate(`/payment`, { 
+        state: { 
+          amount: "500", 
+          customerName, 
+          specialistId: id,
+          specialistName,
+          serviceId: selectedService 
+        } 
+      });
+  
     } catch (error) {
       setMessage(error.message);
     } finally {
       setLoading(false);
     }
   };
-
+  
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 px-4">
       <div className="max-w-md w-full bg-white shadow-lg rounded-2xl p-6 space-y-6">
