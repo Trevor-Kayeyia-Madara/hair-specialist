@@ -2,8 +2,25 @@ import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 
 const SpecialistCard = ({ specialist }) => {
-  const { id, full_name, speciality, service_rates, location, created_at } =
-    specialist;
+  const { id, full_name, speciality, rating, location, created_at } = specialist;
+
+  // Ensure rating is a float and limit to 1 decimal place
+  const formattedRating = rating ? parseFloat(rating).toFixed(1) : "N/A";
+
+  // Generate star icons based on rating (max 5)
+  const renderStars = () => {
+    const stars = [];
+    const roundedRating = Math.round(rating); // Round to nearest integer
+
+    for (let i = 1; i <= 5; i++) {
+      stars.push(
+        <span key={i} className={i <= roundedRating ? "text-yellow-500" : "text-gray-300"}>
+          ★
+        </span>
+      );
+    }
+    return stars;
+  };
 
   return (
     <div className="bg-white shadow-lg rounded-2xl p-6 border border-gray-200 hover:shadow-xl transition duration-300">
@@ -12,7 +29,7 @@ const SpecialistCard = ({ specialist }) => {
 
       <div className="mt-4">
         <p className="text-gray-700">
-          <strong>Service Rates:</strong> {service_rates || "Not specified"}
+          <strong>Rating:</strong> {formattedRating} {rating !== "N/A" && <span className="ml-2">{renderStars()}</span>}
         </p>
         <p className="text-gray-700">
           <strong>Location:</strong> {location || "Not specified"}
@@ -38,7 +55,7 @@ SpecialistCard.propTypes = {
     id: PropTypes.number.isRequired,
     full_name: PropTypes.string.isRequired,
     speciality: PropTypes.string.isRequired,
-    service_rates: PropTypes.string,
+    rating: PropTypes.oneOfType([PropTypes.string, PropTypes.number]), // Allow both for conversion
     location: PropTypes.string,
     created_at: PropTypes.string.isRequired,
   }).isRequired,
