@@ -4,7 +4,7 @@ import { io } from "socket.io-client";
 import PropTypes from "prop-types";
 
 // Backend API URL
-const SOCKET_SERVER_URL = "https://backend-es6y.onrender.com"; 
+const SOCKET_SERVER_URL = "https://backend-es6y.onrender.com";
 
 const ChatWindow = ({ currentUser }) => {
   const { specialistId } = useParams(); // Get specialist ID from the URL
@@ -80,16 +80,10 @@ const ChatWindow = ({ currentUser }) => {
       {/* Chat Header */}
       <div className="flex items-center p-4 border-b">
         {specialist && (
-          <>
-            <div className="relative">
-              <img src={specialist.avatar} alt={specialist.full_name} className="w-10 h-10 rounded-full object-cover" />
-              <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${specialist.isOnline ? "bg-green-500" : "bg-gray-400"}`}></div>
-            </div>
-            <div className="ml-3">
-              <h3 className="font-semibold">{specialist.full_name}</h3>
-              <p className="text-xs text-gray-500">{specialist.isOnline ? "Online" : "Offline"}</p>
-            </div>
-          </>
+          <div>
+            <h3 className="font-semibold">{specialist?.full_name || "Loading..."}</h3>
+            <p className="text-xs text-gray-500">{specialist?.isOnline ? "Online" : "Offline"}</p>
+          </div>
         )}
       </div>
 
