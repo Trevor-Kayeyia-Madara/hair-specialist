@@ -1,82 +1,132 @@
-/* eslint-disable no-unused-vars */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import PropTypes from "prop-types";
 
-const BookingForm = ({ customerId, services }) => {
+const BookingForm = ({ customerId }) => {
   const { specialistId } = useParams();
-  const [formData, setFormData] = useState({
-    service_id: "",
-    date: "",
-    time: "",
-    status: "pending",
-  });
+  const [services, setServices] = useState([]);
+  const [selectedService, setSelectedService] = useState("");
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+  const [status] = useState("Pending");
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState(null);
+  const [message, setMessage] = useState("");
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  // Fetch available services
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const response = await fetch("/api/services");
+        if (!response.ok) throw new Error("Failed to fetch services");
+        const data = await response.json();
+        setServices(data);
+      } catch (error) {
+        console.error("Error fetching services:", error);
+        setServices([]); // Ensure services is always an array
+      }
+    };
 
+    fetchServices();
+  }, []);
+
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setMessage(null);
+    setMessage("");
 
-    const appointmentData = {
-      customer_id: customerId,
-      specialist_id: parseInt(specialistId),
-      service_id: parseInt(formData.service_id),
-      date: formData.date,
-      time: formData.time,
-      status: formData.status,
-    };
+    if (!date || !time || !selectedService) {
+      setMessage("Please fill in all fields.");
+      setLoading(false);
+      return;
+    }
 
     try {
       const response = await fetch("/api/appointments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(appointmentData),
+        body: JSON.stringify({
+          customer_id: customerId,
+          specialist_id: specialistId,
+          service_id: selectedService,
+          date,
+          time,
+          status,
+        }),
       });
 
       const result = await response.json();
-      if (response.ok) {
-        setMessage({ type: "success", text: result.message });
-      } else {
-        setMessage({ type: "error", text: result.error });
-      }
+      if (!response.ok) throw new Error(result.error || "Booking failed");
+
+      setMessage("Appointment booked successfully!");
+      setDate("");
+      setTime("");
+      setSelectedService("");
     } catch (error) {
-      setMessage({ type: "error", text: "An error occurred. Please try again." });
+      setMessage(error.message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-lg mx-auto bg-white shadow-lg p-6 rounded-lg border">
-      <h2 className="text-xl font-bold text-gray-800 mb-4">Book an Appointment</h2>
-      {message && (
-        <p className={`text-sm mb-4 ${message.type === "success" ? "text-green-600" : "text-red-600"}`}>{message.text}</p>
-      )}
+    <div className="max-w-lg mx-auto p-6 bg-white shadow-md rounded-lg">
+      <h2 className="text-2xl font-semibold text-gray-800 mb-4">Book an Appointment</h2>
+      
+      {message && <p className="mb-4 text-center text-red-600">{message}</p>}
+
       <form onSubmit={handleSubmit} className="space-y-4">
-        <label className="block text-gray-700">Service:
-          <select name="service_id" value={formData.service_id} onChange={handleChange} required className="w-full border p-2 rounded">
-            <option value="">Select a service</option>
-            {services.map(service => (
-              <option key={service.id} value={service.id}>{service.name}</option>
-            ))}
+        {/* Service Selection */}
+        <div>
+          <label className="block text-gray-700 font-medium">Select Service</label>
+          <select
+            value={selectedService}
+            onChange={(e) => setSelectedService(e.target.value)}
+            className="w-full p-2 border rounded focus:outline-none focus:ring focus:ring-blue-300"
+          >
+            <option value="">Choose a service</option>
+            {services.length > 0 ? (
+              services.map((service) => (
+                <option key={service.id} value={service.id}>
+                  {service.name}
+                </option>
+              ))
+            ) : (
+              <option disabled>No services available</option>
+            )}
           </select>
-        </label>
+        </div>
 
-        <label className="block text-gray-700">Date:
-          <input type="date" name="date" value={formData.date} onChange={handleChange} required className="w-full border p-2 rounded" />
-        </label>
+        {/* Date Selection */}
+        <div>
+          <label className="block text-gray-700 font-medium">Select Date</label>
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className="w-full p-2 border rounded focus:outline-none focus:ring focus:ring-blue-300"
+            required
+          />
+        </div>
 
-        <label className="block text-gray-700">Time:
-          <input type="time" name="time" value={formData.time} onChange={handleChange} required className="w-full border p-2 rounded" />
-        </label>
+        {/* Time Selection */}
+        <div>
+          <label className="block text-gray-700 font-medium">Select Time</label>
+          <input
+            type="time"
+            value={time}
+            onChange={(e) => setTime(e.target.value)}
+            className="w-full p-2 border rounded focus:outline-none focus:ring focus:ring-blue-300"
+            required
+          />
+        </div>
 
-        <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
+        {/* Submit Button */}
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition duration-300"
+          disabled={loading}
+        >
           {loading ? "Booking..." : "Book Appointment"}
         </button>
       </form>
@@ -84,14 +134,9 @@ const BookingForm = ({ customerId, services }) => {
   );
 };
 
+// PropTypes Validation
 BookingForm.propTypes = {
   customerId: PropTypes.number.isRequired,
-  services: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.number.isRequired,
-      name: PropTypes.string.isRequired,
-    })
-  ).isRequired,
 };
 
 export default BookingForm;
