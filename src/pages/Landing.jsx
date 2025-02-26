@@ -46,7 +46,7 @@ const Landing = () => {
     useEffect(() => {
         const fetchSpecialists = async () => {
             try {
-                const response = await fetch("https://backend-es6y.onrender.com/api/specialists");
+                const response = await fetch(`https://backend-es6y.onrender.com/api/specialists?search=${searchQuery}`);
                 if (response.ok) {
                     const data = await response.json();
                     setSpecialists(data);
@@ -57,31 +57,11 @@ const Landing = () => {
                 console.error("Error fetching specialists:", error);
             }
         };
-
+    
         fetchSpecialists();
-    }, []);
-
-    const reviews = [
-        {
-            user: {
-                name: "Sarah Thompson",
-                avatar: "/avatar1.jpg",
-            },
-            rating: 5,
-            date: "2025-01-15",
-            text: "Found my perfect hairstylist through this platform! The booking process was seamless and the results were amazing.",
-        },
-        {
-            user: {
-                name: "Michael Chen",
-                avatar: "/avatar2.jpg",
-            },
-            rating: 5,
-            date: "2025-01-10",
-            text: "Great experience from start to finish. My stylist understood exactly what I wanted and delivered beyond expectations.",
-        },
-    ];
-
+    }, [searchQuery]); // Trigger when searchQuery changes
+    
+  
     return (
         <div className="min-h-screen bg-gray-50">
             <Navbar isLoggedIn={loggedIn} userProfile={userProfile} />
@@ -104,9 +84,6 @@ const Landing = () => {
                             className="flex-grow px-4 py-3 text-gray-700 focus:outline-none font-roboto mb-2 md:mb-0"
                             name="location"
                         />
-                        <button className="bg-blue-600 text-white px-8 py-3 rounded-md hover:bg-blue-700 transition-colors font-montserrat">
-                            Search
-                        </button>
                     </div>
                 </div>
             </div>
@@ -116,9 +93,13 @@ const Landing = () => {
                 <div className="max-w-6xl mx-auto">
                     <h2 className="text-2xl md:text-3xl font-playfair text-center mb-8 md:mb-12">Featured Specialists</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {specialists.map((specialist, index) => (
-                            <SpecialistCard key={index} specialist={specialist} />
-                        ))}
+                        {specialists.length > 0 ? (
+                            specialists.map((specialist, index) => (
+                                <SpecialistCard key={index} specialist={specialist} />
+                            ))
+                        ) : (
+                            <p className="text-center text-gray-600 col-span-full">No specialists found.</p>
+                        )}
                     </div>
                 </div>
             </section>
@@ -142,7 +123,20 @@ const Landing = () => {
                 <div className="max-w-6xl mx-auto">
                     <h2 className="text-2xl md:text-3xl font-playfair text-center mb-8 md:mb-12">Customer Reviews</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {reviews.map((review, index) => (
+                        {[
+                            {
+                                user: { name: "Sarah Thompson", avatar: "/avatar1.jpg" },
+                                rating: 5,
+                                date: "2025-01-15",
+                                text: "Found my perfect hairstylist through this platform! The booking process was seamless and the results were amazing.",
+                            },
+                            {
+                                user: { name: "Michael Chen", avatar: "/avatar2.jpg" },
+                                rating: 5,
+                                date: "2025-01-10",
+                                text: "Great experience from start to finish. My stylist understood exactly what I wanted and delivered beyond expectations.",
+                            },
+                        ].map((review, index) => (
                             <ReviewCard key={index} review={review} />
                         ))}
                     </div>
