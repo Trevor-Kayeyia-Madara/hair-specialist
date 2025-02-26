@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 const BookingForm = () => {
-  const { id } = useParams(); // Ensure id is always available
+  const { id } = useParams();
   const navigate = useNavigate();
   const [specialistName, setSpecialistName] = useState("");
   const [services, setServices] = useState([]);
@@ -73,8 +73,8 @@ const BookingForm = () => {
   
       if (!response.ok) throw new Error("Booking failed");
   
-      const data = await response.json(); // Get the response JSON
-      const appointmentId = data.id; // Extract the appointment ID
+      const data = await response.json();
+      const appointmentId = data.id;
   
       if (!appointmentId) {
         setMessage("❌ No appointment ID returned.");
