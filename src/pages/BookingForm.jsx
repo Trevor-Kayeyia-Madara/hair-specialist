@@ -63,7 +63,7 @@ const BookingForm = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           customer_name: customerName,
-          specialist_id: id, // Navigate using specialist ID
+          specialist_id: id, // Correctly using specialist ID
           service_id: selectedService,
           date,
           time,
@@ -74,8 +74,10 @@ const BookingForm = () => {
       if (!response.ok) throw new Error("Booking failed");
   
       setMessage("✅ Appointment booked successfully!");
-      console.log("Navigating with SpecialistID:", id);
-      navigate(`/invoice/${id}`); // Navigate using SpecialistID
+      console.log("Navigating to Invoice with SpecialistID:", id);
+      
+      // Navigate to InvoiceGenerator using Specialist ID
+      navigate(`/invoice/${id}`); 
   
     } catch (error) {
       setMessage(`❌ ${error.message}`);
