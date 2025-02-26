@@ -10,6 +10,7 @@ import SpecialistDashboard from "./pages/SpecialistDashboard";
 import SpecialistProfile from "./pages/SpecialistProfile";
 import Payment from "./pages/Payment";
 import ChatWindow from "./components/ChatWindow";
+import InvoiceGenerator from "./pages/InvoiceGenerator";
 function App() {
   return (
     <Router>
@@ -19,6 +20,7 @@ function App() {
           <Route path="/sign-up" element={<SignUp />} />
           <Route path ="/search" element={<Search />} />
           <Route path="/booking/:id" element={<BookingForm />} />
+          <Route path="/invoice/:appointmentID" element={<InvoiceGenerator />} />
           <Route path="/chat/:id" element={<ChatWindow />} />
           <Route path="/dashboard" element={<UserDashboard  />} />
           <Route path="/reviews" element={<Reviews  />} />
