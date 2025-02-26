@@ -8,7 +8,9 @@ const InvoiceGenerator = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
+  // Debugging to check if appointmentId is being passed
   useEffect(() => {
+    console.log("Appointment ID:", appointmentId); // Log appointmentId
     if (!appointmentId) {
       setError("⚠️ Invalid appointment ID.");
       setLoading(false);
