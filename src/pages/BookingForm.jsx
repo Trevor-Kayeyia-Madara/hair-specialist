@@ -102,7 +102,7 @@ const BookingForm = () => {
             <option value="">Select Service</option>
             {services.length > 0 ? (
               services.map((service) => (
-                <option key={service.id} value={service.id}>{service.name} - ${service.price}</option>
+                <option key={service.id} value={service.id}>{service.name} - KES{service.price}</option>
               ))
             ) : (
               <option disabled>No services available</option>
