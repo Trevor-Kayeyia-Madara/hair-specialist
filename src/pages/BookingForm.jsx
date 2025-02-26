@@ -7,6 +7,7 @@ const BookingForm = () => {
   const [specialistName, setSpecialistName] = useState("");
   const [services, setServices] = useState([]);
   const [selectedService, setSelectedService] = useState("");
+  const [selectedServiceName, setSelectedServiceName] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [customerName, setCustomerName] = useState("");
@@ -46,6 +47,16 @@ const BookingForm = () => {
     fetchServices();
   }, [id]);
 
+  // Update the selected service name when service changes
+  useEffect(() => {
+    if (selectedService && services.length > 0) {
+      const service = services.find(s => s.id.toString() === selectedService.toString());
+      if (service) {
+        setSelectedServiceName(service.name);
+      }
+    }
+  }, [selectedService, services]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -58,6 +69,15 @@ const BookingForm = () => {
     }
   
     try {
+      console.log("Submitting appointment data:", {
+        customer_name: customerName,
+        specialist_id: id,
+        service_id: selectedService,
+        date,
+        time,
+        status: "Pending",
+      });
+      
       const response = await fetch("https://backend-es6y.onrender.com/api/appointments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -71,13 +91,25 @@ const BookingForm = () => {
         }),
       });
   
-      if (!response.ok) throw new Error("Booking failed");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Booking failed");
+      }
   
       const data = await response.json();
-      const appointmentId = data.id;
+      console.log("Appointment created, response data:", data);
+      
+      // Check all possible places where the ID might be
+      let appointmentId = null;
+      if (data && data.id) {
+        appointmentId = data.id;
+      } else if (data && data.data && data.data.id) {
+        appointmentId = data.data.id;
+      }
   
       if (!appointmentId) {
-        setMessage("❌ No appointment ID returned.");
+        console.error("No appointment ID in response:", data);
+        setMessage("❌ No appointment ID returned. Please contact support.");
         setLoading(false);
         return;
       }
@@ -94,10 +126,12 @@ const BookingForm = () => {
           date,
           time,
           selectedService,
+          serviceName: selectedServiceName
         },
       });
   
     } catch (error) {
+      console.error("Booking error:", error);
       setMessage(`❌ ${error.message}`);
     } finally {
       setLoading(false);
