@@ -45,9 +45,10 @@ const Login = () => {
         const userDetails = await userDetailsResponse.json();
         if (!userDetailsResponse.ok) throw new Error("Failed to fetch user details");
 
+        localStorage.setItem("userId", userDetails.id);
+
         if (userDetails.userType === "customer") {
-            localStorage.setItem("userId", userDetails.id);
-            navigate(`/customer-dashboard/${userDetails.id}`);
+            navigate(`/`);
         } else {
             navigate("/");
         }
@@ -58,9 +59,6 @@ const Login = () => {
         setLoading(false);
     }
 };
-
-  
-    
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-6">
       <div className="max-w-md w-full bg-white p-6 rounded-lg shadow-md">
