@@ -17,12 +17,29 @@ const InvoiceGenerator = () => {
 
     const fetchAppointment = async () => {
       try {
-        const response = await fetch(`https://backend-es6y.onrender.com/api/appointments/${appointmentId}`);
-        if (!response.ok) throw new Error("Failed to fetch appointment");
+        const token = localStorage.getItem("authToken"); // Assuming the token is stored in localStorage
+        const response = await fetch(`https://backend-es6y.onrender.com/api/appointments/${appointmentId}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": token ? `Bearer ${token}` : "", // Pass token in Authorization header
+          },
+        });
+
+        if (!response.ok) {
+          if (response.status === 401) {
+            throw new Error("Unauthorized: Please log in.");
+          } else if (response.status === 404) {
+            throw new Error("Appointment not found.");
+          } else {
+            throw new Error("Failed to fetch appointment. Please try again later.");
+          }
+        }
+
         const data = await response.json();
         setAppointment(data);
       } catch (error) {
-        setError("❌ Error fetching appointment details. Try again later.");
+        setError(error.message || "❌ Error fetching appointment details. Try again later.");
         console.error("Error fetching appointment:", error);
       } finally {
         setLoading(false);
