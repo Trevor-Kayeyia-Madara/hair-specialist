@@ -22,7 +22,7 @@ function App() {
           <Route path="/booking/:id" element={<BookingForm />} />
           <Route path="/invoice" element={<InvoiceGenerator />} />
           <Route path="/chat/:id" element={<ChatWindow />} />
-          <Route path="/dashboard" element={<UserDashboard  />} />
+          <Route path="/dashboard/:id" element={<UserDashboard  />} />
           <Route path="/reviews" element={<Reviews  />} />
           <Route path="/specialist-dashboard/:id" element={<SpecialistDashboard />} />
           <Route path="/specialists/:id" element={<SpecialistProfile />} />

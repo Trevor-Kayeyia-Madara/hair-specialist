@@ -48,7 +48,7 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn, userProfile }) => {
               </>
             ) : (
               <div className="relative flex items-center space-x-4">
-                <Link to="/dashboard" className="text-white hover:text-blue-100 transition-colors">
+                <Link to="/dashboard/:id" className="text-white hover:text-blue-100 transition-colors">
                   Dashboard
                 </Link>
 

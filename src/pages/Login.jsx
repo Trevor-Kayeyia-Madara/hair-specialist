@@ -28,7 +28,7 @@ const Login = () => {
       });
   
       const result = await response.json();
-      console.log("Login Response:", JSON.stringify(result, null, 2)); // Debugging response
+      console.log("Login Response:", JSON.stringify(result, null, 2));
   
       if (!response.ok) throw new Error(result.message || "Login failed. Please try again.");
   
@@ -40,7 +40,7 @@ const Login = () => {
       const userDetailsResponse = await fetch("https://backend-es6y.onrender.com/api/user", {
         method: "GET",
         headers: {
-          "Authorization": `Bearer ${result.token}`, // Pass the token
+          "Authorization": `Bearer ${result.token}`,
           "Content-Type": "application/json",
         },
       });
@@ -50,15 +50,17 @@ const Login = () => {
   
       if (!userDetailsResponse.ok) throw new Error("Failed to fetch user details");
   
-      // Step 3: Extract ID from the User Data
+      // Step 3: Extract ID and Store It
       const id = userDetails.id || userDetails.specialistId;
       console.log("Extracted ID:", id);
   
-      // Step 4: Navigate to the Correct Page
+      localStorage.setItem("userId", id); // Store user ID for later use
+  
+      // Step 4: Redirect Based on userType
       if (result.userType === "specialist" && id) {
-        navigate(`/specialist-dashboard/${id}`); // Redirect with specialist ID
+        navigate(`/specialist-dashboard/${id}`);
       } else {
-        navigate("/"); // Default navigation for customers
+        navigate("/"); // Redirect to home but keep the ID for dashboard
       }
     } catch (err) {
       console.error("Login Error:", err.message);
@@ -67,6 +69,7 @@ const Login = () => {
       setLoading(false);
     }
   };
+  
   
     
   return (

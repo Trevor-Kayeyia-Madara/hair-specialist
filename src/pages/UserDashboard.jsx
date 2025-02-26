@@ -12,19 +12,18 @@ const UserDashboard = () => {
   const navigate = useNavigate(); // Hook for navigation
 
   useEffect(() => {
-    // Simulate fetching user session data
-    setTimeout(() => {
-      const sessionData = JSON.parse(localStorage.getItem("userSession"));
-
-      if (sessionData) {
-        setCurrentUser(sessionData);
-        setSessionActive(true);
-      } else {
-        setSessionActive(false);
-      }
-      setLoading(false);
-    }, 1000);
+    const sessionData = JSON.parse(localStorage.getItem("userSession"));
+    const storedUserId = localStorage.getItem("userId"); // Retrieve stored ID
+  
+    if (sessionData) {
+      setCurrentUser({ ...sessionData, id: storedUserId });
+      setSessionActive(true);
+    } else {
+      setSessionActive(false);
+    }
+    setLoading(false);
   }, []);
+  
 
   // Logout function
   const handleLogout = () => {
