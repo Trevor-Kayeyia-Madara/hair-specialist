@@ -4,9 +4,9 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 const UserDashboard = () => {
   const { id } = useParams();
   const [user, setUser] = useState(null);
-  const [appointments, setAppointments] = useState([]);
-  const [messages, setMessages] = useState([]);
   const [error, setError] = useState("");
+  const [editForm, setEditForm] = useState({ full_name: "", email: "" });
+  const [isEditing, setIsEditing] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -18,7 +18,6 @@ const UserDashboard = () => {
           return;
         }
 
-        // Fetch user details
         const response = await fetch(`https://backend-es6y.onrender.com/api/users/${id}`, {
           method: "GET",
           headers: {
@@ -29,58 +28,44 @@ const UserDashboard = () => {
 
         const result = await response.json();
         if (!response.ok) throw new Error(result.message || "Failed to fetch user data");
+
         setUser(result);
+        setEditForm({ full_name: result.full_name, email: result.email });
       } catch (err) {
         setError(err.message);
       }
     };
 
-    const fetchAppointments = async () => {
-      try {
-        const token = localStorage.getItem("authToken");
-        if (!token) return;
-
-        const response = await fetch(`https://backend-es6y.onrender.com/api/appointments/customer/${id}`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        const result = await response.json();
-        if (!response.ok) throw new Error("Failed to fetch appointments");
-        setAppointments(result);
-      } catch (err) {
-        console.error("Appointments Error:", err.message);
-      }
-    };
-
-    const fetchMessages = async () => {
-      try {
-        const token = localStorage.getItem("authToken");
-        if (!token) return;
-
-        const response = await fetch(`https://backend-es6y.onrender.com/api/messages/${id}`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        const result = await response.json();
-        if (!response.ok) throw new Error("Failed to fetch messages");
-        setMessages(result);
-      } catch (err) {
-        console.error("Messages Error:", err.message);
-      }
-    };
-
     fetchUserProfile();
-    fetchAppointments();
-    fetchMessages();
   }, [id, navigate]);
+
+  const handleEditChange = (e) => {
+    setEditForm({ ...editForm, [e.target.name]: e.target.value });
+  };
+
+  const handleProfileUpdate = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) return;
+
+      const response = await fetch(`https://backend-es6y.onrender.com/api/users/${id}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ full_name: editForm.full_name, email: editForm.email }),
+      });
+
+      if (!response.ok) throw new Error("Failed to update profile");
+      const updatedUser = await response.json();
+      setUser(updatedUser);
+      setIsEditing(false);
+    } catch (err) {
+      console.error("Profile Update Error:", err.message);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("authToken");
@@ -117,42 +102,39 @@ const UserDashboard = () => {
 
       {/* Main Content */}
       <div className="w-3/4 p-6 bg-gray-100">
-        <h2 className="text-2xl font-bold mb-4">Welcome, {user.full_name}</h2>
-        <p className="text-gray-600">User Type: {user.userType}</p>
-
-        {/* Appointments Section */}
-        <div className="mt-6">
-          <h3 className="text-xl font-semibold mb-3">📅 Your Appointments</h3>
-          {appointments.length === 0 ? (
-            <p>No upcoming appointments.</p>
+        {/* Profile Section */}
+        <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+          <h2 className="text-2xl font-bold mb-4">👤 Your Profile</h2>
+          {!isEditing ? (
+            <>
+              <p><strong>Full Name:</strong> {user.full_name}</p>
+              <p><strong>Email:</strong> {user.email}</p>
+              <p><strong>User Type:</strong> {user.userType}</p>
+              <button onClick={() => setIsEditing(true)} className="mt-3 px-4 py-2 bg-blue-600 text-white rounded">
+                Edit Profile
+              </button>
+            </>
           ) : (
-            <ul className="space-y-3">
-              {appointments.map((appt) => (
-                <li key={appt.id} className="bg-white p-4 rounded shadow">
-                  <p><strong>Specialist:</strong> {appt.specialist_name}</p>
-                  <p><strong>Service:</strong> {appt.service}</p>
-                  <p><strong>Date:</strong> {new Date(appt.date).toLocaleString()}</p>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        {/* Messages Section */}
-        <div className="mt-6">
-          <h3 className="text-xl font-semibold mb-3">💬 Your Messages</h3>
-          {messages.length === 0 ? (
-            <p>No messages yet.</p>
-          ) : (
-            <ul className="space-y-3">
-              {messages.map((msg) => (
-                <li key={msg.id} className="bg-white p-4 rounded shadow">
-                  <p><strong>From:</strong> {msg.specialist_name}</p>
-                  <p>{msg.content}</p>
-                  <p className="text-sm text-gray-500">{new Date(msg.created_at).toLocaleString()}</p>
-                </li>
-              ))}
-            </ul>
+            <form onSubmit={handleProfileUpdate} className="space-y-3">
+              <input
+                type="text"
+                name="full_name"
+                value={editForm.full_name}
+                onChange={handleEditChange}
+                className="w-full p-2 border rounded"
+                required
+              />
+              <input
+                type="email"
+                name="email"
+                value={editForm.email}
+                onChange={handleEditChange}
+                className="w-full p-2 border rounded"
+                required
+              />
+              <button type="submit" className="px-4 py-2 bg-green-600 text-white rounded">Save</button>
+              <button onClick={() => setIsEditing(false)} className="ml-2 px-4 py-2 bg-gray-400 text-white rounded">Cancel</button>
+            </form>
           )}
         </div>
       </div>
