@@ -1,60 +1,51 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
-import PropTypes from "prop-types";
+import { useEffect, useState } from "react";
 
-const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {
+const Navbar = () => {
   const navigate = useNavigate();
-  const [userId, setUserId] = useState(localStorage.getItem("userId")); // Initialize with stored userId
+  const [userId, setUserId] = useState(null);
 
   useEffect(() => {
-    // Update userId whenever authentication status changes
+    // Retrieve userId from localStorage when Navbar mounts
     const storedUserId = localStorage.getItem("userId");
     setUserId(storedUserId);
-  }, [isLoggedIn]); // Depend on isLoggedIn to re-check storage
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("userId");
-    setIsLoggedIn(false);
-    setUserId(null); // Clear userId from state
+    setUserId(null);
     navigate("/login");
   };
 
   return (
-    <nav className="bg-gradient-to-r from-blue-400 to-blue-600 shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16 items-center">
-          <div className="flex-shrink-0">
-            <Link to="/" className="font-playfair text-2xl text-white">
-              Hair Specialist Finder
-            </Link>
-          </div>
+    <nav className="bg-blue-600 shadow-md">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="flex justify-between items-center h-16">
+          {/* Logo */}
+          <Link to="/" className="text-white text-2xl font-bold">
+            Hair Specialist Finder
+          </Link>
 
-          {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-8">
-            <Link to="/" className="text-white hover:text-blue-100 transition-colors">
-              Home
-            </Link>
-            {isLoggedIn && userId && (
-              <Link to={`/customer-dashboard/${userId}`} className="text-white hover:text-blue-100 transition-colors">
+          {/* Navigation Links */}
+          <div className="flex items-center space-x-6">
+            <Link to="/" className="text-white hover:underline">Home</Link>
+
+            {/* Show Dashboard only if userId exists */}
+            {userId && (
+              <Link to={`/customer-dashboard/${userId}`} className="text-white hover:underline">
                 Dashboard
               </Link>
             )}
-          </div>
 
-          {/* Auth Section */}
-          <div className="hidden md:flex items-center space-x-4">
-            {!isLoggedIn ? (
+            {/* Show Login/Signup if not logged in */}
+            {!userId ? (
               <>
-                <Link to="/login" className="text-white bg-blue-500 hover:bg-blue-400 px-4 py-2 rounded-lg transition-colors">
-                  Login
-                </Link>
-                <Link to="/sign-up" className="text-blue-600 bg-white hover:bg-blue-50 px-4 py-2 rounded-lg transition-colors">
-                  Sign Up
-                </Link>
+                <Link to="/login" className="text-white hover:underline">Login</Link>
+                <Link to="/sign-up" className="text-white hover:underline">Sign Up</Link>
               </>
             ) : (
-              <button onClick={handleLogout} className="text-white hover:text-blue-100 transition-colors">
+              <button onClick={handleLogout} className="text-white hover:underline">
                 Logout
               </button>
             )}
@@ -63,12 +54,6 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {
       </div>
     </nav>
   );
-};
-
-// PropTypes validation
-Navbar.propTypes = {
-  isLoggedIn: PropTypes.bool.isRequired,
-  setIsLoggedIn: PropTypes.func.isRequired,
 };
 
 export default Navbar;

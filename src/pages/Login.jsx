@@ -6,7 +6,7 @@ const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  
+
   const navigate = useNavigate();
 
   const handleInputChange = (e) => {
@@ -18,7 +18,7 @@ const Login = () => {
     e.preventDefault();
     setError("");
     setLoading(true);
-  
+
     try {
       // Step 1: Login Request
       const response = await fetch("https://backend-es6y.onrender.com/api/login", {
@@ -26,40 +26,47 @@ const Login = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: formData.email, password: formData.password }),
       });
-  
+
       const result = await response.json();
       console.log("Login Response:", JSON.stringify(result, null, 2)); // Debugging response
-  
+
       if (!response.ok) throw new Error(result.message || "Login failed. Please try again.");
-  
+
       if (result.token) {
         localStorage.setItem("authToken", result.token);
       }
-  
+
       // Step 2: Fetch User Details to Get ID
       const userDetailsResponse = await fetch("https://backend-es6y.onrender.com/api/user", {
         method: "GET",
         headers: {
-          "Authorization": `Bearer ${result.token}`, // Pass the token
+          Authorization: `Bearer ${result.token}`,
           "Content-Type": "application/json",
         },
       });
-  
+
       const userDetails = await userDetailsResponse.json();
       console.log("User Details Response:", JSON.stringify(userDetails, null, 2));
-  
+
       if (!userDetailsResponse.ok) throw new Error("Failed to fetch user details");
-  
-      // Step 3: Extract ID from the User Data
-      const id = userDetails.id || userDetails.specialistId;
+
+      // Step 3: Extract ID and Store It
+      const id = userDetails.id || userDetails.specialistId; // Handle both user types
       console.log("Extracted ID:", id);
-  
+
+      if (!id) throw new Error("User ID not found");
+
+      localStorage.setItem("userId", id); // Save userId in localStorage
+
       // Step 4: Navigate to the Correct Page
-      if (result.userType === "specialist" && id) {
-        navigate(`/specialist-dashboard/${id}`); // Redirect with specialist ID
+      if (result.userType === "specialist") {
+        navigate(`/specialist-dashboard/${id}`);
       } else {
-        navigate("/"); // Default navigation for customers
+        navigate(`/`);
       }
+
+      // Refresh the page to update Navbar state
+      window.location.reload();
     } catch (err) {
       console.error("Login Error:", err.message);
       setError(err.message);
@@ -67,8 +74,7 @@ const Login = () => {
       setLoading(false);
     }
   };
-  
-    
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-6">
       <div className="max-w-md w-full bg-white p-6 rounded-lg shadow-md">
