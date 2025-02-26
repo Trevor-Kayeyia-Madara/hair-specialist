@@ -18,58 +18,47 @@ const Login = () => {
     e.preventDefault();
     setError("");
     setLoading(true);
-  
+
     try {
-      // Step 1: Login Request
-      const response = await fetch("https://backend-es6y.onrender.com/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: formData.email, password: formData.password }),
-      });
-  
-      const result = await response.json();
-      console.log("Login Response:", JSON.stringify(result, null, 2));
-  
-      if (!response.ok) throw new Error(result.message || "Login failed. Please try again.");
-  
-      if (result.token) {
-        localStorage.setItem("authToken", result.token);
-      }
-  
-      // Step 2: Fetch User Details to Get ID
-      const userDetailsResponse = await fetch("https://backend-es6y.onrender.com/api/user", {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${result.token}`,
-          "Content-Type": "application/json",
-        },
-      });
-  
-      const userDetails = await userDetailsResponse.json();
-      console.log("User Details Response:", JSON.stringify(userDetails, null, 2));
-  
-      if (!userDetailsResponse.ok) throw new Error("Failed to fetch user details");
-  
-      // Step 3: Extract ID and Store It
-      const id = userDetails.id || userDetails.specialistId;
-      console.log("Extracted ID:", id);
-  
-      localStorage.setItem("userId", id); // Store user ID for later use
-  
-      // Step 4: Redirect Based on userType
-      if (result.userType === "specialist" && id) {
-        navigate(`/specialist-dashboard/${id}`);
-      } else {
-        navigate("/"); // Redirect to home but keep the ID for dashboard
-      }
+        const response = await fetch("https://backend-es6y.onrender.com/api/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: formData.email, password: formData.password }),
+        });
+
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || "Login failed.");
+
+        if (result.token) {
+            localStorage.setItem("authToken", result.token);
+        }
+
+        // Fetch user details using the stored token
+        const userDetailsResponse = await fetch("https://backend-es6y.onrender.com/api/user", {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${result.token}`,
+                "Content-Type": "application/json",
+            },
+        });
+
+        const userDetails = await userDetailsResponse.json();
+        if (!userDetailsResponse.ok) throw new Error("Failed to fetch user details");
+
+        if (userDetails.userType === "customer") {
+            localStorage.setItem("userId", userDetails.id);
+            navigate(`/customer-dashboard/${userDetails.id}`);
+        } else {
+            navigate("/");
+        }
     } catch (err) {
-      console.error("Login Error:", err.message);
-      setError(err.message);
+        console.error("Login Error:", err.message);
+        setError(err.message);
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
-  
+};
+
   
     
   return (

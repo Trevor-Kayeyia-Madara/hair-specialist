@@ -12,11 +12,11 @@ const UserDashboard = () => {
       try {
         const token = localStorage.getItem("authToken");
         if (!token) {
-          navigate("/login"); // Redirect if not authenticated
+          navigate("/login");
           return;
         }
 
-        const response = await fetch(`https://backend-es6y.onrender.com/api/user/${id}`, {
+        const response = await fetch(`https://backend-es6y.onrender.com/api/users/${id}`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
