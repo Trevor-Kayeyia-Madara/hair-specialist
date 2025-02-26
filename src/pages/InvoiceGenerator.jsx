@@ -1,10 +1,19 @@
-import { useEffect, useState } from "react";
+import {useState, useEffect} from 'react'; 
 import { useLocation } from "react-router-dom";
-import jsPDF from "jspdf";
+import jsPDF from 'jspdf';
 
 const InvoiceGenerator = () => {
   const location = useLocation(); // Get location state
-  const { appointmentId } = location.state || {}; // Extract the appointmentId from state
+  const params = new URLSearchParams(location.search); // Extract query params
+  
+  // Extract values from the URL query params
+  const appointmentId = params.get("appointmentId");
+  const customerName = params.get("customerName");
+  const specialistName = params.get("specialistName");
+  const date = params.get("date");
+  const time = params.get("time");
+  const selectedService = params.get("selectedService");
+
   const [appointment, setAppointment] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -55,11 +64,12 @@ const InvoiceGenerator = () => {
 
     const doc = new jsPDF();
     doc.text("📜 Invoice", 90, 10);
-    doc.text(`Customer: ${appointment.customer_name}`, 10, 30);
-    doc.text(`Service: ${appointment.service?.name || "Unknown"}`, 10, 40);
-    doc.text(`Date: ${appointment.date}`, 10, 50);
-    doc.text(`Time: ${appointment.time}`, 10, 60);
-    doc.text(`Amount: KES ${appointment.service?.price || "N/A"}`, 10, 70);
+    doc.text(`Customer: ${customerName}`, 10, 30);
+    doc.text(`Specialist: ${specialistName}`, 10, 40);
+    doc.text(`Service: ${selectedService || "Unknown"}`, 10, 50);
+    doc.text(`Date: ${date}`, 10, 60);
+    doc.text(`Time: ${time}`, 10, 70);
+    doc.text(`Amount: KES ${appointment.service?.price || "N/A"}`, 10, 80);
     doc.save(`invoice_${appointmentId}.pdf`);
   };
 
@@ -71,10 +81,11 @@ const InvoiceGenerator = () => {
     <div className="p-6">
       <h2 className="text-2xl font-bold mb-4">Invoice for Appointment</h2>
       <div className="border p-4 rounded-lg">
-        <p><strong>Customer:</strong> {appointment.customer_name}</p>
+        <p><strong>Customer:</strong> {customerName}</p>
+        <p><strong>Specialist:</strong> {specialistName}</p>
         <p><strong>Service:</strong> {appointment.service?.name || "Unknown"}</p>
-        <p><strong>Date:</strong> {appointment.date}</p>
-        <p><strong>Time:</strong> {appointment.time}</p>
+        <p><strong>Date:</strong> {date}</p>
+        <p><strong>Time:</strong> {time}</p>
         <p><strong>Amount:</strong> KES {appointment.service?.price || "N/A"}</p>
       </div>
       <button onClick={generatePDF} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg">

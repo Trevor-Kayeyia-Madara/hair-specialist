@@ -46,7 +46,6 @@ const BookingForm = () => {
     fetchServices();
   }, [id]);
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -80,9 +79,9 @@ const BookingForm = () => {
       setMessage("✅ Appointment booked successfully!");
       console.log("Navigating to Invoice with Appointment ID:", appointmentId);
   
-      // Pass the appointmentId through state
-      navigate(`/invoice/${appointmentId}`, { state: { appointmentId } });
-  
+      // Passing data as URL params
+      navigate(`/invoice?appointmentId=${appointmentId}&customerName=${customerName}&specialistName=${specialistName}&date=${date}&time=${time}&selectedService=${selectedService}`);
+      
     } catch (error) {
       setMessage(`❌ ${error.message}`);
     } finally {
@@ -90,9 +89,6 @@ const BookingForm = () => {
     }
   };
   
-
-  
-
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 px-4">
       <div className="max-w-md w-full bg-white shadow-lg rounded-2xl p-6 space-y-6">
