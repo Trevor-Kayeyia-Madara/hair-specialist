@@ -33,12 +33,6 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn, userProfile }) => {
             <Link to="/" className="text-white hover:text-blue-100 transition-colors">
               Home
             </Link>
-            <Link to="/search" className="text-white hover:text-blue-100 transition-colors">
-              Search
-            </Link>
-            <Link to="/booking" className="text-white hover:text-blue-100 transition-colors">
-              Appointments
-            </Link>
           </div>
 
           {/* Auth Section */}
