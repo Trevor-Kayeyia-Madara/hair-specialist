@@ -20,7 +20,7 @@ function App() {
           <Route path="/sign-up" element={<SignUp />} />
           <Route path ="/search" element={<Search />} />
           <Route path="/booking/:id" element={<BookingForm />} />
-          <Route path="/invoice/:appointmentId" element={<InvoiceGenerator />} />
+          <Route path="/invoice" element={<InvoiceGenerator />} />
           <Route path="/chat/:id" element={<ChatWindow />} />
           <Route path="/dashboard" element={<UserDashboard  />} />
           <Route path="/reviews" element={<Reviews  />} />
