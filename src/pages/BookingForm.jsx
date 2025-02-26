@@ -50,39 +50,39 @@ const BookingForm = () => {
     e.preventDefault();
     setLoading(true);
     setMessage("");
-
+  
     if (!customerName || !date || !time || !selectedService) {
       setMessage("⚠️ Please fill in all fields.");
       setLoading(false);
       return;
     }
-
+  
     try {
       const response = await fetch("https://backend-es6y.onrender.com/api/appointments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           customer_name: customerName,
-          specialist_id: id,
+          specialist_id: id, // Navigate using specialist ID
           service_id: selectedService,
           date,
           time,
           status: "Pending",
         }),
       });
-
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error || "Booking failed");
-
+  
+      if (!response.ok) throw new Error("Booking failed");
+  
       setMessage("✅ Appointment booked successfully!");
-      navigate(`/invoice/${result.appointment_id}`);
-
+      navigate(`/invoice/${id}`); // Navigate using SpecialistID
+  
     } catch (error) {
       setMessage(`❌ ${error.message}`);
     } finally {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 px-4">
