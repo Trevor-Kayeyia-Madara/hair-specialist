@@ -46,50 +46,50 @@ const BookingForm = () => {
     fetchServices();
   }, [id]);
 
-// Handle submit 
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  setMessage("");
-
-  if (!customerName || !date || !time || !selectedService) {
-    setMessage("⚠️ Please fill in all fields.");
-    setLoading(false);
-    return;
-  }
-
-  try {
-    const response = await fetch("https://backend-es6y.onrender.com/api/appointments", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        customer_name: customerName,
-        specialist_id: id, // Correctly using specialist ID
-        service_id: selectedService,
-        date,
-        time,
-        status: "Pending",
-      }),
-    });
-
-    if (!response.ok) throw new Error("Booking failed");
-
-    const data = await response.json(); // Get the response JSON
-    const appointmentId = data.id; // Extract the appointment ID
-
-    setMessage("✅ Appointment booked successfully!");
-    console.log("Navigating to Invoice with Appointment ID:", appointmentId);
-
-    // Navigate to InvoiceGenerator with Appointment ID
-    navigate(`/invoice/${appointmentId}`);
-
-  } catch (error) {
-    setMessage(`❌ ${error.message}`);
-  } finally {
-    setLoading(false);
-  }
-};
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage("");
+  
+    if (!customerName || !date || !time || !selectedService) {
+      setMessage("⚠️ Please fill in all fields.");
+      setLoading(false);
+      return;
+    }
+  
+    try {
+      const response = await fetch("https://backend-es6y.onrender.com/api/appointments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customer_name: customerName,
+          specialist_id: id,
+          service_id: selectedService,
+          date,
+          time,
+          status: "Pending",
+        }),
+      });
+  
+      if (!response.ok) throw new Error("Booking failed");
+  
+      const data = await response.json(); // Get the response JSON
+      const appointmentId = data.id; // Extract the appointment ID
+  
+      setMessage("✅ Appointment booked successfully!");
+      console.log("Navigating to Invoice with Appointment ID:", appointmentId);
+  
+      // Pass the appointmentId through state
+      navigate(`/invoice/${appointmentId}`, { state: { appointmentId } });
+  
+    } catch (error) {
+      setMessage(`❌ ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
 
   
 

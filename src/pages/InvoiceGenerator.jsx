@@ -1,16 +1,15 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import jsPDF from "jspdf";
 
 const InvoiceGenerator = () => {
-  const { appointmentId } = useParams(); // Get appointmentId from URL params
+  const location = useLocation(); // Get location state
+  const { appointmentId } = location.state || {}; // Extract the appointmentId from state
   const [appointment, setAppointment] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // Debugging to check if appointmentId is being passed
   useEffect(() => {
-    console.log("Appointment ID:", appointmentId); // Log appointmentId
     if (!appointmentId) {
       setError("⚠️ Invalid appointment ID.");
       setLoading(false);
