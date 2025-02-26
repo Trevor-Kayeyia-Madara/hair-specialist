@@ -1,141 +1,161 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
-import ChatWindow from "../components/ChatWindow";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams, Link } from "react-router-dom";
 
 const UserDashboard = () => {
-  const [activeTab, setActiveTab] = useState("upcoming");
-  const [currentUser, setCurrentUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error] = useState(null);
-  const [sessionActive, setSessionActive] = useState(false);
-
-  const navigate = useNavigate(); // Hook for navigation
+  const { id } = useParams();
+  const [user, setUser] = useState(null);
+  const [appointments, setAppointments] = useState([]);
+  const [messages, setMessages] = useState([]);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Simulate fetching user session data
-    setTimeout(() => {
-      const sessionData = JSON.parse(localStorage.getItem("userSession"));
+    const fetchUserProfile = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+          navigate("/login");
+          return;
+        }
 
-      if (sessionData) {
-        setCurrentUser(sessionData);
-        setSessionActive(true);
-      } else {
-        setSessionActive(false);
+        // Fetch user details
+        const response = await fetch(`https://backend-es6y.onrender.com/api/users/${id}`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || "Failed to fetch user data");
+        setUser(result);
+      } catch (err) {
+        setError(err.message);
       }
-      setLoading(false);
-    }, 1000);
-  }, []);
+    };
 
-  // Logout function
+    const fetchAppointments = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+        if (!token) return;
+
+        const response = await fetch(`https://backend-es6y.onrender.com/api/appointments/customer/${id}`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        const result = await response.json();
+        if (!response.ok) throw new Error("Failed to fetch appointments");
+        setAppointments(result);
+      } catch (err) {
+        console.error("Appointments Error:", err.message);
+      }
+    };
+
+    const fetchMessages = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+        if (!token) return;
+
+        const response = await fetch(`https://backend-es6y.onrender.com/api/messages/${id}`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        const result = await response.json();
+        if (!response.ok) throw new Error("Failed to fetch messages");
+        setMessages(result);
+      } catch (err) {
+        console.error("Messages Error:", err.message);
+      }
+    };
+
+    fetchUserProfile();
+    fetchAppointments();
+    fetchMessages();
+  }, [id, navigate]);
+
   const handleLogout = () => {
-    localStorage.removeItem("userSession"); // Remove session from storage
-    setCurrentUser(null);
-    setSessionActive(false);
-    navigate("/login"); // Redirect to login page
+    localStorage.removeItem("authToken");
+    navigate("/login");
   };
 
-  const upcomingAppointments = [
-    {
-      id: 1,
-      date: "2025-02-15T10:00:00",
-      specialist: { name: "Sarah Johnson", avatar: "/specialist1.jpg" },
-      service: "Balayage",
-    },
-    {
-      id: 2,
-      date: "2025-02-20T14:30:00",
-      specialist: { name: "Mike Wilson", avatar: "/specialist2.jpg" },
-      service: "Haircut & Style",
-    },
-  ];
-
-  const tabContent = {
-    upcoming: (
-      <div className="grid gap-4">
-        {upcomingAppointments.map((appointment) => (
-          <div key={appointment.id} className="bg-white p-6 rounded-lg shadow-md">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-4">
-                <img
-                  src={appointment.specialist.avatar}
-                  alt={appointment.specialist.name}
-                  className="w-12 h-12 rounded-full object-cover"
-                />
-                <div>
-                  <h3 className="font-semibold">{appointment.service}</h3>
-                  <p className="text-gray-600">with {appointment.specialist.name}</p>
-                  <p className="text-sm text-gray-500">
-                    {new Date(appointment.date).toLocaleString()}
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <button className="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50">
-                  Reschedule
-                </button>
-                <button className="px-4 py-2 text-red-600 border border-red-600 rounded-lg hover:bg-red-50">
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    ),
-    messages: sessionActive ? (
-      <div className="flex gap-4">
-        <div className="w-1/3 bg-white rounded-lg shadow-md p-4">
-          <h3 className="font-semibold mb-4">Your Specialists</h3>
-        </div>
-        <div className="w-2/3">
-          <ChatWindow messages={[]} onSendMessage={() => {}} currentUser={currentUser} />
-        </div>
-      </div>
-    ) : (
-      <p className="text-gray-500">No active session. Start a new chat.</p>
-    ),
-  };
+  if (error) return <div className="text-red-500">{error}</div>;
+  if (!user) return <div className="text-center">Loading...</div>;
 
   return (
-    <div className="p-6">
-      {loading ? (
-        <p>Loading...</p>
-      ) : error ? (
-        <p className="text-red-500">{error}</p>
-      ) : (
-        <>
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold">Dashboard</h2>
-                        {currentUser && (
-                            <button
-                              onClick={handleLogout}
-                              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                            >
-                              Logout
-                            </button>
-            )}
-          </div>
-          <div className="flex gap-4">
-            <button
-              className={`px-4 py-2 ${
-                activeTab === "upcoming" ? "bg-blue-600 text-white" : "bg-gray-200"
-              } rounded-lg`}
-              onClick={() => setActiveTab("upcoming")}
-            >
-              Upcoming Appointments
+    <div className="flex min-h-screen">
+      {/* Sidebar */}
+      <div className="w-1/4 bg-gray-800 text-white p-6">
+        <h2 className="text-2xl font-bold mb-6">Dashboard</h2>
+        <ul className="space-y-4">
+          <li>
+            <Link to="/" className="hover:underline">🏠 Home</Link>
+          </li>
+          <li>
+            <button onClick={() => navigate(`/customer-dashboard/${id}/appointments`)} className="hover:underline">
+              📅 Appointments
             </button>
-            <button
-              className={`px-4 py-2 ${
-                activeTab === "messages" ? "bg-blue-600 text-white" : "bg-gray-200"
-              } rounded-lg`}
-              onClick={() => setActiveTab("messages")}
-            >
-              Messages
+          </li>
+          <li>
+            <button onClick={() => navigate(`/customer-dashboard/${id}/messages`)} className="hover:underline">
+              💬 Messages
             </button>
-          </div>
-          <div className="mt-4">{tabContent[activeTab]}</div>
-        </>
-      )}
+          </li>
+          <li>
+            <button onClick={handleLogout} className="text-red-400 hover:underline">🚪 Logout</button>
+          </li>
+        </ul>
+      </div>
+
+      {/* Main Content */}
+      <div className="w-3/4 p-6 bg-gray-100">
+        <h2 className="text-2xl font-bold mb-4">Welcome, {user.full_name}</h2>
+        <p className="text-gray-600">User Type: {user.userType}</p>
+
+        {/* Appointments Section */}
+        <div className="mt-6">
+          <h3 className="text-xl font-semibold mb-3">📅 Your Appointments</h3>
+          {appointments.length === 0 ? (
+            <p>No upcoming appointments.</p>
+          ) : (
+            <ul className="space-y-3">
+              {appointments.map((appt) => (
+                <li key={appt.id} className="bg-white p-4 rounded shadow">
+                  <p><strong>Specialist:</strong> {appt.specialist_name}</p>
+                  <p><strong>Service:</strong> {appt.service}</p>
+                  <p><strong>Date:</strong> {new Date(appt.date).toLocaleString()}</p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {/* Messages Section */}
+        <div className="mt-6">
+          <h3 className="text-xl font-semibold mb-3">💬 Your Messages</h3>
+          {messages.length === 0 ? (
+            <p>No messages yet.</p>
+          ) : (
+            <ul className="space-y-3">
+              {messages.map((msg) => (
+                <li key={msg.id} className="bg-white p-4 rounded shadow">
+                  <p><strong>From:</strong> {msg.specialist_name}</p>
+                  <p>{msg.content}</p>
+                  <p className="text-sm text-gray-500">{new Date(msg.created_at).toLocaleString()}</p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
