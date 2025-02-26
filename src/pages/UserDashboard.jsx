@@ -1,140 +1,54 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
-import ChatWindow from "../components/ChatWindow";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 const UserDashboard = () => {
-  const [activeTab, setActiveTab] = useState("upcoming");
-  const [currentUser, setCurrentUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error] = useState(null);
-  const [sessionActive, setSessionActive] = useState(false);
-
-  const navigate = useNavigate(); // Hook for navigation
+  const { id } = useParams();
+  const [user, setUser] = useState(null);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const sessionData = JSON.parse(localStorage.getItem("userSession"));
-    const storedUserId = localStorage.getItem("userId"); // Retrieve stored ID
-  
-    if (sessionData) {
-      setCurrentUser({ ...sessionData, id: storedUserId });
-      setSessionActive(true);
-    } else {
-      setSessionActive(false);
-    }
-    setLoading(false);
-  }, []);
-  
+    const fetchUserProfile = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+          navigate("/login"); // Redirect if not authenticated
+          return;
+        }
 
-  // Logout function
-  const handleLogout = () => {
-    localStorage.removeItem("userSession"); // Remove session from storage
-    setCurrentUser(null);
-    setSessionActive(false);
-    navigate("/login"); // Redirect to login page
-  };
+        const response = await fetch(`https://backend-es6y.onrender.com/api/user/${id}`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
 
-  const upcomingAppointments = [
-    {
-      id: 1,
-      date: "2025-02-15T10:00:00",
-      specialist: { name: "Sarah Johnson", avatar: "/specialist1.jpg" },
-      service: "Balayage",
-    },
-    {
-      id: 2,
-      date: "2025-02-20T14:30:00",
-      specialist: { name: "Mike Wilson", avatar: "/specialist2.jpg" },
-      service: "Haircut & Style",
-    },
-  ];
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || "Failed to fetch user data");
 
-  const tabContent = {
-    upcoming: (
-      <div className="grid gap-4">
-        {upcomingAppointments.map((appointment) => (
-          <div key={appointment.id} className="bg-white p-6 rounded-lg shadow-md">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-4">
-                <img
-                  src={appointment.specialist.avatar}
-                  alt={appointment.specialist.name}
-                  className="w-12 h-12 rounded-full object-cover"
-                />
-                <div>
-                  <h3 className="font-semibold">{appointment.service}</h3>
-                  <p className="text-gray-600">with {appointment.specialist.name}</p>
-                  <p className="text-sm text-gray-500">
-                    {new Date(appointment.date).toLocaleString()}
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <button className="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50">
-                  Reschedule
-                </button>
-                <button className="px-4 py-2 text-red-600 border border-red-600 rounded-lg hover:bg-red-50">
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    ),
-    messages: sessionActive ? (
-      <div className="flex gap-4">
-        <div className="w-1/3 bg-white rounded-lg shadow-md p-4">
-          <h3 className="font-semibold mb-4">Your Specialists</h3>
-        </div>
-        <div className="w-2/3">
-          <ChatWindow messages={[]} onSendMessage={() => {}} currentUser={currentUser} />
-        </div>
-      </div>
-    ) : (
-      <p className="text-gray-500">No active session. Start a new chat.</p>
-    ),
-  };
+        setUser(result);
+      } catch (err) {
+        setError(err.message);
+      }
+    };
+
+    fetchUserProfile();
+  }, [id, navigate]);
+
+  if (error) return <div className="text-red-500">{error}</div>;
+  if (!user) return <div className="text-center">Loading...</div>;
 
   return (
-    <div className="p-6">
-      {loading ? (
-        <p>Loading...</p>
-      ) : error ? (
-        <p className="text-red-500">{error}</p>
-      ) : (
-        <>
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold">Dashboard</h2>
-                        {currentUser && (
-                            <button
-                              onClick={handleLogout}
-                              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                            >
-                              Logout
-                            </button>
-            )}
-          </div>
-          <div className="flex gap-4">
-            <button
-              className={`px-4 py-2 ${
-                activeTab === "upcoming" ? "bg-blue-600 text-white" : "bg-gray-200"
-              } rounded-lg`}
-              onClick={() => setActiveTab("upcoming")}
-            >
-              Upcoming Appointments
-            </button>
-            <button
-              className={`px-4 py-2 ${
-                activeTab === "messages" ? "bg-blue-600 text-white" : "bg-gray-200"
-              } rounded-lg`}
-              onClick={() => setActiveTab("messages")}
-            >
-              Messages
-            </button>
-          </div>
-          <div className="mt-4">{tabContent[activeTab]}</div>
-        </>
-      )}
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-6">
+      <div className="max-w-lg w-full bg-white p-6 rounded-lg shadow-md">
+        <h2 className="text-2xl font-bold text-center">Welcome, {user.full_name}</h2>
+        <p className="text-gray-600 text-center">User Type: {user.userType}</p>
+        <div className="mt-4">
+          <p>Email: {user.email}</p>
+          <p>Account ID: {id}</p>
+        </div>
+      </div>
     </div>
   );
 };
