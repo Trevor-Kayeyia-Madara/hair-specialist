@@ -3,16 +3,8 @@ import { useLocation } from "react-router-dom";
 import jsPDF from 'jspdf';
 
 const InvoiceGenerator = () => {
-  const location = useLocation(); // Get location state
-  const params = new URLSearchParams(location.search); // Extract query params
-  
-  // Extract values from the URL query params
-  const appointmentId = params.get("appointmentId");
-  const customerName = params.get("customerName");
-  const specialistName = params.get("specialistName");
-  const date = params.get("date");
-  const time = params.get("time");
-  const selectedService = params.get("selectedService");
+  const location = useLocation();
+  const { appointmentId, customerName, specialistName, date, time, selectedService } = location.state || {};
 
   const [appointment, setAppointment] = useState(null);
   const [error, setError] = useState("");
@@ -27,30 +19,24 @@ const InvoiceGenerator = () => {
 
     const fetchAppointment = async () => {
       try {
-        const token = localStorage.getItem("authToken"); // Assuming the token is stored in localStorage
+        const token = localStorage.getItem("authToken");
         const response = await fetch(`https://backend-es6y.onrender.com/api/appointments/${appointmentId}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": token ? `Bearer ${token}` : "", // Pass token in Authorization header
+            "Authorization": token ? `Bearer ${token}` : "",
           },
         });
 
         if (!response.ok) {
-          if (response.status === 401) {
-            throw new Error("Unauthorized: Please log in.");
-          } else if (response.status === 404) {
-            throw new Error("Appointment not found.");
-          } else {
-            throw new Error("Failed to fetch appointment. Please try again later.");
-          }
+          throw new Error("Failed to fetch appointment details.");
         }
 
         const data = await response.json();
         setAppointment(data);
       } catch (error) {
-        setError(error.message || "❌ Error fetching appointment details. Try again later.");
-        console.error("Error fetching appointment:", error);
+        setError(error.message || "❌ Error fetching appointment details.");
+        console.error(error);
       } finally {
         setLoading(false);
       }

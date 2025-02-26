@@ -76,12 +76,27 @@ const BookingForm = () => {
       const data = await response.json(); // Get the response JSON
       const appointmentId = data.id; // Extract the appointment ID
   
+      if (!appointmentId) {
+        setMessage("❌ No appointment ID returned.");
+        setLoading(false);
+        return;
+      }
+  
       setMessage("✅ Appointment booked successfully!");
       console.log("Navigating to Invoice with Appointment ID:", appointmentId);
   
-      // Passing data as URL params
-      navigate(`/invoice?appointmentId=${appointmentId}&customerName=${customerName}&specialistName=${specialistName}&date=${date}&time=${time}&selectedService=${selectedService}`);
-      
+      // Pass all necessary data through navigate
+      navigate("/invoice", {
+        state: {
+          appointmentId,
+          customerName,
+          specialistName,
+          date,
+          time,
+          selectedService,
+        },
+      });
+  
     } catch (error) {
       setMessage(`❌ ${error.message}`);
     } finally {
