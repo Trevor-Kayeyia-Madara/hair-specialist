@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 const BookingForm = () => {
-  const { id } = useParams(); // Specialist ID
+  const { id } = useParams(); // Ensure id is always available
   const navigate = useNavigate();
   const [specialistName, setSpecialistName] = useState("");
   const [services, setServices] = useState([]);
@@ -14,22 +14,27 @@ const BookingForm = () => {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    // Fetch specialist details
+    if (!id) {
+      setMessage("⚠️ Invalid specialist ID.");
+      return;
+    }
+
     const fetchSpecialist = async () => {
       try {
         const response = await fetch(`https://backend-es6y.onrender.com/api/specialists/${id}`);
+        if (!response.ok) throw new Error("Specialist not found");
         const data = await response.json();
         setSpecialistName(data.full_name || "Unknown Specialist");
       } catch (error) {
-        console.error("Error fetching specialist:", error);
         setSpecialistName("Unknown Specialist");
+        console.error("Error fetching specialist:", error);
       }
     };
 
-    // Fetch available services for the specialist
     const fetchServices = async () => {
       try {
         const response = await fetch(`https://backend-es6y.onrender.com/api/services?specialistId=${id}`);
+        if (!response.ok) throw new Error("Services not found");
         const data = await response.json();
         setServices(data);
       } catch (error) {
@@ -37,10 +42,8 @@ const BookingForm = () => {
       }
     };
 
-    if (id) {
-      fetchSpecialist();
-      fetchServices();
-    }
+    fetchSpecialist();
+    fetchServices();
   }, [id]);
 
   const handleSubmit = async (e) => {
@@ -72,12 +75,10 @@ const BookingForm = () => {
       if (!response.ok) throw new Error(result.error || "Booking failed");
 
       setMessage("✅ Appointment booked successfully!");
-
-      // Navigate to invoice page after booking
       navigate(`/invoice/${result.appointment_id}`);
 
     } catch (error) {
-      setMessage(error.message);
+      setMessage(`❌ ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -89,7 +90,7 @@ const BookingForm = () => {
         <h2 className="text-3xl font-bold text-center">📅 Book an Appointment</h2>
 
         {message && (
-          <p className={`text-center p-3 rounded-lg ${message.includes("⚠️") ? "bg-red-100" : "bg-green-100"}`}>
+          <p className={`text-center p-3 rounded-lg ${message.includes("⚠️") || message.includes("❌") ? "bg-red-100" : "bg-green-100"}`}>
             {message}
           </p>
         )}
@@ -99,9 +100,13 @@ const BookingForm = () => {
           <input type="text" value={specialistName} readOnly className="w-full p-3 border rounded-lg bg-gray-100" />
           <select value={selectedService} onChange={(e) => setSelectedService(e.target.value)} required className="w-full p-3 border rounded-lg">
             <option value="">Select Service</option>
-            {services.map((service) => (
-              <option key={service.id} value={service.id}>{service.name} - ${service.price}</option>
-            ))}
+            {services.length > 0 ? (
+              services.map((service) => (
+                <option key={service.id} value={service.id}>{service.name} - ${service.price}</option>
+              ))
+            ) : (
+              <option disabled>No services available</option>
+            )}
           </select>
           <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required className="w-full p-3 border rounded-lg" />
           <input type="time" value={time} onChange={(e) => setTime(e.target.value)} required className="w-full p-3 border rounded-lg" />
