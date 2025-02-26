@@ -74,6 +74,7 @@ const BookingForm = () => {
       if (!response.ok) throw new Error("Booking failed");
   
       setMessage("✅ Appointment booked successfully!");
+      console.log("Navigating with SpecialistID:", id);
       navigate(`/invoice/${id}`); // Navigate using SpecialistID
   
     } catch (error) {
