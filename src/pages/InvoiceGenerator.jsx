@@ -3,40 +3,55 @@ import { useParams } from "react-router-dom";
 import jsPDF from "jspdf";
 
 const InvoiceGenerator = () => {
-    const { appointmentId } = useParams();
-    const [appointment, setAppointment] = useState(null);
-  
-    useEffect(() => {
-      const fetchAppointment = async () => {
-        try {
-          const response = await fetch(`https://backend-es6y.onrender.com/api/appointments/${appointmentId}`);
-          const data = await response.json();
-          setAppointment(data);
-        } catch (error) {
-          console.error("Error fetching appointment:", error);
-        }
-      };
-      fetchAppointment();
-    }, [appointmentId]);
-  
-    const generatePDF = () => {
-      const doc = new jsPDF();
-      doc.text("📜 Invoice", 90, 10);
-      doc.text(`Customer: ${appointment.customer_name}`, 10, 30);
-      doc.text(`Service: ${appointment.service.name}`, 10, 40);
-      doc.text(`Date: ${appointment.date}`, 10, 50);
-      doc.text(`Time: ${appointment.time}`, 10, 60);
-      doc.text(`Amount: $${appointment.service.price}`, 10, 70);
-      doc.save("invoice.pdf");
-    };
-  
-    if (!appointment) return <p>Loading...</p>;
-  return (
-    <div>
-      <h2>Invoice for {appointment.customer_name}</h2>
-      <button onClick={generatePDF}>Download PDF</button>
-    </div>
-  )
-}
+  const { appointmentId } = useParams();
+  const [appointment, setAppointment] = useState(null);
+  const [error, setError] = useState("");
 
-export default InvoiceGenerator
+  useEffect(() => {
+    if (!appointmentId || appointmentId === "undefined") {
+      setError("⚠️ Invalid appointment ID.");
+      return;
+    }
+
+    const fetchAppointment = async () => {
+      try {
+        const response = await fetch(`https://backend-es6y.onrender.com/api/appointments/${appointmentId}`);
+        if (!response.ok) throw new Error("Failed to fetch appointment");
+        const data = await response.json();
+        setAppointment(data);
+      } catch (error) {
+        setError("❌ Error fetching appointment. Try again later.");
+        console.error("Error fetching appointment:", error);
+      }
+    };
+
+    fetchAppointment();
+  }, [appointmentId]);
+
+  const generatePDF = () => {
+    if (!appointment) return;
+
+    const doc = new jsPDF();
+    doc.text("📜 Invoice", 90, 10);
+    doc.text(`Customer: ${appointment.customer_name}`, 10, 30);
+    doc.text(`Service: ${appointment.service?.name || "Unknown"}`, 10, 40);
+    doc.text(`Date: ${appointment.date}`, 10, 50);
+    doc.text(`Time: ${appointment.time}`, 10, 60);
+    doc.text(`Amount: $${appointment.service?.price || "N/A"}`, 10, 70);
+    doc.save("invoice.pdf");
+  };
+
+  if (error) return <p className="text-red-500">{error}</p>;
+  if (!appointment) return <p>Loading...</p>;
+
+  return (
+    <div className="p-6">
+      <h2 className="text-2xl font-bold">Invoice for {appointment.customer_name}</h2>
+      <button onClick={generatePDF} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg">
+        Download PDF
+      </button>
+    </div>
+  );
+};
+
+export default InvoiceGenerator;
