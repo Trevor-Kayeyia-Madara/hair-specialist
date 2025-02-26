@@ -1,14 +1,22 @@
 import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
 const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {
   const navigate = useNavigate();
-  const userId = localStorage.getItem("userId"); // Retrieve stored customer ID
+  const [userId, setUserId] = useState(localStorage.getItem("userId")); // Initialize with stored userId
+
+  useEffect(() => {
+    // Update userId whenever authentication status changes
+    const storedUserId = localStorage.getItem("userId");
+    setUserId(storedUserId);
+  }, [isLoggedIn]); // Depend on isLoggedIn to re-check storage
 
   const handleLogout = () => {
-    localStorage.removeItem("authToken"); 
-    localStorage.removeItem("userId"); 
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("userId");
     setIsLoggedIn(false);
+    setUserId(null); // Clear userId from state
     navigate("/login");
   };
 
