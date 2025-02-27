@@ -240,7 +240,7 @@ useEffect(() => {
             key={appointment.id}
             className="border p-4 rounded-lg shadow-sm bg-gray-50"
           >
-            <p><strong>Client:</strong> {appointment.client_name}</p>
+            <p><strong>Client:</strong> {appointment.customer_name}</p>
             <p><strong>Date:</strong> {new Date(appointment.date).toLocaleDateString()}</p>
             <p><strong>Time:</strong> {appointment.time}</p>
             <p><strong>Status:</strong> {appointment.status}</p>
