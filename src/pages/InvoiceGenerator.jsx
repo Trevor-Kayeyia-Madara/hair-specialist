@@ -3,13 +3,13 @@ import { useParams } from "react-router-dom";
 import jsPDF from 'jspdf';
 
 const InvoiceGenerator = () => {
-  const { customer_id } = useParams(); // ✅ Get customer ID from the route
+  const { appointment_id } = useParams();
   const [appointment, setAppointment] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!customer_id) {
+    if (!appointment_id) {
       setError("⚠️ Invalid appointment ID.");
       setLoading(false);
       return;
@@ -18,7 +18,7 @@ const InvoiceGenerator = () => {
     const fetchAppointment = async () => {
       try {
         const token = localStorage.getItem("authToken");
-        const response = await fetch(`https://backend-es6y.onrender.com/api/appointments/${customer_id}`, {
+        const response = await fetch(`https://backend-es6y.onrender.com/api/appointments/${appointment_id}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -41,7 +41,7 @@ const InvoiceGenerator = () => {
     };
 
     fetchAppointment();
-  }, [customer_id]);
+  }, [appointment_id]);
 
   // Generate PDF invoice
   const generatePDF = () => {
@@ -56,7 +56,7 @@ const InvoiceGenerator = () => {
     doc.text(`Date: ${appointment.date}`, 10, 70);
     doc.text(`Time: ${appointment.time}`, 10, 80);
     doc.text(`Amount: KES ${appointment.service?.price || "N/A"}`, 10, 90);
-    doc.save(`invoice_${customer_id}.pdf`);
+    doc.save(`invoice_${appointment_id}.pdf`);
   };
 
   if (loading) return <p>Loading appointment details...</p>;
