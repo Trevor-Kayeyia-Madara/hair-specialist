@@ -52,7 +52,7 @@ const [appointmentsError, setAppointmentsError] = useState(null);
   const updateProfile = async (updatedProfile) => {
     setLoading(true);
     try {
-      await axios.put(
+      await axios.patch(
         `https://backend-es6y.onrender.com/api/specialists/${id}`,
         updatedProfile
       );
