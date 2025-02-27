@@ -28,6 +28,7 @@ const BookingForm = () => {
         setCustomerName(data.user.full_name);  // Auto-fill customer name
       } catch (error) {
         console.error("Error fetching user:", error);
+        setMessage("❌ Error fetching user details. Please log in again.");
       }
     };
 
@@ -40,18 +41,18 @@ const BookingForm = () => {
       setMessage("⚠️ Invalid specialist ID.");
       return;
     }
-  
+
     const fetchSpecialistDetails = async () => {
       try {
         const response = await fetch(`https://backend-es6y.onrender.com/api/specialists/${id}`);
         if (!response.ok) throw new Error("Specialist not found");
-  
+
         const data = await response.json();
-  
+
         if (!data || !data.full_name) {
           throw new Error("Specialist name is missing from the response");
         }
-  
+
         setSpecialistName(data.full_name);  // ✅ Now properly sets the name
 
         // Fetch services based on the specialist's speciality
@@ -73,17 +74,28 @@ const BookingForm = () => {
     e.preventDefault();
     setLoading(true);
     setMessage("");
-  
+
+    // Validate the inputs
     if (!customerName || !date || !time || !selectedService) {
       setMessage("⚠️ Please fill in all fields.");
       setLoading(false);
       return;
     }
-  
+
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      setMessage("⚠️ You must be logged in to book an appointment.");
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await fetch("https://backend-es6y.onrender.com/api/appointments", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`, // Include token for authentication
+        },
         body: JSON.stringify({
           customer_name: customerName,
           specialist_id: id,
@@ -93,15 +105,15 @@ const BookingForm = () => {
           status: "Pending",
         }),
       });
-  
+
       if (!response.ok) throw new Error("Booking failed");
-  
+
       const appointmentData = await response.json(); // Assuming the response contains appointment details
       setMessage("✅ Appointment booked successfully!");
-  
+
       // Assuming the response contains customer details, you could pass customer ID to the invoice route.
       navigate(`/invoice/${appointmentData.customer_id}`);
-  
+
     } catch (error) {
       console.error("Booking error:", error);
       setMessage(`❌ ${error.message}`);
@@ -109,7 +121,6 @@ const BookingForm = () => {
       setLoading(false);
     }
   };
-  
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 px-4">
