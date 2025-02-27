@@ -4,13 +4,14 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 const UserDashboard = () => {
   const { id } = useParams();
   const [user, setUser] = useState(null);
+  const [customer, setCustomer] = useState(null);
   const [appointments, setAppointments] = useState([]);
   const [messages, setMessages] = useState([]);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchUserProfile = async () => {
+    const fetchData = async () => {
       try {
         const token = localStorage.getItem("authToken");
         if (!token) {
@@ -18,67 +19,48 @@ const UserDashboard = () => {
           return;
         }
 
-        const response = await fetch(`https://backend-es6y.onrender.com/api/users/${id}`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
+        // Fetch user data
+        const userRes = await fetch(`https://backend-es6y.onrender.com/api/users/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
         });
 
-        const result = await response.json();
-        if (!response.ok) throw new Error(result.message || "Failed to fetch user data");
-        setUser(result);
+        const userData = await userRes.json();
+        if (!userRes.ok) throw new Error("Failed to fetch user data");
+        setUser(userData);
+
+        // Fetch customer details (linked via user_id)
+        const customerRes = await fetch(`https://backend-es6y.onrender.com/api/customers/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const customerData = await customerRes.json();
+        if (!customerRes.ok) throw new Error("Failed to fetch customer data");
+        setCustomer(customerData);
+
+        // Fetch appointments
+        const appointmentsRes = await fetch(
+          `https://backend-es6y.onrender.com/api/appointments/customer/${id}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        const appointmentsData = await appointmentsRes.json();
+        if (!appointmentsRes.ok) throw new Error("Failed to fetch appointments");
+        setAppointments(appointmentsData);
+
+        // Fetch messages
+        const messagesRes = await fetch(`https://backend-es6y.onrender.com/api/messages/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const messagesData = await messagesRes.json();
+        if (!messagesRes.ok) throw new Error("Failed to fetch messages");
+        setMessages(messagesData);
       } catch (err) {
         setError(err.message);
       }
     };
 
-    const fetchAppointments = async () => {
-      try {
-        const token = localStorage.getItem("authToken");
-        if (!token) return;
-
-        const response = await fetch(`https://backend-es6y.onrender.com/api/appointments/customer/${id}`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        const result = await response.json();
-        if (!response.ok) throw new Error("Failed to fetch appointments");
-        setAppointments(result);
-      } catch (err) {
-        console.error("Appointments Error:", err.message);
-      }
-    };
-
-    const fetchMessages = async () => {
-      try {
-        const token = localStorage.getItem("authToken");
-        if (!token) return;
-
-        const response = await fetch(`https://backend-es6y.onrender.com/api/messages/${id}`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        const result = await response.json();
-        if (!response.ok) throw new Error("Failed to fetch messages");
-        setMessages(result);
-      } catch (err) {
-        console.error("Messages Error:", err.message);
-      }
-    };
-
-    fetchUserProfile();
-    fetchAppointments();
-    fetchMessages();
+    fetchData();
   }, [id, navigate]);
 
   const handleLogout = () => {
@@ -87,13 +69,13 @@ const UserDashboard = () => {
   };
 
   if (error) return <div className="text-red-500 text-center mt-6">{error}</div>;
-  if (!user) return <div className="text-center text-lg font-semibold mt-6">Loading...</div>;
+  if (!user || !customer) return <div className="text-center text-lg font-semibold mt-6">Loading...</div>;
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen">
+    <div className="flex flex-col md:flex-row min-h-screen bg-gray-50">
       {/* Sidebar */}
-      <div className="w-full md:w-1/4 bg-gray-800 text-white p-6 min-h-screen">
-        <h2 className="text-2xl font-bold mb-6 text-center md:text-left">Dashboard</h2>
+      <div className="w-full md:w-1/4 bg-gray-900 text-white p-6 min-h-screen">
+        <h2 className="text-2xl font-bold mb-6 text-center">Dashboard</h2>
         <ul className="space-y-4">
           <li>
             <Link to="/" className="block py-2 px-4 rounded hover:bg-gray-700">
@@ -128,11 +110,10 @@ const UserDashboard = () => {
       </div>
 
       {/* Main Content */}
-      <div className="w-full md:w-3/4 p-6 bg-gray-100">
-        <h2 className="text-2xl font-bold mb-4 text-center md:text-left">
-          Welcome, {user.full_name}
-        </h2>
+      <div className="w-full md:w-3/4 p-6 bg-white shadow-md rounded-lg">
+        <h2 className="text-2xl font-bold mb-4 text-center md:text-left">Welcome, {user.full_name}</h2>
         <p className="text-gray-600 text-center md:text-left">User Type: {user.userType}</p>
+        <p className="text-gray-600 text-center md:text-left">📞 {customer.phone_number} | 📍 {customer.address}</p>
 
         {/* Appointments Section */}
         <div className="mt-6">
