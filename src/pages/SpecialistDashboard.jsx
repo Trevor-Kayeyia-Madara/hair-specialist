@@ -5,6 +5,9 @@ import axios from "axios";
 const SpecialistDashboard = () => {
   const [selectedTab, setSelectedTab] = useState("profile");
   const [profile, setProfile] = useState(null);
+  const [appointments, setAppointments] = useState([]);
+const [appointmentsLoading, setAppointmentsLoading] = useState(false);
+const [appointmentsError, setAppointmentsError] = useState(null);
   const [updatedProfileData, setUpdatedProfileData] = useState({
     full_name: "",
     speciality: "",
@@ -72,7 +75,27 @@ const SpecialistDashboard = () => {
     event.preventDefault();
     updateProfile(updatedProfileData);
   };
+    // Fetch appointments for the specialist
+const fetchAppointments = useCallback(async () => {
+  setAppointmentsLoading(true);
+  try {
+    const response = await axios.get(
+      `https://backend-es6y.onrender.com/api/appointments/specialist/${id}`
+    );
+    setAppointments(response.data);
+    setAppointmentsError(null);
+  } catch {
+    setAppointmentsError("Failed to fetch appointments.");
+  } finally {
+    setAppointmentsLoading(false);
+  }
+}, [id]);
 
+useEffect(() => {
+  if (selectedTab === "appointments") {
+    fetchAppointments();
+  }
+}, [selectedTab, fetchAppointments]);
   return (
     <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar Navigation */}
@@ -203,18 +226,33 @@ const SpecialistDashboard = () => {
             )}
           </div>
         )}
-        {selectedTab === "appointments" && (
-          <div className="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-bold mb-4 text-center">Appointments</h2>
-            <p className="text-center">No upcoming appointments.</p>
-          </div>
-        )}
-        {selectedTab === "messages" && (
-          <div className="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-bold mb-4 text-center">Messages</h2>
-            <p className="text-center">No messages yet.</p>
-          </div>
-        )}
+       {selectedTab === "appointments" && (
+  <div className="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md">
+    <h2 className="text-xl font-bold mb-4 text-center">Appointments</h2>
+    {appointmentsLoading ? (
+      <p className="text-center">Loading...</p>
+    ) : appointmentsError ? (
+      <p className="text-center text-red-500">{appointmentsError}</p>
+    ) : appointments.length > 0 ? (
+      <ul className="space-y-4">
+        {appointments.map((appointment) => (
+          <li
+            key={appointment.id}
+            className="border p-4 rounded-lg shadow-sm bg-gray-50"
+          >
+            <p><strong>Client:</strong> {appointment.client_name}</p>
+            <p><strong>Date:</strong> {new Date(appointment.date).toLocaleDateString()}</p>
+            <p><strong>Time:</strong> {appointment.time}</p>
+            <p><strong>Status:</strong> {appointment.status}</p>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p className="text-center">No upcoming appointments.</p>
+    )}
+  </div>
+)}
+
       </main>
     </div>
   );
