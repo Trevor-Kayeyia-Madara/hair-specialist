@@ -165,61 +165,40 @@ useEffect(() => {
 
                 {/* Update Profile Form */}
                 <form onSubmit={handleUpdateSubmit} className="mt-4 w-full">
-                  <input
-                    type="text"
-                    placeholder="Full Name"
-                    value={updatedProfileData.full_name}
-                    onChange={(e) =>
-                      setUpdatedProfileData({
-                        ...updatedProfileData,
-                        full_name: e.target.value,
-                      })
-                    }
-                    className="w-full p-2 border rounded mb-2"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Speciality"
-                    value={updatedProfileData.speciality}
-                    onChange={(e) =>
-                      setUpdatedProfileData({
-                        ...updatedProfileData,
-                        speciality: e.target.value,
-                      })
-                    }
-                    className="w-full p-2 border rounded mb-2"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Service Rates"
-                    value={updatedProfileData.service_rates}
-                    onChange={(e) =>
-                      setUpdatedProfileData({
-                        ...updatedProfileData,
-                        service_rates: e.target.value,
-                      })
-                    }
-                    className="w-full p-2 border rounded mb-2"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Location"
-                    value={updatedProfileData.location}
-                    onChange={(e) =>
-                      setUpdatedProfileData({
-                        ...updatedProfileData,
-                        location: e.target.value,
-                      })
-                    }
-                    className="w-full p-2 border rounded mb-2"
-                  />
-                  <button
-                    type="submit"
-                    className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
-                  >
-                    Update Profile
-                  </button>
-                </form>
+    <input
+        type="text"
+        placeholder="Full Name"
+        value={updatedProfileData.full_name || ""}
+        onChange={(e) => setUpdatedProfileData({ ...updatedProfileData, full_name: e.target.value })}
+        className="w-full p-2 border rounded mb-2"
+        required
+    />
+    <input
+        type="text"
+        placeholder="Speciality"
+        value={updatedProfileData.speciality || ""}
+        onChange={(e) => setUpdatedProfileData({ ...updatedProfileData, speciality: e.target.value })}
+        className="w-full p-2 border rounded mb-2"
+        required
+    />
+    <input
+        type="text"
+        placeholder="Service Rates"
+        value={updatedProfileData.service_rates || ""}
+        onChange={(e) => setUpdatedProfileData({ ...updatedProfileData, service_rates: e.target.value })}
+        className="w-full p-2 border rounded mb-2"
+    />
+    <input
+        type="text"
+        placeholder="Location"
+        value={updatedProfileData.location || ""}
+        onChange={(e) => setUpdatedProfileData({ ...updatedProfileData, location: e.target.value })}
+        className="w-full p-2 border rounded mb-2"
+    />
+    <button type="submit" className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+        Update Profile
+    </button>
+</form>
               </div>
             ) : (
               <p className="text-center">No user data available.</p>
