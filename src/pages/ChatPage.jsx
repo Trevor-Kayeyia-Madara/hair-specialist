@@ -1,17 +1,21 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { io } from "socket.io-client";
+
+const socket = io("https://backend-es6y.onrender.com"); // Connect to backend WebSocket
 
 const ChatPage = () => {
   const { customerId } = useParams(); // Get customer ID from URL
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
+  const userId = localStorage.getItem("userId"); // Get userId from local storage
 
   useEffect(() => {
     const fetchMessages = async () => {
       try {
         const response = await axios.get(
-          `https://backend-es6y.onrender.com/api/chat/${customerId}`
+          `https://backend-es6y.onrender.com/api/chat/${customerId}/${userId}`
         );
         setMessages(response.data);
       } catch (error) {
@@ -20,18 +24,36 @@ const ChatPage = () => {
     };
 
     fetchMessages();
-  }, [customerId]);
+
+    // Join chat room (customer & specialist)
+    socket.emit("joinRoom", { customerId, specialistId: userId });
+
+    // Listen for new messages
+    socket.on("receiveMessage", (message) => {
+      setMessages((prevMessages) => [...prevMessages, message]);
+    });
+
+    return () => {
+      socket.off("receiveMessage");
+    };
+  }, [customerId, userId]);
 
   const sendMessage = async () => {
     if (!newMessage.trim()) return;
 
-    try {
-      await axios.post(`https://backend-es6y.onrender.com/api/chat/send`, {
-        senderId: localStorage.getItem("userId"), // Assuming stored userId
-        receiverId: customerId,
-        content: newMessage,
-      });
+    const messageData = {
+      senderId: userId,
+      receiverId: customerId,
+      message: newMessage,
+    };
 
+    try {
+      await axios.post(`https://backend-es6y.onrender.com/api/chat/send`, messageData);
+
+      // Emit message to Socket.io
+      socket.emit("sendMessage", messageData);
+
+      // Update chat UI instantly
       setMessages([...messages, { senderId: "You", content: newMessage }]);
       setNewMessage("");
     } catch (error) {
@@ -48,7 +70,7 @@ const ChatPage = () => {
         ) : (
           messages.map((msg, index) => (
             <div key={index} className="mb-3">
-              <span className="font-semibold">{msg.senderId === "You" ? "You" : "Client"}:</span>
+              <span className="font-semibold">{msg.senderId === userId ? "You" : "Client"}:</span>
               <p className="bg-blue-100 p-2 rounded-lg mt-1">{msg.content}</p>
             </div>
           ))
