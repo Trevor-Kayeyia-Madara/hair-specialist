@@ -8,12 +8,8 @@ const SpecialistDashboard = () => {
   const [appointments, setAppointments] = useState([]);
 const [appointmentsLoading, setAppointmentsLoading] = useState(false);
 const [appointmentsError, setAppointmentsError] = useState(null);
-  const [updatedProfileData, setUpdatedProfileData] = useState({
-    full_name: "",
-    speciality: "",
-    service_rates: "",
-    location: "",
-  });
+const [editingField, setEditingField] = useState(null);
+const [fieldValue, setFieldValue] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -48,22 +44,31 @@ const [appointmentsError, setAppointmentsError] = useState(null);
     }
   }, [selectedTab, fetchProfile]);
 
-  // Update profile handler
-  const updateProfile = async (updatedProfile) => {
+   // Update specific field
+   const updateProfileField = async (field, value) => {
     setLoading(true);
     try {
-      await axios.patch(
-        `https://backend-es6y.onrender.com/api/specialists/${id}`,
-        updatedProfile
-      );
+      await axios.patch(`https://backend-es6y.onrender.com/api/specialists/${id}`, {
+        [field]: value,
+      });
       fetchProfile();
-      setError(null);
+      setEditingField(null);
     } catch {
-      setError("Failed to update profile.");
+      setError(`Failed to update ${field}.`);
     } finally {
       setLoading(false);
     }
   };
+
+  const handleEditClick = (field, currentValue) => {
+    setEditingField(field);
+    setFieldValue(currentValue);
+  };
+
+  const handleUpdateSubmit = () => {
+    updateProfileField(editingField, fieldValue);
+  };
+
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -71,10 +76,7 @@ const [appointmentsError, setAppointmentsError] = useState(null);
     navigate("/login");
   };
 
-  const handleUpdateSubmit = (event) => {
-    event.preventDefault();
-    updateProfile(updatedProfileData);
-  };
+
     // Fetch appointments for the specialist
 const fetchAppointments = useCallback(async () => {
   setAppointmentsLoading(true);
@@ -130,81 +132,145 @@ useEffect(() => {
 
       {/* Main Content */}
       <main className="flex-1 p-6">
-        {selectedTab === "profile" && (
+      {selectedTab === "profile" && (
           <div className="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-bold mb-4 text-center">
-              Specialist Profile
-            </h2>
+            <h2 className="text-xl font-bold mb-4 text-center">Specialist Profile</h2>
             {loading ? (
               <p className="text-center">Loading...</p>
             ) : error ? (
               <p className="text-center text-red-500">{error}</p>
             ) : profile ? (
               <div className="flex flex-col items-center">
-                {/* Profile Image Placeholder */}
                 <div className="w-24 h-24 bg-gray-300 rounded-full mb-4 flex items-center justify-center">
                   <span className="text-gray-700 text-lg">👤</span>
                 </div>
                 <h3 className="text-lg font-semibold">{profile.full_name}</h3>
                 <p className="text-gray-600">{profile.email}</p>
-                <div className="mt-4 w-full border-t pt-4 text-sm text-gray-700">
-                  <p>
-                    <strong>Speciality:</strong> {profile.speciality}
-                  </p>
-                  <p>
-                    <strong>Service Rates:</strong> {profile.service_rates}
-                  </p>
-                  <p>
-                    <strong>Location:</strong> {profile.location}
-                  </p>
-                  <p>
-                    <strong>Joined:</strong>{" "}
-                    {new Date(profile.user_created_at).toLocaleDateString()}
-                  </p>
-                </div>
 
-                {/* Update Profile Form */}
-                <form onSubmit={handleUpdateSubmit} className="mt-4 w-full">
-    <input
-        type="text"
-        placeholder="Full Name"
-        value={updatedProfileData.full_name || ""}
-        onChange={(e) => setUpdatedProfileData({ ...updatedProfileData, full_name: e.target.value })}
-        className="w-full p-2 border rounded mb-2"
-        required
-    />
-    <input
-        type="text"
-        placeholder="Speciality"
-        value={updatedProfileData.speciality || ""}
-        onChange={(e) => setUpdatedProfileData({ ...updatedProfileData, speciality: e.target.value })}
-        className="w-full p-2 border rounded mb-2"
-        required
-    />
-    <input
-        type="text"
-        placeholder="Service Rates"
-        value={updatedProfileData.service_rates || ""}
-        onChange={(e) => setUpdatedProfileData({ ...updatedProfileData, service_rates: e.target.value })}
-        className="w-full p-2 border rounded mb-2"
-    />
-    <input
-        type="text"
-        placeholder="Location"
-        value={updatedProfileData.location || ""}
-        onChange={(e) => setUpdatedProfileData({ ...updatedProfileData, location: e.target.value })}
-        className="w-full p-2 border rounded mb-2"
-    />
-    <button type="submit" className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
-        Update Profile
-    </button>
-</form>
+                <div className="mt-4 w-full border-t pt-4 text-sm text-gray-700">
+                  {/* Full Name */}
+                  <div className="mb-2 flex justify-between items-center">
+                    <p>
+                      <strong>Full Name:</strong>{" "}
+                      {editingField === "full_name" ? (
+                        <input
+                          type="text"
+                          value={fieldValue}
+                          onChange={(e) => setFieldValue(e.target.value)}
+                          className="border p-1 rounded"
+                        />
+                      ) : (
+                        profile.full_name
+                      )}
+                    </p>
+                    {editingField === "full_name" ? (
+                      <button onClick={handleUpdateSubmit} className="text-blue-500 ml-2">
+                        ✅ Save
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleEditClick("full_name", profile.full_name)}
+                        className="text-blue-500"
+                      >
+                        ✏️ Edit
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Speciality */}
+                  <div className="mb-2 flex justify-between items-center">
+                    <p>
+                      <strong>Speciality:</strong>{" "}
+                      {editingField === "speciality" ? (
+                        <input
+                          type="text"
+                          value={fieldValue}
+                          onChange={(e) => setFieldValue(e.target.value)}
+                          className="border p-1 rounded"
+                        />
+                      ) : (
+                        profile.speciality
+                      )}
+                    </p>
+                    {editingField === "speciality" ? (
+                      <button onClick={handleUpdateSubmit} className="text-blue-500 ml-2">
+                        ✅ Save
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleEditClick("speciality", profile.speciality)}
+                        className="text-blue-500"
+                      >
+                        ✏️ Edit
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Service Rates */}
+                  <div className="mb-2 flex justify-between items-center">
+                    <p>
+                      <strong>Service Rates:</strong>{" "}
+                      {editingField === "service_rates" ? (
+                        <input
+                          type="text"
+                          value={fieldValue}
+                          onChange={(e) => setFieldValue(e.target.value)}
+                          className="border p-1 rounded"
+                        />
+                      ) : (
+                        profile.service_rates
+                      )}
+                    </p>
+                    {editingField === "service_rates" ? (
+                      <button onClick={handleUpdateSubmit} className="text-blue-500 ml-2">
+                        ✅ Save
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleEditClick("service_rates", profile.service_rates)}
+                        className="text-blue-500"
+                      >
+                        ✏️ Edit
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Location */}
+                  <div className="mb-2 flex justify-between items-center">
+                    <p>
+                      <strong>Location:</strong>{" "}
+                      {editingField === "location" ? (
+                        <input
+                          type="text"
+                          value={fieldValue}
+                          onChange={(e) => setFieldValue(e.target.value)}
+                          className="border p-1 rounded"
+                        />
+                      ) : (
+                        profile.location
+                      )}
+                    </p>
+                    {editingField === "location" ? (
+                      <button onClick={handleUpdateSubmit} className="text-blue-500 ml-2">
+                        ✅ Save
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleEditClick("location", profile.location)}
+                        className="text-blue-500"
+                      >
+                        ✏️ Edit
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
             ) : (
               <p className="text-center">No user data available.</p>
             )}
           </div>
         )}
+
         {selectedTab === "appointments" && (
   <div className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md">
     <h2 className="text-2xl font-bold mb-6 text-center text-blue-700">📅 Your Appointments</h2>
