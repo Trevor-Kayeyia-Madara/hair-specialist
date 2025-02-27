@@ -9,7 +9,7 @@ import Reviews from "./pages/Reviews";
 import SpecialistDashboard from "./pages/SpecialistDashboard";
 import SpecialistProfile from "./pages/SpecialistProfile";
 import Payment from "./pages/Payment";
-import ChatWindow from "./components/ChatWindow";
+
 import InvoiceGenerator from "./pages/InvoiceGenerator";
 
 function App() {
@@ -22,7 +22,6 @@ function App() {
           <Route path ="/search" element={<Search />} />
           <Route path="/booking/:id" element={<BookingForm />} />
           <Route path="/invoice" element={<InvoiceGenerator />} />
-          <Route path="/chat/:id" element={<ChatWindow />} />
           <Route path="/customer-dashboard/:id" element={<UserDashboard  />} />
           <Route path="/reviews" element={<Reviews  />} />
           <Route path="/specialist-dashboard/:id" element={<SpecialistDashboard />} />
