@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams} from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const UserDashboard = () => {
   const { id } = useParams();
   const [user, setUser] = useState(null);
   const [customer, setCustomer] = useState(null);
-  const [appointments, setAppointments] = useState([]);
   const [error, setError] = useState("");
   const [selectedTab, setSelectedTab] = useState("profile"); // ✅ Toggle tabs
   const navigate = useNavigate();
@@ -36,16 +35,6 @@ const UserDashboard = () => {
         const customerData = await customerRes.json();
         if (!customerRes.ok) throw new Error("Failed to fetch customer data");
         setCustomer(customerData);
-
-        // Fetch appointments
-        const appointmentsRes = await fetch(
-          `https://backend-es6y.onrender.com/api/appointments/customer/${id}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-
-        const appointmentsData = await appointmentsRes.json();
-        if (!appointmentsRes.ok) throw new Error("Failed to fetch appointments");
-        setAppointments(appointmentsData);
       } catch (err) {
         setError(err.message);
       }
@@ -110,25 +99,11 @@ const UserDashboard = () => {
           </div>
         )}
 
-        {/* ✅ Appointments Section */}
+        {/* ✅ Appointments Section (Now Only Shows "No Appointments") */}
         {selectedTab === "appointments" && (
           <div className="mt-6">
             <h3 className="text-xl font-semibold mb-3">📅 Your Appointments</h3>
-            {appointments.length === 0 ? (
-              <p className="text-gray-500">No upcoming appointments.</p>
-            ) : (
-              <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {appointments.map((appt) => (
-                  <li key={appt.id} className="bg-white p-4 rounded-lg shadow">
-                    <p className="font-semibold">Specialist: {appt.specialist_name}</p>
-                    <p>Service: {appt.service}</p>
-                    <p className="text-sm text-gray-500">
-                      Date: {new Date(appt.date).toLocaleString()}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            )}
+            <p className="text-gray-500">No upcoming appointments.</p>
           </div>
         )}
       </div>
