@@ -40,13 +40,19 @@ const BookingForm = () => {
       setMessage("⚠️ Invalid specialist ID.");
       return;
     }
-
+  
     const fetchSpecialistDetails = async () => {
       try {
-        const specialistResponse = await fetch(`https://backend-es6y.onrender.com/api/specialists/${id}`);
-        if (!specialistResponse.ok) throw new Error("Specialist not found");
-        const specialistData = await specialistResponse.json();
-        setSpecialistName(specialistData.full_name);
+        const response = await fetch(`https://backend-es6y.onrender.com/api/specialists/${id}`);
+        if (!response.ok) throw new Error("Specialist not found");
+  
+        const data = await response.json();
+  
+        if (!data || !data.full_name) {
+          throw new Error("Specialist name is missing from the response");
+        }
+  
+        setSpecialistName(data.full_name);  // ✅ Now properly sets the name
 
         // Fetch services based on the specialist's speciality
         const servicesResponse = await fetch(`https://backend-es6y.onrender.com/api/specialists/${id}/services`);
