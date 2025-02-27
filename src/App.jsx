@@ -11,7 +11,7 @@ import SpecialistProfile from "./pages/SpecialistProfile";
 import Payment from "./pages/Payment";
 import ChatWindow from "./components/ChatWindow";
 import InvoiceGenerator from "./pages/InvoiceGenerator";
-import ChatPage from "./pages/ChatPage";
+
 function App() {
   return (
     <Router>
