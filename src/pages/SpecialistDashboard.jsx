@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 
 const SpecialistDashboard = () => {
@@ -226,7 +226,7 @@ useEffect(() => {
             )}
           </div>
         )}
-     {selectedTab === "appointments" && (
+        {selectedTab === "appointments" && (
   <div className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md">
     <h2 className="text-2xl font-bold mb-6 text-center text-blue-700">📅 Your Appointments</h2>
 
@@ -253,13 +253,13 @@ useEffect(() => {
               </span>
             </p>
 
-            {/* Chat Button */}
-            <button
-              onClick={() => navigate(`/chat/${appointment.customer_id}`)}
-              className="mt-4 w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-300"
+            {/* Chat Button using Link */}
+            <Link
+              to={`/chat/${appointment.customerId}`} // Ensure correct property name
+              className="mt-4 block text-center bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-300"
             >
               💬 Chat with {appointment.customer_name}
-            </button>
+            </Link>
           </div>
         ))}
       </div>
@@ -268,8 +268,6 @@ useEffect(() => {
     )}
   </div>
 )}
-
-
       </main>
     </div>
   );
