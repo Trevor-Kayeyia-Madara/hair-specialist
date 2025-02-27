@@ -37,7 +37,7 @@ const BookingForm = () => {
 
     const fetchServices = async () => {
       try {
-        const response = await fetch(`https://backend-es6y.onrender.com/api/services?specialistId=${id}`);
+        const response = await fetch(`https://backend-es6y.onrender.com/api/services`);
         if (!response.ok) throw new Error("Services not found");
         const data = await response.json();
         setServices(data);
