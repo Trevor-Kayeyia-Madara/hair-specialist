@@ -226,32 +226,49 @@ useEffect(() => {
             )}
           </div>
         )}
-       {selectedTab === "appointments" && (
-  <div className="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md">
-    <h2 className="text-xl font-bold mb-4 text-center">Appointments</h2>
+     {selectedTab === "appointments" && (
+  <div className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md">
+    <h2 className="text-2xl font-bold mb-6 text-center text-blue-700">📅 Your Appointments</h2>
+
     {appointmentsLoading ? (
-      <p className="text-center">Loading...</p>
+      <p className="text-center text-gray-500">Loading...</p>
     ) : appointmentsError ? (
       <p className="text-center text-red-500">{appointmentsError}</p>
     ) : appointments.length > 0 ? (
-      <ul className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {appointments.map((appointment) => (
-          <li
+          <div
             key={appointment.id}
-            className="border p-4 rounded-lg shadow-sm bg-gray-50"
+            className="bg-gray-50 p-4 rounded-lg shadow-md border-l-4 border-blue-500"
           >
-            <p><strong>Client:</strong> {appointment.customer_name}</p>
-            <p><strong>Date:</strong> {new Date(appointment.date).toLocaleDateString()}</p>
-            <p><strong>Time:</strong> {appointment.time}</p>
-            <p><strong>Status:</strong> {appointment.status}</p>
-          </li>
+            <h3 className="text-lg font-semibold text-gray-800">
+              Client: {appointment.customer_name}
+            </h3>
+            <p className="text-gray-600"><strong>Date:</strong> {new Date(appointment.date).toLocaleDateString()}</p>
+            <p className="text-gray-600"><strong>Time:</strong> {appointment.time}</p>
+            <p className="text-gray-600"><strong>Status:</strong> 
+              <span className={`ml-2 px-3 py-1 rounded-full text-white text-sm 
+                ${appointment.status === "Confirmed" ? "bg-green-500" : "bg-yellow-500"}`}>
+                {appointment.status}
+              </span>
+            </p>
+
+            {/* Chat Button */}
+            <button
+              onClick={() => navigate(`/chat/${appointment.customer_id}`)}
+              className="mt-4 w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-300"
+            >
+              💬 Chat with {appointment.customer_name}
+            </button>
+          </div>
         ))}
-      </ul>
+      </div>
     ) : (
-      <p className="text-center">No upcoming appointments.</p>
+      <p className="text-center text-gray-600">No upcoming appointments.</p>
     )}
   </div>
 )}
+
 
       </main>
     </div>
