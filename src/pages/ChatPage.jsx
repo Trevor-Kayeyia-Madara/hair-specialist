@@ -3,7 +3,12 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { io } from "socket.io-client";
 
-const socket = io("https://backend-es6y.onrender.com", { transports: ["websocket"] });
+// ✅ Ensure the frontend uses correct WebSocket protocol
+const socket = io("https://backend-es6y.onrender.com", {
+    transports: ["websocket", "polling"],
+    reconnectionAttempts: 5,
+    timeout: 20000,
+  });
 
 const ChatPage = () => {
   const location = useLocation();
