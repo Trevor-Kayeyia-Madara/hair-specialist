@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
+import { useNavigate, useParams} from "react-router-dom";
 
 const UserDashboard = () => {
   const { id } = useParams();
   const [user, setUser] = useState(null);
   const [customer, setCustomer] = useState(null);
   const [appointments, setAppointments] = useState([]);
-  const [messages, setMessages] = useState([]);
   const [error, setError] = useState("");
+  const [selectedTab, setSelectedTab] = useState("profile"); // ✅ Toggle tabs
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -28,7 +28,7 @@ const UserDashboard = () => {
         if (!userRes.ok) throw new Error("Failed to fetch user data");
         setUser(userData);
 
-        // Fetch customer details (linked via user_id)
+        // Fetch customer details
         const customerRes = await fetch(`https://backend-es6y.onrender.com/api/customers/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -46,15 +46,6 @@ const UserDashboard = () => {
         const appointmentsData = await appointmentsRes.json();
         if (!appointmentsRes.ok) throw new Error("Failed to fetch appointments");
         setAppointments(appointmentsData);
-
-        // Fetch messages
-        const messagesRes = await fetch(`https://backend-es6y.onrender.com/api/messages/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        const messagesData = await messagesRes.json();
-        if (!messagesRes.ok) throw new Error("Failed to fetch messages");
-        setMessages(messagesData);
       } catch (err) {
         setError(err.message);
       }
@@ -78,24 +69,23 @@ const UserDashboard = () => {
         <h2 className="text-2xl font-bold mb-6 text-center">Dashboard</h2>
         <ul className="space-y-4">
           <li>
-            <Link to="/" className="block py-2 px-4 rounded hover:bg-gray-700">
-              🏠 Home
-            </Link>
-          </li>
-          <li>
             <button
-              onClick={() => navigate(`/customer-dashboard/${id}/appointments`)}
-              className="block w-full text-left py-2 px-4 rounded hover:bg-gray-700"
+              onClick={() => setSelectedTab("profile")} // ✅ Toggle Profile Tab
+              className={`block w-full text-left py-2 px-4 rounded ${
+                selectedTab === "profile" ? "bg-blue-600" : "hover:bg-gray-700"
+              }`}
             >
-              📅 Appointments
+              👤 Profile
             </button>
           </li>
           <li>
             <button
-              onClick={() => navigate(`/customer-dashboard/${id}/messages`)}
-              className="block w-full text-left py-2 px-4 rounded hover:bg-gray-700"
+              onClick={() => setSelectedTab("appointments")} // ✅ Toggle Appointments Tab
+              className={`block w-full text-left py-2 px-4 rounded ${
+                selectedTab === "appointments" ? "bg-blue-600" : "hover:bg-gray-700"
+              }`}
             >
-              💬 Messages
+              📅 Appointments
             </button>
           </li>
           <li>
@@ -111,47 +101,36 @@ const UserDashboard = () => {
 
       {/* Main Content */}
       <div className="w-full md:w-3/4 p-6 bg-white shadow-md rounded-lg">
-        <h2 className="text-2xl font-bold mb-4 text-center md:text-left">Welcome, {user.full_name}</h2>
-        <p className="text-gray-600 text-center md:text-left">User Type: {user.userType}</p>
-        <p className="text-gray-600 text-center md:text-left">📞 {customer.phone_number} | 📍 {customer.address}</p>
+        {/* ✅ Profile Section */}
+        {selectedTab === "profile" && (
+          <div>
+            <h2 className="text-2xl font-bold mb-4 text-center md:text-left">Welcome, {user.full_name}</h2>
+            <p className="text-gray-600 text-center md:text-left">User Type: {user.userType}</p>
+            <p className="text-gray-600 text-center md:text-left">📞 {customer.phone_number} | 📍 {customer.address}</p>
+          </div>
+        )}
 
-        {/* Appointments Section */}
-        <div className="mt-6">
-          <h3 className="text-xl font-semibold mb-3">📅 Your Appointments</h3>
-          {appointments.length === 0 ? (
-            <p className="text-gray-500">No upcoming appointments.</p>
-          ) : (
-            <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {appointments.map((appt) => (
-                <li key={appt.id} className="bg-white p-4 rounded-lg shadow">
-                  <p className="font-semibold">Specialist: {appt.specialist_name}</p>
-                  <p>Service: {appt.service}</p>
-                  <p className="text-sm text-gray-500">
-                    Date: {new Date(appt.date).toLocaleString()}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        {/* Messages Section */}
-        <div className="mt-6">
-          <h3 className="text-xl font-semibold mb-3">💬 Your Messages</h3>
-          {messages.length === 0 ? (
-            <p className="text-gray-500">No messages yet.</p>
-          ) : (
-            <ul className="space-y-3">
-              {messages.map((msg) => (
-                <li key={msg.id} className="bg-white p-4 rounded-lg shadow">
-                  <p className="font-semibold">From: {msg.specialist_name}</p>
-                  <p>{msg.content}</p>
-                  <p className="text-sm text-gray-500">{new Date(msg.created_at).toLocaleString()}</p>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+        {/* ✅ Appointments Section */}
+        {selectedTab === "appointments" && (
+          <div className="mt-6">
+            <h3 className="text-xl font-semibold mb-3">📅 Your Appointments</h3>
+            {appointments.length === 0 ? (
+              <p className="text-gray-500">No upcoming appointments.</p>
+            ) : (
+              <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {appointments.map((appt) => (
+                  <li key={appt.id} className="bg-white p-4 rounded-lg shadow">
+                    <p className="font-semibold">Specialist: {appt.specialist_name}</p>
+                    <p>Service: {appt.service}</p>
+                    <p className="text-sm text-gray-500">
+                      Date: {new Date(appt.date).toLocaleString()}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
