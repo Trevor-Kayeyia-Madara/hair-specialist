@@ -1,85 +1,69 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 const BookingForm = () => {
-  const { id } = useParams();
+  const { id } = useParams();  // Specialist ID from URL params
   const navigate = useNavigate();
-  const location = useLocation();
-  
   const [specialistName, setSpecialistName] = useState("");
-  const [services, setServices] = useState([]);
+  const [customerName, setCustomerName] = useState("");
+  const [services, setServices] = useState([]); // Store specialist-specific services
   const [selectedService, setSelectedService] = useState("");
-  const [selectedServiceName, setSelectedServiceName] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
-  const [customerName, setCustomerName] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
-  // Fetch specialist & services
+  // Fetch logged-in user details
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (!token) return;
+
+    const fetchUserProfile = async () => {
+      try {
+        const response = await fetch("https://backend-es6y.onrender.com/api/validate-session", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!response.ok) throw new Error("Failed to fetch user profile");
+        const data = await response.json();
+        setCustomerName(data.user.full_name);  // Auto-fill customer name
+      } catch (error) {
+        console.error("Error fetching user:", error);
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
+
+  // Fetch specialist details and services
   useEffect(() => {
     if (!id) {
       setMessage("⚠️ Invalid specialist ID.");
       return;
     }
 
-    const fetchSpecialist = async () => {
+    const fetchSpecialistDetails = async () => {
       try {
-        const response = await fetch(`https://backend-es6y.onrender.com/api/specialists/${id}`);
-        if (!response.ok) throw new Error("Specialist not found");
-        const data = await response.json();
-        setSpecialistName(data.full_name || "Unknown Specialist");
+        const specialistResponse = await fetch(`https://backend-es6y.onrender.com/api/specialists/${id}`);
+        if (!specialistResponse.ok) throw new Error("Specialist not found");
+        const specialistData = await specialistResponse.json();
+        setSpecialistName(specialistData.full_name);
+
+        // Fetch only services provided by this specialist
+        const servicesResponse = await fetch(`https://backend-es6y.onrender.com/api/specialists/${id}/services`);
+        if (!servicesResponse.ok) throw new Error("Services not found");
+        const servicesData = await servicesResponse.json();
+        setServices(servicesData); // Update services state
+
       } catch (error) {
-        setSpecialistName("Unknown Specialist");
-        console.error("Error fetching specialist:", error);
+        console.error("Error fetching data:", error);
+        setMessage("❌ Error loading data. Please try again.");
       }
     };
 
-    const fetchServices = async () => {
-      try {
-        const response = await fetch(`https://backend-es6y.onrender.com/api/services`);
-        if (!response.ok) throw new Error("Services not found");
-        const data = await response.json();
-        setServices(data);
-      } catch (error) {
-        console.error("Error fetching services:", error);
-      }
-    };
-
-    fetchSpecialist();
-    fetchServices();
+    fetchSpecialistDetails();
   }, [id]);
 
-  // Update service name when selection changes
-  useEffect(() => {
-    const service = services.find(s => s.id.toString() === selectedService.toString());
-    if (service) {
-      setSelectedServiceName(service.name);
-    }
-  }, [selectedService, services]);
-
-  // Fetch existing appointment if editing
-  useEffect(() => {
-    if (location.state?.appointmentId) {
-      const fetchAppointment = async () => {
-        try {
-          const response = await fetch(`https://backend-es6y.onrender.com/api/appointments/${location.state.appointmentId}`);
-          if (!response.ok) throw new Error("Appointment not found");
-          const data = await response.json();
-          
-          setCustomerName(data.customer_name);
-          setSelectedService(data.service_id);
-          setDate(data.date);
-          setTime(data.time);
-        } catch (error) {
-          console.error("Error fetching appointment:", error);
-        }
-      };
-
-      fetchAppointment();
-    }
-  }, [location.state?.appointmentId]);
-
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -105,34 +89,10 @@ const BookingForm = () => {
         }),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Booking failed");
-      }
-
-      const data = await response.json();
-      const appointmentId = data?.id || data?.data?.id;
-
-      if (!appointmentId) {
-        console.error("No appointment ID in response:", data);
-        setMessage("❌ No appointment ID returned. Please contact support.");
-        setLoading(false);
-        return;
-      }
+      if (!response.ok) throw new Error("Booking failed");
 
       setMessage("✅ Appointment booked successfully!");
-      navigate("/invoice", {
-        state: {
-          appointmentId,
-          customerName,
-          specialistName,
-          date,
-          time,
-          selectedService,
-          serviceName: selectedServiceName
-        },
-      });
-
+      navigate("/invoice");
     } catch (error) {
       console.error("Booking error:", error);
       setMessage(`❌ ${error.message}`);
@@ -146,19 +106,15 @@ const BookingForm = () => {
       <div className="max-w-md w-full bg-white shadow-lg rounded-2xl p-6 space-y-6">
         <h2 className="text-3xl font-bold text-center">📅 Book an Appointment</h2>
 
-        {message && (
-          <p className={`text-center p-3 rounded-lg ${message.includes("⚠️") || message.includes("❌") ? "bg-red-100" : "bg-green-100"}`}>
-            {message}
-          </p>
-        )}
+        {message && <p className="text-center p-3 rounded-lg bg-red-100">{message}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Your Name" required className="w-full p-3 border rounded-lg" />
+          <input type="text" value={customerName} readOnly className="w-full p-3 border rounded-lg bg-gray-100" />
           <input type="text" value={specialistName} readOnly className="w-full p-3 border rounded-lg bg-gray-100" />
           <select value={selectedService} onChange={(e) => setSelectedService(e.target.value)} required className="w-full p-3 border rounded-lg">
             <option value="">Select Service</option>
             {services.length > 0 ? (
-              services.map((service) => (
+              services.map(service => (
                 <option key={service.id} value={service.id}>{service.name} - KES{service.price}</option>
               ))
             ) : (
