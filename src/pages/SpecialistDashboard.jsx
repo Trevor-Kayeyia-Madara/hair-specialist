@@ -254,12 +254,13 @@ useEffect(() => {
             </p>
 
             {/* Chat Button using Link */}
-            <Link
-              to={`/chat/${appointment.customerId}`} // Ensure correct property name
-              className="mt-4 block text-center bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-300"
-            >
-              💬 Chat with {appointment.customer_name}
-            </Link>
+                      <Link
+                            to="/chat"
+                            state={{ customerId: appointment.customer_id }}
+                            className="mt-4 block text-center bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600"
+                          >
+                            💬 Chat with {appointment.customer_name}
+              </Link>
           </div>
         ))}
       </div>
