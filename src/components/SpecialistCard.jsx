@@ -42,18 +42,13 @@ const SpecialistCard = ({ specialist }) => {
         </p>
       </div>
 
-      <div className="mt-4 flex flex-col gap-2">
+      {/* ✅ Removed Chat Button, Only "Book Now" Remains */}
+      <div className="mt-4">
         <Link
           to={`/booking/${specialistId}`}
           className="block text-center bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition duration-300"
         >
           Book Now
-        </Link>
-        <Link
-          to={`/chat/${specialistId}`}
-          className="block text-center bg-green-600 text-white font-semibold py-2 rounded-lg hover:bg-green-700 transition duration-300"
-        >
-          Chat Now
         </Link>
       </div>
     </div>
