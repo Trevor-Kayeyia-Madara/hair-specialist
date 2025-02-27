@@ -24,46 +24,24 @@ const Login = () => {
       const response = await fetch("https://backend-es6y.onrender.com/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: formData.email, password: formData.password }),
+        body: JSON.stringify(formData),
       });
 
       const result = await response.json();
-      console.log("Login Response:", JSON.stringify(result, null, 2)); // Debugging response
+      console.log("Login Response:", JSON.stringify(result, null, 2)); // Debugging
 
       if (!response.ok) throw new Error(result.message || "Login failed. Please try again.");
 
-      if (result.token) {
-        localStorage.setItem("authToken", result.token);
-      }
+      const { token, userType, id } = result;
 
-      // Step 2: Fetch User Details to Get ID
-      const userDetailsResponse = await fetch("https://backend-es6y.onrender.com/api/users/:id", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${result.token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      if (!id) throw new Error("User ID not found in response.");
 
-      const userDetails = await userDetailsResponse.json();
-      console.log("User Details Response:", JSON.stringify(userDetails, null, 2));
+      // Step 2: Store Token & User ID
+      localStorage.setItem("authToken", token);
+      localStorage.setItem("userId", id);
 
-      if (!userDetailsResponse.ok) throw new Error("Failed to fetch user details");
-
-      // Step 3: Extract ID and Store It
-      const id = userDetails.id || userDetails.specialistId; // Handle both user types
-      console.log("Extracted ID:", id);
-
-      if (!id) throw new Error("User ID not found");
-
-      localStorage.setItem("userId", id); // Save userId in localStorage
-
-      // Step 4: Navigate to the Correct Page
-      if (result.userType === "specialist") {
-        navigate(`/specialist-dashboard/${id}`);
-      } else {
-        navigate(`/`);
-      }
+      // Step 3: Navigate to the Correct Page
+      navigate(userType === "specialist" ? `/specialist-dashboard/${id}` : `/`);
 
       // Refresh the page to update Navbar state
       window.location.reload();
