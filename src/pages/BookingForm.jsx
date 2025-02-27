@@ -6,7 +6,7 @@ const BookingForm = () => {
   const navigate = useNavigate();
   const [specialistName, setSpecialistName] = useState("");
   const [customerName, setCustomerName] = useState("");
-  const [services, setServices] = useState([]); // Store specialist-specific services
+  const [services, setServices] = useState([]); // Store services based on speciality
   const [selectedService, setSelectedService] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
@@ -34,7 +34,7 @@ const BookingForm = () => {
     fetchUserProfile();
   }, []);
 
-  // Fetch specialist details and services
+  // Fetch specialist details and related services
   useEffect(() => {
     if (!id) {
       setMessage("⚠️ Invalid specialist ID.");
@@ -48,7 +48,7 @@ const BookingForm = () => {
         const specialistData = await specialistResponse.json();
         setSpecialistName(specialistData.full_name);
 
-        // Fetch only services provided by this specialist
+        // Fetch services based on the specialist's speciality
         const servicesResponse = await fetch(`https://backend-es6y.onrender.com/api/specialists/${id}/services`);
         if (!servicesResponse.ok) throw new Error("Services not found");
         const servicesData = await servicesResponse.json();
@@ -115,7 +115,7 @@ const BookingForm = () => {
             <option value="">Select Service</option>
             {services.length > 0 ? (
               services.map(service => (
-                <option key={service.id} value={service.id}>{service.name} - KES{service.price}</option>
+                <option key={service.id} value={service.id}>{service.name} - KES{service.prices}</option>
               ))
             ) : (
               <option disabled>No services available</option>
