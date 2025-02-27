@@ -69,18 +69,17 @@ const BookingForm = () => {
     fetchSpecialistDetails();
   }, [id]);
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setMessage("");
-
+  
     if (!customerName || !date || !time || !selectedService) {
       setMessage("⚠️ Please fill in all fields.");
       setLoading(false);
       return;
     }
-
+  
     try {
       const response = await fetch("https://backend-es6y.onrender.com/api/appointments", {
         method: "POST",
@@ -94,11 +93,15 @@ const BookingForm = () => {
           status: "Pending",
         }),
       });
-
+  
       if (!response.ok) throw new Error("Booking failed");
-
+  
+      const appointmentData = await response.json(); // Assuming the response contains appointment details
       setMessage("✅ Appointment booked successfully!");
-      navigate("/invoice");
+  
+      // Assuming the response contains customer details, you could pass customer ID to the invoice route.
+      navigate(`/invoice/${appointmentData.customer_id}`);
+  
     } catch (error) {
       console.error("Booking error:", error);
       setMessage(`❌ ${error.message}`);
@@ -106,6 +109,7 @@ const BookingForm = () => {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 px-4">

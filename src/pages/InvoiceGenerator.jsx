@@ -1,8 +1,9 @@
-import {useState, useEffect} from 'react'; 
+import { useState, useEffect } from 'react';
 import { useLocation } from "react-router-dom";
 import jsPDF from 'jspdf';
 
 const InvoiceGenerator = () => {
+  // Get state data passed through the navigation
   const location = useLocation();
   const { appointmentId, customerName, specialistName, date, time, selectedService } = location.state || {};
 
@@ -10,6 +11,7 @@ const InvoiceGenerator = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
+  // Fetch appointment details when appointmentId is available
   useEffect(() => {
     if (!appointmentId) {
       setError("⚠️ Invalid appointment ID.");
@@ -45,20 +47,23 @@ const InvoiceGenerator = () => {
     fetchAppointment();
   }, [appointmentId]);
 
+  // Generate PDF invoice
   const generatePDF = () => {
     if (!appointment) return;
 
     const doc = new jsPDF();
     doc.text("📜 Invoice", 90, 10);
-    doc.text(`Customer: ${customerName}`, 10, 30);
-    doc.text(`Specialist: ${specialistName}`, 10, 40);
-    doc.text(`Service: ${selectedService || "Unknown"}`, 10, 50);
-    doc.text(`Date: ${date}`, 10, 60);
-    doc.text(`Time: ${time}`, 10, 70);
-    doc.text(`Amount: KES ${appointment.service?.price || "N/A"}`, 10, 80);
+    doc.text(`Customer ID: ${appointment.customer_id}`, 10, 30); // Added Customer ID
+    doc.text(`Customer: ${customerName}`, 10, 40);
+    doc.text(`Specialist: ${specialistName}`, 10, 50);
+    doc.text(`Service: ${selectedService || "Unknown"}`, 10, 60);
+    doc.text(`Date: ${date}`, 10, 70);
+    doc.text(`Time: ${time}`, 10, 80);
+    doc.text(`Amount: KES ${appointment.service?.price || "N/A"}`, 10, 90);
     doc.save(`invoice_${appointmentId}.pdf`);
   };
 
+  // Loading state and error handling
   if (loading) return <p>Loading appointment details...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
   if (!appointment) return <p>No appointment found.</p>;
@@ -67,6 +72,7 @@ const InvoiceGenerator = () => {
     <div className="p-6">
       <h2 className="text-2xl font-bold mb-4">Invoice for Appointment</h2>
       <div className="border p-4 rounded-lg">
+        <p><strong>Customer ID:</strong> {appointment.customer_id}</p> {/* Display Customer ID */}
         <p><strong>Customer:</strong> {customerName}</p>
         <p><strong>Specialist:</strong> {specialistName}</p>
         <p><strong>Service:</strong> {appointment.service?.name || "Unknown"}</p>
