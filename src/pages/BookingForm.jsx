@@ -79,7 +79,7 @@ const BookingForm = () => {
       setLoading(false);
       return;
     }
-  
+    const token = localStorage.getItem("authToken"); // ✅ Retrieve token inside function
     try {
       const response = await fetch("https://backend-es6y.onrender.com/api/appointments", {
         method: "POST",
