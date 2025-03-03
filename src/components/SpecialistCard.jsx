@@ -1,38 +1,48 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 
 const SpecialistCard = ({ specialist }) => {
-  const { id, full_name, speciality, rating, location, created_at } = specialist;
+  const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Ensure id is always a string (important for route matching)
-  const specialistId = String(id);
-
-  // Ensure rating is a float and limit to 1 decimal place
-  const formattedRating = rating ? parseFloat(rating).toFixed(1) : "N/A";
-
-  // Generate star icons based on rating (max 5)
-  const renderStars = () => {
-    const stars = [];
-    const roundedRating = Math.round(rating); // Round to nearest integer
-
-    for (let i = 1; i <= 5; i++) {
-      stars.push(
-        <span key={i} className={i <= roundedRating ? "text-yellow-500" : "text-gray-300"}>
-          ★
-        </span>
-      );
+  useEffect(() => {
+    const token = localStorage.getItem("token"); // Get token from localStorage
+    if (!token) {
+      navigate("/login"); // Redirect to login if no token
+      return;
     }
-    return stars;
-  };
+
+    // Validate session with API
+    fetch("https://your-api-url.com/api/validate-session", {
+      method: "GET",
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (!data.loggedIn) {
+          navigate("/login"); // Redirect if session is invalid
+        } else {
+          setIsAuthenticated(true);
+        }
+      })
+      .catch(() => navigate("/login")); // Redirect on error
+  }, [navigate]);
+
+  if (!isAuthenticated) return null; // Prevent rendering while checking auth
+
+  const { id, full_name, speciality, rating, location, created_at } = specialist;
+  const specialistId = String(id);
+  const formattedRating = rating ? parseFloat(rating).toFixed(1) : "N/A";
 
   return (
     <div className="bg-white shadow-lg rounded-2xl p-6 border border-gray-200 hover:shadow-xl transition duration-300">
       <h2 className="text-xl font-bold text-gray-800">{full_name}</h2>
       <p className="text-sm text-gray-600">{speciality}</p>
-
       <div className="mt-4">
         <p className="text-gray-700">
-          <strong>Rating:</strong> {formattedRating} {rating !== "N/A" && <span className="ml-2">{renderStars()}</span>}
+          <strong>Rating:</strong> {formattedRating}
         </p>
         <p className="text-gray-700">
           <strong>Location:</strong> {location || "Not specified"}
@@ -41,8 +51,6 @@ const SpecialistCard = ({ specialist }) => {
           <strong>Joined On:</strong> {new Date(created_at).toLocaleDateString()}
         </p>
       </div>
-
-      {/* ✅ Removed Chat Button, Only "Book Now" Remains */}
       <div className="mt-4">
         <Link
           to={`/booking/${specialistId}`}
@@ -55,13 +63,12 @@ const SpecialistCard = ({ specialist }) => {
   );
 };
 
-// ✅ Define PropTypes for validation
 SpecialistCard.propTypes = {
   specialist: PropTypes.shape({
-    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired, // Ensure compatibility
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     full_name: PropTypes.string.isRequired,
     speciality: PropTypes.string.isRequired,
-    rating: PropTypes.oneOfType([PropTypes.string, PropTypes.number]), // Allow both for conversion
+    rating: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     location: PropTypes.string,
     created_at: PropTypes.string.isRequired,
   }).isRequired,
