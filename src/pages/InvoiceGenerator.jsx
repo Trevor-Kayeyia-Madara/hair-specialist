@@ -1,47 +1,65 @@
 import { useState, useEffect } from 'react';
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import jsPDF from 'jspdf';
 
 const InvoiceGenerator = () => {
   const { appointment_id } = useParams();
+const location = useLocation();
+const queryParams = new URLSearchParams(location.search);
+const customer_id = queryParams.get("customer_id");
   const [appointment, setAppointment] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!appointment_id) {
-      setError("⚠️ Invalid appointment ID.");
+    const token = localStorage.getItem("authToken");
+  
+    if (!appointment_id || !customer_id) {
+      setError("⚠️ Invalid appointment request.");
       setLoading(false);
       return;
     }
-
+  
+    const validateUser = async () => {
+      try {
+        const response = await fetch("https://backend-es6y.onrender.com/api/validate-session", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+  
+        if (!response.ok) throw new Error("Unauthorized access. Please log in.");
+        
+        const userData = await response.json();
+        if (userData.user.id !== customer_id) {
+          throw new Error("Access denied: Invoice does not belong to you.");
+        }
+        
+        fetchAppointment();
+      } catch (error) {
+        setError(error.message);
+        setLoading(false);
+      }
+    };
+  
     const fetchAppointment = async () => {
       try {
-        const token = localStorage.getItem("authToken");
         const response = await fetch(`https://backend-es6y.onrender.com/api/appointments/${appointment_id}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": token ? `Bearer ${token}` : "",
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch appointment details.");
-        }
-
+  
+        if (!response.ok) throw new Error("Failed to fetch appointment details.");
+        
         const data = await response.json();
         setAppointment(data);
       } catch (error) {
-        setError(error.message || "❌ Error fetching appointment details.");
-        console.error(error);
+        setError(error.message);
       } finally {
         setLoading(false);
       }
     };
-
-    fetchAppointment();
-  }, [appointment_id]);
+  
+    validateUser();
+  }, [appointment_id, customer_id]);
+  
 
   // Generate PDF invoice
   const generatePDF = () => {

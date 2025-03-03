@@ -126,7 +126,7 @@ const BookingForm = () => {
         <div className="max-w-md w-full bg-white shadow-lg rounded-2xl p-6 space-y-6 text-center">
           <h2 className="text-3xl font-bold">🎉 Booking Confirmed!</h2>
           <p className="text-lg">Your appointment has been successfully booked.</p>
-          <button onClick={() => navigate(`/invoice/${appointmentData.appointment_id}`)}
+          <button onClick={() => navigate(`/invoice/${appointmentData.appointment_id}?customer_id=${appointmentData.customer_id}`)}
             className="w-full bg-green-500 text-white py-3 rounded-lg">
             📜 View Invoice
           </button>
