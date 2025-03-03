@@ -83,7 +83,10 @@ const BookingForm = () => {
     try {
       const response = await fetch("https://backend-es6y.onrender.com/api/appointments", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}` // ✅ Include authentication token
+      },
         body: JSON.stringify({
           customer_name: customerName,
           specialist_id: id,
