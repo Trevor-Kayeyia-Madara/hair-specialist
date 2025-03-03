@@ -13,6 +13,7 @@ const BookingForm = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [appointmentData, setAppointmentData] = useState(null);
+  const [customerId, setCustomerId] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -26,6 +27,7 @@ const BookingForm = () => {
         if (!response.ok) throw new Error("Failed to fetch user profile");
         const data = await response.json();
         setCustomerName(data.user.full_name);
+        setCustomerId(data.user.id);  // ✅ Store customer_id in state
       } catch (error) {
         console.error("Error fetching user details:", error); // ✅ Logs the error
         setMessage("❌ Error fetching user details. Please log in again.");
@@ -88,6 +90,7 @@ const BookingForm = () => {
           "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify({
+          customer_id: customerId,  // ✅ Now properly defined
           customer_name: customerName,
           specialist_id: id,
           service_id: selectedService,
