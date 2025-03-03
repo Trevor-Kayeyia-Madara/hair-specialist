@@ -21,7 +21,7 @@ function App() {
           <Route path="/sign-up" element={<SignUp />} />
           <Route path ="/search" element={<Search />} />
           <Route path="/booking/:id" element={<BookingForm />} />
-          <Route path="/invoice/:appointment_id" element={<InvoiceGenerator />} />
+          <Route path="/invoice" element={<InvoiceGenerator />} />
           <Route path="/customer-dashboard/:id" element={<UserDashboard  />} />
           <Route path="/reviews" element={<Reviews  />} />
           <Route path="/specialist-dashboard/:id" element={<SpecialistDashboard />} />
