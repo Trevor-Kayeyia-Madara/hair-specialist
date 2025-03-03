@@ -1,146 +1,138 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import jsPDF from "jspdf";
+
 
 const BookingForm = () => {
-  const { id } = useParams();  // Specialist ID from URL params
-  const navigate = useNavigate();
-  const [specialistName, setSpecialistName] = useState("");
-  const [customerName, setCustomerName] = useState("");
-  const [services, setServices] = useState([]); // Store services based on speciality
+  const { specialistId } = useParams();
+  const [specialist, setSpecialist] = useState("");
+  const [customer, setCustomer] = useState("");
+  const [services, setServices] = useState([]);
   const [selectedService, setSelectedService] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
+  const [appointment, setAppointment] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
-  // Fetch logged-in user details
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     if (!token) return;
 
     const fetchUserProfile = async () => {
       try {
-        const response = await fetch("https://backend-es6y.onrender.com/api/validate-session", {
+        const response = await fetch("/api/validate-session", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        if (!response.ok) throw new Error("Failed to fetch user profile");
+        if (!response.ok) throw new Error("Session expired");
         const data = await response.json();
-        setCustomerName(data.user.full_name);  // Auto-fill customer name
+        setCustomer(data.user.full_name);
       } catch (error) {
-        console.error("Error fetching user:", error);
+        console.error("Error fetching user details:", error);
       }
     };
 
     fetchUserProfile();
   }, []);
 
-  // Fetch specialist details and related services
   useEffect(() => {
-    if (!id) {
-      setMessage("⚠️ Invalid specialist ID.");
-      return;
-    }
-  
-    const fetchSpecialistDetails = async () => {
+    const fetchSpecialist = async () => {
       try {
-        const response = await fetch(`https://backend-es6y.onrender.com/api/specialists/${id}`);
+        const response = await fetch(`/api/specialists/${specialistId}`);
         if (!response.ok) throw new Error("Specialist not found");
-  
         const data = await response.json();
-  
-        if (!data || !data.full_name) {
-          throw new Error("Specialist name is missing from the response");
-        }
-  
-        setSpecialistName(data.full_name);  // ✅ Now properly sets the name
-
-        // Fetch services based on the specialist's speciality
-        const servicesResponse = await fetch(`https://backend-es6y.onrender.com/api/specialists/${id}/services`);
-        if (!servicesResponse.ok) throw new Error("Services not found");
-        const servicesData = await servicesResponse.json();
-        setServices(servicesData); // Update services state
-
+        setSpecialist(data.full_name);
+        setServices(data.services);
       } catch (error) {
-        console.error("Error fetching data:", error);
-        setMessage("❌ Error loading data. Please try again.");
+        console.error("Error fetching specialist:", error);
       }
     };
 
-    fetchSpecialistDetails();
-  }, [id]);
+    fetchSpecialist();
+  }, [specialistId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setMessage("");
-  
-    if (!customerName || !date || !time || !selectedService) {
-      setMessage("⚠️ Please fill in all fields.");
-      setLoading(false);
-      return;
-    }
-  
+
     try {
-      const response = await fetch("https://backend-es6y.onrender.com/api/appointments", {
+      const response = await fetch("/api/appointments", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
         body: JSON.stringify({
-          customer_name: customerName,
-          specialist_id: id,
+          customer_id: customer,
+          specialist_id: specialistId,
           service_id: selectedService,
           date,
           time,
           status: "Pending",
         }),
       });
-  
+
       if (!response.ok) throw new Error("Booking failed");
-  
-      const appointmentData = await response.json(); // Assuming the response contains appointment details
-      setMessage("✅ Appointment booked successfully!");
-  
-      // Assuming the response contains customer details, you could pass customer ID to the invoice route.
-      navigate(`/invoice/${appointmentData.customer_id}`);
-  
+      const data = await response.json();
+
+      await fetch(`/api/appointments/${data.appointment_id}/update-status`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+        body: JSON.stringify({ status: "Booked" }),
+      });
+
+      setAppointment({ ...data, status: "Booked" });
     } catch (error) {
-      console.error("Booking error:", error);
       setMessage(`❌ ${error.message}`);
     } finally {
       setLoading(false);
     }
   };
-  
+
+  const downloadInvoice = () => {
+    if (!appointment) return;
+    const doc = new jsPDF();
+    doc.text("Invoice", 90, 10);
+    doc.text(`Customer: ${customer}`, 10, 30);
+    doc.text(`Specialist: ${specialist}`, 10, 40);
+    doc.text(`Service: ${selectedService}`, 10, 50);
+    doc.text(`Date: ${date}`, 10, 60);
+    doc.text(`Time: ${time}`, 10, 70);
+    doc.save(`invoice_${appointment.id}.pdf`);
+  };
+
+  if (appointment) {
+    return (
+      <div className="confirmation-container">
+        <h2>🎉 Booking Confirmed!</h2>
+        <p>Your appointment is booked.</p>
+        <button onClick={downloadInvoice}>Download Invoice</button>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100 px-4">
-      <div className="max-w-md w-full bg-white shadow-lg rounded-2xl p-6 space-y-6">
-        <h2 className="text-3xl font-bold text-center">📅 Book an Appointment</h2>
-
-        {message && <p className="text-center p-3 rounded-lg bg-red-100">{message}</p>}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input type="text" value={customerName} readOnly className="w-full p-3 border rounded-lg bg-gray-100" />
-          <input type="text" value={specialistName} readOnly className="w-full p-3 border rounded-lg bg-gray-100" />
-          <select value={selectedService} onChange={(e) => setSelectedService(e.target.value)} required className="w-full p-3 border rounded-lg">
-            <option value="">Select Service</option>
-            {services.length > 0 ? (
-              services.map(service => (
-                <option key={service.id} value={service.id}>{service.name} - KES{service.prices}</option>
-              ))
-            ) : (
-              <option disabled>No services available</option>
-            )}
-          </select>
-          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required className="w-full p-3 border rounded-lg" />
-          <input type="time" value={time} onChange={(e) => setTime(e.target.value)} required className="w-full p-3 border rounded-lg" />
-
-          <button type="submit" disabled={loading} className="w-full bg-blue-500 text-white py-3 rounded-lg">
-            {loading ? "Booking..." : "📌 Book Appointment"}
-          </button>
-        </form>
-      </div>
+    <div className="booking-form">
+      <h2>📅 Book an Appointment</h2>
+      {message && <p className="error">{message}</p>}
+      <form onSubmit={handleSubmit}>
+        <input type="text" value={customer} readOnly />
+        <input type="text" value={specialist} readOnly />
+        <select onChange={(e) => setSelectedService(e.target.value)} required>
+          <option value="">Select Service</option>
+          {services.map((service) => (
+            <option key={service.id} value={service.id}>{service.name}</option>
+          ))}
+        </select>
+        <input type="date" onChange={(e) => setDate(e.target.value)} required />
+        <input type="time" onChange={(e) => setTime(e.target.value)} required />
+        <button type="submit" disabled={loading}>{loading ? "Booking..." : "📌 Book Now"}</button>
+      </form>
     </div>
   );
 };
-
 export default BookingForm;
