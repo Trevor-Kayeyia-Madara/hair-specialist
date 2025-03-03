@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { db, collection, addDoc } from "../firebaseConfig"; // Import Firebase config
+import { db, collection, addDoc } from "../../firebaseConfig"; // Import Firebase config
 
 const BookingForm = () => {
   const { id } = useParams();
