@@ -101,6 +101,10 @@ const BookingForm = () => {
       const data = await response.json();
   
       // Update status to "Booked" after successful booking
+      const appointmentId = data.appointment_id;
+if (!appointmentId || isNaN(appointmentId)) {
+  throw new Error("Invalid appointment ID received.");
+}
       await fetch(`https://backend-es6y.onrender.com/api/appointments/${data.appointment_id}/update-status`, {
         method: "PUT",
         headers: {

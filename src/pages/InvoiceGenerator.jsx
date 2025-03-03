@@ -14,10 +14,11 @@ const customer_id = queryParams.get("customer_id");
   useEffect(() => {
     const token = localStorage.getItem("authToken");
   
-    if (!appointment_id || !customer_id) {
-      setError("⚠️ Invalid appointment request.");
-      setLoading(false);
-      return;
+    const validAppointmentId = parseInt(appointment_id, 10);
+    if (isNaN(validAppointmentId) || validAppointmentId <= 0 || !customer_id) {
+        setError("⚠️ Invalid appointment request.");
+        setLoading(false);
+        return;
     }
   
     const validateUser = async () => {
