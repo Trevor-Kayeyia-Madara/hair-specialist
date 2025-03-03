@@ -18,10 +18,9 @@ const BookingForm = () => {
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     if (!token) return;
-
     const fetchUserProfile = async () => {
       try {
-        const response = await fetch("/api/validate-session", {
+        const response = await fetch("https://backend-es6y.onrender.com/api/validate-session", {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!response.ok) throw new Error("Session expired");
@@ -38,7 +37,7 @@ const BookingForm = () => {
   useEffect(() => {
     const fetchSpecialist = async () => {
       try {
-        const response = await fetch(`/api/specialists/${specialistId}`);
+        const response = await fetch(`https://backend-es6y.onrender.com/api/specialists/${specialistId}`);
         if (!response.ok) throw new Error("Specialist not found");
         const data = await response.json();
         setSpecialist(data.full_name);
@@ -57,7 +56,7 @@ const BookingForm = () => {
     setMessage("");
 
     try {
-      const response = await fetch("/api/appointments", {
+      const response = await fetch("https://backend-es6y.onrender.com/api/appointments", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -75,16 +74,6 @@ const BookingForm = () => {
 
       if (!response.ok) throw new Error("Booking failed");
       const data = await response.json();
-
-      await fetch(`/api/appointments/${data.appointment_id}/update-status`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
-        body: JSON.stringify({ status: "Booked" }),
-      });
-
       setAppointment({ ...data, status: "Booked" });
     } catch (error) {
       setMessage(`❌ ${error.message}`);
