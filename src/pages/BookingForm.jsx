@@ -4,11 +4,10 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const BookingForm = () => {
-  const { id: specialistId } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
-  const [customerId, setCustomerId] = useState(null);
-  const [customerName, setCustomerName] = useState("");
   const [specialistName, setSpecialistName] = useState("");
+  const [customerName, setCustomerName] = useState("");
   const [services, setServices] = useState([]);
   const [selectedService, setSelectedService] = useState("");
   const [date, setDate] = useState("");
@@ -25,24 +24,11 @@ const BookingForm = () => {
         const response = await fetch("https://backend-es6y.onrender.com/api/validate-session", {
           headers: { Authorization: `Bearer ${token}` },
         });
-
-        if (!response.ok) throw new Error("Failed to validate session");
-
+        if (!response.ok) throw new Error("Failed to fetch user profile");
         const data = await response.json();
-        const userId = data.userId; // Logged-in user ID
-        setCustomerId(userId);
-
-        // Fetch customer details along with full_name
-        const customerResponse = await fetch(`https://backend-es6y.onrender.com/api/customers/${userId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (!customerResponse.ok) throw new Error("Customer profile not found");
-
-        const customerData = await customerResponse.json();
-        setCustomerName(customerData.full_name); // ✅ Correctly setting customer full_name
-      } catch (err) {
-        toast.error(`❌ ${err.message}`);
+        setCustomerName(data.user.full_name);
+      } catch (err) { // ✅ Renamed 'error' to 'err' & used it
+        toast.error(`❌ Error fetching user details: ${err.message}`);
       }
     };
 
@@ -50,37 +36,36 @@ const BookingForm = () => {
   }, []);
 
   useEffect(() => {
-    if (!specialistId) {
+    if (!id) {
       toast.warning("⚠️ Invalid specialist ID.");
       return;
     }
 
     const fetchSpecialistDetails = async () => {
       try {
-        const response = await fetch(`https://backend-es6y.onrender.com/api/specialists/${specialistId}`);
+        const response = await fetch(`https://backend-es6y.onrender.com/api/specialists/${id}`);
         if (!response.ok) throw new Error("Specialist not found");
 
         const data = await response.json();
-        setSpecialistName(data.full_name); // ✅ Correctly setting specialist full_name
+        setSpecialistName(data.full_name);
 
-        const servicesResponse = await fetch(`https://backend-es6y.onrender.com/api/specialists/${specialistId}/services`);
+        const servicesResponse = await fetch(`https://backend-es6y.onrender.com/api/specialists/${id}/services`);
         if (!servicesResponse.ok) throw new Error("Services not found");
-
         const servicesData = await servicesResponse.json();
         setServices(servicesData);
-      } catch (err) {
-        toast.error(`❌ ${err.message}`);
+      } catch (err) { // ✅ Renamed 'error' to 'err' & used it
+        toast.error(`❌ Error loading data: ${err.message}`);
       }
     };
 
     fetchSpecialistDetails();
-  }, [specialistId]);
+  }, [id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    if (!customerId || !date || !time || !selectedService) {
+    if (!customerName || !date || !time || !selectedService) {
       toast.warning("⚠️ Please fill in all fields.");
       setLoading(false);
       return;
@@ -101,8 +86,8 @@ const BookingForm = () => {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          customer_id: customerId,
-          specialist_id: specialistId,
+          customer_name: customerName,
+          specialist_id: id,
           service_id: selectedService,
           date,
           time,
@@ -132,7 +117,7 @@ const BookingForm = () => {
       setTimeout(() => {
         navigate("/payment");
       }, 5000);
-    } catch (err) {
+    } catch (err) { // ✅ Renamed 'error' to 'err' & used it
       toast.error(`❌ ${err.message}`);
     } finally {
       setLoading(false);
