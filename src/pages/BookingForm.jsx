@@ -4,10 +4,11 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const BookingForm = () => {
-  const { id } = useParams();
+  const { id: specialistId } = useParams();
   const navigate = useNavigate();
-  const [specialistName, setSpecialistName] = useState("");
+  const [customerId, setCustomerId] = useState(null);
   const [customerName, setCustomerName] = useState("");
+  const [specialistName, setSpecialistName] = useState("");
   const [services, setServices] = useState([]);
   const [selectedService, setSelectedService] = useState("");
   const [date, setDate] = useState("");
@@ -24,11 +25,24 @@ const BookingForm = () => {
         const response = await fetch("https://backend-es6y.onrender.com/api/validate-session", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        if (!response.ok) throw new Error("Failed to fetch user profile");
+
+        if (!response.ok) throw new Error("Failed to validate session");
+
         const data = await response.json();
-        setCustomerName(data.user.full_name);
-      } catch (err) { // ✅ Renamed 'error' to 'err' & used it
-        toast.error(`❌ Error fetching user details: ${err.message}`);
+        const userId = data.userId; // Logged-in user ID
+        setCustomerId(userId);
+
+        // Fetch customer details
+        const customerResponse = await fetch(`https://backend-es6y.onrender.com/api/customers/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (!customerResponse.ok) throw new Error("Customer profile not found");
+
+        const customerData = await customerResponse.json();
+        setCustomerName(customerData.full_name);
+      } catch (err) {
+        toast.error(`❌ ${err.message}`);
       }
     };
 
@@ -36,36 +50,37 @@ const BookingForm = () => {
   }, []);
 
   useEffect(() => {
-    if (!id) {
+    if (!specialistId) {
       toast.warning("⚠️ Invalid specialist ID.");
       return;
     }
 
     const fetchSpecialistDetails = async () => {
       try {
-        const response = await fetch(`https://backend-es6y.onrender.com/api/specialists/${id}`);
+        const response = await fetch(`https://backend-es6y.onrender.com/api/specialists/${specialistId}`);
         if (!response.ok) throw new Error("Specialist not found");
 
         const data = await response.json();
         setSpecialistName(data.full_name);
 
-        const servicesResponse = await fetch(`https://backend-es6y.onrender.com/api/specialists/${id}/services`);
+        const servicesResponse = await fetch(`https://backend-es6y.onrender.com/api/specialists/${specialistId}/services`);
         if (!servicesResponse.ok) throw new Error("Services not found");
+
         const servicesData = await servicesResponse.json();
         setServices(servicesData);
-      } catch (err) { // ✅ Renamed 'error' to 'err' & used it
-        toast.error(`❌ Error loading data: ${err.message}`);
+      } catch (err) {
+        toast.error(`❌ ${err.message}`);
       }
     };
 
     fetchSpecialistDetails();
-  }, [id]);
+  }, [specialistId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    if (!customerName || !date || !time || !selectedService) {
+    if (!customerId || !date || !time || !selectedService) {
       toast.warning("⚠️ Please fill in all fields.");
       setLoading(false);
       return;
@@ -86,8 +101,8 @@ const BookingForm = () => {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          customer_name: customerName,
-          specialist_id: id,
+          customer_id: customerId,
+          specialist_id: specialistId,
           service_id: selectedService,
           date,
           time,
@@ -117,7 +132,7 @@ const BookingForm = () => {
       setTimeout(() => {
         navigate("/payment");
       }, 5000);
-    } catch (err) { // ✅ Renamed 'error' to 'err' & used it
+    } catch (err) {
       toast.error(`❌ ${err.message}`);
     } finally {
       setLoading(false);
