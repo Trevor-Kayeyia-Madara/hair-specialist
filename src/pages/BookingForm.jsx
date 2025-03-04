@@ -32,7 +32,7 @@ const BookingForm = () => {
         const userId = data.userId; // Logged-in user ID
         setCustomerId(userId);
 
-        // Fetch customer details
+        // Fetch customer details along with full_name
         const customerResponse = await fetch(`https://backend-es6y.onrender.com/api/customers/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -40,7 +40,7 @@ const BookingForm = () => {
         if (!customerResponse.ok) throw new Error("Customer profile not found");
 
         const customerData = await customerResponse.json();
-        setCustomerName(customerData.full_name);
+        setCustomerName(customerData.full_name); // ✅ Correctly setting customer full_name
       } catch (err) {
         toast.error(`❌ ${err.message}`);
       }
@@ -61,7 +61,7 @@ const BookingForm = () => {
         if (!response.ok) throw new Error("Specialist not found");
 
         const data = await response.json();
-        setSpecialistName(data.full_name);
+        setSpecialistName(data.full_name); // ✅ Correctly setting specialist full_name
 
         const servicesResponse = await fetch(`https://backend-es6y.onrender.com/api/specialists/${specialistId}/services`);
         if (!servicesResponse.ok) throw new Error("Services not found");
