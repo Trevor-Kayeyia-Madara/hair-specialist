@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -10,13 +11,33 @@ const Reviews = () => {
     const [rating, setRating] = useState(5);
     const [reviewText, setReviewText] = useState("");
     const [loading, setLoading] = useState(false);
+    const [existingReview, setExistingReview] = useState(null);
 
     useEffect(() => {
         if (!customerId || !specialistId) {
             toast.error("Invalid review request.");
             navigate("/");
+        } else {
+            fetchExistingReview();
         }
     }, [customerId, specialistId, navigate]);
+
+    // ✅ Fetch existing review for editing
+    const fetchExistingReview = async () => {
+        try {
+            const response = await fetch(`https://backend-es6y.onrender.com/api/reviews/${customerId}/${specialistId}`);
+            if (!response.ok) return;
+            
+            const data = await response.json();
+            if (data) {
+                setExistingReview(data);
+                setRating(data.rating);
+                setReviewText(data.review_text);
+            }
+        } catch (error) {
+            console.error("Error fetching review:", error);
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -24,8 +45,11 @@ const Reviews = () => {
         const token = localStorage.getItem("authToken");
 
         try {
-            const response = await fetch("https://backend-es6y.onrender.com/api/reviews", {
-                method: "POST",
+            const method = existingReview ? "PUT" : "POST";
+            const url = "https://backend-es6y.onrender.com/api/reviews";
+
+            const response = await fetch(url, {
+                method,
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
@@ -39,7 +63,7 @@ const Reviews = () => {
             });
 
             if (!response.ok) throw new Error("Failed to submit review.");
-            toast.success("✅ Review submitted successfully!");
+            toast.success(`✅ Review ${existingReview ? "updated" : "submitted"} successfully!`);
             navigate("/");
         } catch (err) {
             toast.error(`❌ ${err.message}`);
@@ -51,7 +75,7 @@ const Reviews = () => {
     return (
         <div className="min-h-screen bg-gray-100 flex justify-center items-center">
             <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-md">
-                <h2 className="text-2xl font-bold text-center">Leave a Review</h2>
+                <h2 className="text-2xl font-bold text-center">{existingReview ? "Edit Your Review" : "Leave a Review"}</h2>
                 <p className="text-center text-gray-500 mb-4">Rate {specialistName}</p>
                 
                 <form onSubmit={handleSubmit}>
@@ -77,7 +101,7 @@ const Reviews = () => {
                     </div>
 
                     <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white py-2 rounded-lg">
-                        {loading ? "Submitting..." : "Submit Review"}
+                        {loading ? "Submitting..." : existingReview ? "Update Review" : "Submit Review"}
                     </button>
                 </form>
             </div>
