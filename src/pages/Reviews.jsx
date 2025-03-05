@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -11,10 +11,12 @@ const Reviews = () => {
     const [reviewText, setReviewText] = useState("");
     const [loading, setLoading] = useState(false);
 
-    if (!customerId || !specialistId) {
+    useEffect(() => {
+        // ✅ Prevent redirect until state is properly loaded
+        if (customerId && specialistId) return;
         toast.error("Invalid review request.");
         navigate("/");
-    }
+    }, [customerId, specialistId, navigate]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -67,7 +69,7 @@ const Reviews = () => {
                                     key={star}
                                     type="button"
                                     onClick={() => setRating(star)}
-                                    className="focus:outline-none"
+                                    className="cursor-pointer outline-none"
                                 >
                                     <i className={`fas fa-star text-2xl ${star <= rating ? "text-yellow-400" : "text-gray-300"}`}></i>
                                 </button>
@@ -78,14 +80,19 @@ const Reviews = () => {
                     <div className="mb-4">
                         <label className="block text-gray-700">Your Review</label>
                         <textarea 
-                            className="w-full p-2 border rounded" 
+                            className="w-full p-2 border rounded focus:outline-none"
                             rows="4"
                             value={reviewText}
                             onChange={(e) => setReviewText(e.target.value)}
                         />
                     </div>
 
-                    <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white py-2 rounded-lg">
+                    {/* ✅ Fix Submit Button Styling */}
+                    <button 
+                        type="submit" 
+                        disabled={loading} 
+                        className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-300 focus:outline-none"
+                    >
                         {loading ? "Submitting..." : "Submit Review"}
                     </button>
                 </form>
