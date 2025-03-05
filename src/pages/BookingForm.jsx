@@ -27,6 +27,7 @@ const BookingForm = () => {
         if (!response.ok) throw new Error("Failed to fetch user profile");
         const data = await response.json();
         setCustomerName(data.user.full_name);
+        localStorage.setItem("customerId", data.customerId); // ✅ Save customer_id
       } catch (err) { // ✅ Renamed 'error' to 'err' & used it
         toast.error(`❌ Error fetching user details: ${err.message}`);
       }
@@ -86,12 +87,12 @@ const BookingForm = () => {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          customer_name: customerName,
+          customer_id: localStorage.getItem("customerId"), // ✅ Use correct ID
           specialist_id: id,
           service_id: selectedService,
           date,
           time,
-          status: "Pending",
+          status: "Booked",
         }),
       });
 
