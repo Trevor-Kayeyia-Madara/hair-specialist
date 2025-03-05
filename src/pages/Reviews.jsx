@@ -8,7 +8,7 @@ const Reviews = () => {
     const { customerId, specialistId, specialistName } = location.state || {};
     
     const [rating, setRating] = useState(0);  // ✅ Default rating set to 0
-    const [reviewText, setReviewText] = useState("");
+    const [review, setReview] = useState("");
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -39,7 +39,7 @@ const Reviews = () => {
                     customer_id: customerId,
                     specialist_id: specialistId,
                     rating,
-                    review_text: reviewText
+                    review: review
                 }),
             });
 
@@ -82,8 +82,8 @@ const Reviews = () => {
                         <textarea 
                             className="w-full p-2 border rounded focus:outline-none"
                             rows="4"
-                            value={reviewText}
-                            onChange={(e) => setReviewText(e.target.value)}
+                            value={review}
+                            onChange={(e) => setReview(e.target.value)}
                         />
                     </div>
 
