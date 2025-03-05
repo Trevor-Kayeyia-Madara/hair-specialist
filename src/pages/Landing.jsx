@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
 import SpecialistCard from '../components/SpecialistCard';
-import ReviewCard from '../components/ReviewCard';
 import Navbar from '../components/Navbar';
+import ReactPaginate from 'react-paginate';
 
 const Landing = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [loggedIn, setLoggedIn] = useState(false);
     const [userProfile, setUserProfile] = useState(null);
     const [specialists, setSpecialists] = useState([]);
+    const [currentPage, setCurrentPage] = useState(0);
+    const specialistsPerPage = 4;
 
     useEffect(() => {
         const checkSession = async () => {
@@ -57,11 +59,18 @@ const Landing = () => {
                 console.error("Error fetching specialists:", error);
             }
         };
-    
+
         fetchSpecialists();
-    }, [searchQuery]); // Trigger when searchQuery changes
-    
-  
+    }, [searchQuery]);
+
+    const pageCount = Math.ceil(specialists.length / specialistsPerPage);
+    const offset = currentPage * specialistsPerPage;
+    const currentSpecialists = specialists.slice(offset, offset + specialistsPerPage);
+
+    const handlePageChange = ({ selected }) => {
+        setCurrentPage(selected);
+    };
+
     return (
         <div className="min-h-screen bg-gray-50">
             <Navbar isLoggedIn={loggedIn} userProfile={userProfile} />
@@ -92,53 +101,28 @@ const Landing = () => {
             <section className="py-12 md:py-20 px-4 bg-gray-50">
                 <div className="max-w-6xl mx-auto">
                     <h2 className="text-2xl md:text-3xl font-playfair text-center mb-8 md:mb-12">Featured Specialists</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {specialists.length > 0 ? (
-                            specialists.map((specialist, index) => (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6">
+                        {currentSpecialists.length > 0 ? (
+                            currentSpecialists.map((specialist, index) => (
                                 <SpecialistCard key={index} specialist={specialist} />
                             ))
                         ) : (
                             <p className="text-center text-gray-600 col-span-full">No specialists found.</p>
                         )}
                     </div>
-                </div>
-            </section>
 
-            {/* How It Works Section */}
-            <section className="py-12 md:py-20 px-4">
-                <div className="max-w-6xl mx-auto">
-                    <h2 className="text-2xl md:text-3xl font-playfair text-center mb-8 md:mb-16">How It Works</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        {["Search", "Book", "Enjoy"].map((step, index) => (
-                            <div key={index} className="text-center">
-                                <h3 className="text-xl font-semibold mb-4">{step}</h3>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* Customer Reviews Section */}
-            <section className="py-12 md:py-20 px-4 bg-gray-100">
-                <div className="max-w-6xl mx-auto">
-                    <h2 className="text-2xl md:text-3xl font-playfair text-center mb-8 md:mb-12">Customer Reviews</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {[
-                            {
-                                user: { name: "Sarah Thompson", avatar: "/avatar1.jpg" },
-                                rating: 5,
-                                date: "2025-01-15",
-                                text: "Found my perfect hairstylist through this platform! The booking process was seamless and the results were amazing.",
-                            },
-                            {
-                                user: { name: "Michael Chen", avatar: "/avatar2.jpg" },
-                                rating: 5,
-                                date: "2025-01-10",
-                                text: "Great experience from start to finish. My stylist understood exactly what I wanted and delivered beyond expectations.",
-                            },
-                        ].map((review, index) => (
-                            <ReviewCard key={index} review={review} />
-                        ))}
+                    <div className="flex justify-center mt-6">
+                        <ReactPaginate
+                            previousLabel={"← Previous"}
+                            nextLabel={"Next →"}
+                            pageCount={pageCount}
+                            onPageChange={handlePageChange}
+                            containerClassName="flex space-x-2"
+                            activeClassName="bg-blue-500 text-white px-3 py-1 rounded"
+                            pageClassName="px-3 py-1 border rounded"
+                            previousClassName="px-3 py-1 border rounded"
+                            nextClassName="px-3 py-1 border rounded"
+                        />
                     </div>
                 </div>
             </section>
