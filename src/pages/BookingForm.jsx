@@ -27,7 +27,12 @@ const BookingForm = () => {
         if (!response.ok) throw new Error("Failed to fetch user profile");
         const data = await response.json();
         setCustomerName(data.user.full_name);
-        localStorage.setItem("customerId", data.customerId); // ✅ Save customer_id
+       // ✅ Ensure customer_id is stored correctly
+       if (data.customerId) {
+        localStorage.setItem("customerId", data.customerId);
+    } else {
+        throw new Error("Customer ID not found.");
+    }
       } catch (err) { // ✅ Renamed 'error' to 'err' & used it
         toast.error(`❌ Error fetching user details: ${err.message}`);
       }
@@ -66,12 +71,13 @@ const BookingForm = () => {
     e.preventDefault();
     setLoading(true);
 
-    if (!customerName || !date || !time || !selectedService) {
-      toast.warning("⚠️ Please fill in all fields.");
-      setLoading(false);
-      return;
-    }
+    const customerId = localStorage.getItem("customerId");
 
+    if (!customerId || !date || !time || !selectedService) {
+        toast.warning("⚠️ Please fill in all fields.");
+        setLoading(false);
+        return;
+    }
     const token = localStorage.getItem("authToken");
     if (!token) {
       toast.warning("⚠️ You must be logged in to book an appointment.");
@@ -87,7 +93,7 @@ const BookingForm = () => {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          customer_id: localStorage.getItem("customerId"), // ✅ Use correct ID
+          customer_id: customerId,
           specialist_id: id,
           service_id: selectedService,
           date,
