@@ -5,6 +5,7 @@ const UserDashboard = () => {
   const { id } = useParams();
   const [user, setUser] = useState(null);
   const [customer, setCustomer] = useState(null);
+  const [appointments, setAppointments] = useState([]);
   const [error, setError] = useState("");
   const [selectedTab, setSelectedTab] = useState("profile"); // ✅ Toggle tabs
   const navigate = useNavigate();
@@ -22,7 +23,6 @@ const UserDashboard = () => {
         const userRes = await fetch(`https://backend-es6y.onrender.com/api/users/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-
         const userData = await userRes.json();
         if (!userRes.ok) throw new Error("Failed to fetch user data");
         setUser(userData);
@@ -31,10 +31,17 @@ const UserDashboard = () => {
         const customerRes = await fetch(`https://backend-es6y.onrender.com/api/customers/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-
         const customerData = await customerRes.json();
         if (!customerRes.ok) throw new Error("Failed to fetch customer data");
         setCustomer(customerData);
+
+        // ✅ Fetch appointments for this customer
+        const appointmentsRes = await fetch(`https://backend-es6y.onrender.com/api/customers/${id}/appointments`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const appointmentsData = await appointmentsRes.json();
+        if (!appointmentsRes.ok) throw new Error("Failed to fetch appointments");
+        setAppointments(appointmentsData);
       } catch (err) {
         setError(err.message);
       }
@@ -59,7 +66,7 @@ const UserDashboard = () => {
         <ul className="space-y-4">
           <li>
             <button
-              onClick={() => setSelectedTab("profile")} // ✅ Toggle Profile Tab
+              onClick={() => setSelectedTab("profile")}
               className={`block w-full text-left py-2 px-4 rounded ${
                 selectedTab === "profile" ? "bg-blue-600" : "hover:bg-gray-700"
               }`}
@@ -69,7 +76,7 @@ const UserDashboard = () => {
           </li>
           <li>
             <button
-              onClick={() => setSelectedTab("appointments")} // ✅ Toggle Appointments Tab
+              onClick={() => setSelectedTab("appointments")}
               className={`block w-full text-left py-2 px-4 rounded ${
                 selectedTab === "appointments" ? "bg-blue-600" : "hover:bg-gray-700"
               }`}
@@ -99,11 +106,23 @@ const UserDashboard = () => {
           </div>
         )}
 
-        {/* ✅ Appointments Section (Now Only Shows "No Appointments") */}
+        {/* ✅ Appointments Section */}
         {selectedTab === "appointments" && (
           <div className="mt-6">
             <h3 className="text-xl font-semibold mb-3">📅 Your Appointments</h3>
-            <p className="text-gray-500">No upcoming appointments.</p>
+            {appointments.length === 0 ? (
+              <p className="text-gray-500">No upcoming appointments.</p>
+            ) : (
+              <ul className="space-y-4">
+                {appointments.map((appointment) => (
+                  <li key={appointment.id} className="p-4 border rounded-lg shadow-sm">
+                    <p className="text-lg font-semibold">{appointment.specialist_profile?.full_name} - {appointment.specialist_profile?.speciality}</p>
+                    <p className="text-gray-600">📅 {appointment.date} ⏰ {appointment.time}</p>
+                    <p className="text-gray-500">Status: <span className="font-semibold">{appointment.status}</span></p>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         )}
       </div>
