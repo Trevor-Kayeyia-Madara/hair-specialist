@@ -123,7 +123,14 @@ const BookingForm = () => {
 
       // Redirect to Payment Page
       setTimeout(() => {
-        navigate("/payment");
+        navigate("/reviews", {
+          state: {
+              appointmentId: data.appointment.id,
+              customerId,  // ✅ Pass customer ID
+              specialistId: id,  // ✅ Pass specialist ID
+              specialistName
+          }
+      });
       }, 5000);
     } catch (err) { // ✅ Renamed 'error' to 'err' & used it
       toast.error(`❌ ${err.message}`);

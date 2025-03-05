@@ -1,149 +1,88 @@
-import {useState} from 'react'
+import { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const Reviews = () => {
-    const [name, setName] = useState("");
-  const [rating, setRating] = useState(5);
-  const [review, setReview] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { customerId, specialistId, specialistName } = location.state || {};
+    
+    const [rating, setRating] = useState(5);
+    const [reviewText, setReviewText] = useState("");
+    const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setSubmitted(true);
-    setName("");
-    setReview("");
-    setRating(5);
-  };
+    useEffect(() => {
+        if (!customerId || !specialistId) {
+            toast.error("Invalid review request.");
+            navigate("/");
+        }
+    }, [customerId, specialistId, navigate]);
 
-  return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-    <div className="max-w-3xl mx-auto">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold font-montserrat text-gray-900 mb-4">
-          Leave a Review
-        </h1>
-        <p className="text-xl font-roboto text-gray-600">
-          Share your experience with our specialists
-        </p>
-      </div>
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        const token = localStorage.getItem("authToken");
 
-      {submitted ? (
-        <div className="bg-green-50 p-6 rounded-lg text-center">
-          <i className="fas fa-check-circle text-green-500 text-4xl mb-4"></i>
-          <p className="text-green-800 font-roboto text-lg">
-            Thank you for your review!
-          </p>
+        try {
+            const response = await fetch("https://backend-es6y.onrender.com/api/reviews", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    customer_id: customerId,
+                    specialist_id: specialistId,
+                    rating,
+                    review_text: reviewText
+                }),
+            });
+
+            if (!response.ok) throw new Error("Failed to submit review.");
+            toast.success("✅ Review submitted successfully!");
+            navigate("/");
+        } catch (err) {
+            toast.error(`❌ ${err.message}`);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="min-h-screen bg-gray-100 flex justify-center items-center">
+            <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-md">
+                <h2 className="text-2xl font-bold text-center">Leave a Review</h2>
+                <p className="text-center text-gray-500 mb-4">Rate {specialistName}</p>
+                
+                <form onSubmit={handleSubmit}>
+                    <div className="mb-4">
+                        <label className="block text-gray-700">Rating</label>
+                        <div className="flex space-x-2">
+                            {[1, 2, 3, 4, 5].map(star => (
+                                <button key={star} type="button" onClick={() => setRating(star)}>
+                                    <i className={`fas fa-star ${star <= rating ? "text-yellow-400" : "text-gray-300"}`}></i>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="mb-4">
+                        <label className="block text-gray-700">Your Review</label>
+                        <textarea 
+                            className="w-full p-2 border rounded" 
+                            rows="4"
+                            value={reviewText}
+                            onChange={(e) => setReviewText(e.target.value)}
+                        />
+                    </div>
+
+                    <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white py-2 rounded-lg">
+                        {loading ? "Submitting..." : "Submit Review"}
+                    </button>
+                </form>
+            </div>
         </div>
-      ) : (
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white shadow-lg rounded-lg p-8"
-        >
-          <div className="mb-6">
-            <label
-              className="block font-roboto text-gray-700 mb-2"
-              htmlFor="name"
-            >
-              Your Name
-            </label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
+    );
+};
 
-          <div className="mb-6">
-            <label className="block font-roboto text-gray-700 mb-2">
-              Rating
-            </label>
-            <div className="flex gap-2">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <button
-                  key={star}
-                  type="button"
-                  onClick={() => setRating(star)}
-                  className="text-2xl focus:outline-none"
-                >
-                  <i
-                    className={`fas fa-star ${star <= rating ? "text-yellow-400" : "text-gray-300"}`}
-                  ></i>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="mb-6">
-            <label
-              className="block font-roboto text-gray-700 mb-2"
-              htmlFor="review"
-            >
-              Your Review
-            </label>
-            <textarea
-              id="review"
-              name="review"
-              value={review}
-              onChange={(e) => setReview(e.target.value)}
-              rows="4"
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            ></textarea>
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white font-roboto py-3 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Submit Review
-          </button>
-        </form>
-      )}
-
-      <div className="mt-12 bg-white shadow-lg rounded-lg p-8">
-        <h2 className="text-2xl font-montserrat font-bold mb-6">
-          Recent Reviews
-        </h2>
-        <div className="space-y-6">
-          <div className="border-b pb-6">
-            <div className="flex items-center mb-2">
-              <div className="text-yellow-400 flex">
-                <i className="fas fa-star"></i>
-                <i className="fas fa-star"></i>
-                <i className="fas fa-star"></i>
-                <i className="fas fa-star"></i>
-                <i className="fas fa-star"></i>
-              </div>
-              <span className="ml-2 font-roboto text-gray-600">John D.</span>
-            </div>
-            <p className="font-roboto text-gray-700">
-              Great experience with my specialist! Very professional and
-              knowledgeable.
-            </p>
-          </div>
-          <div className="border-b pb-6">
-            <div className="flex items-center mb-2">
-              <div className="text-yellow-400 flex">
-                <i className="fas fa-star"></i>
-                <i className="fas fa-star"></i>
-                <i className="fas fa-star"></i>
-                <i className="fas fa-star"></i>
-                <i className="fas fa-star-half-alt"></i>
-              </div>
-              <span className="ml-2 font-roboto text-gray-600">Sarah M.</span>
-            </div>
-            <p className="font-roboto text-gray-700">
-              Very satisfied with the service. Would definitely recommend!
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  )
-}
-
-export default Reviews
+export default Reviews;

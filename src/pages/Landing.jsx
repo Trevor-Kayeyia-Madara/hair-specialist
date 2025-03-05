@@ -1,13 +1,15 @@
-import { useState, useEffect } from 'react';
-import SpecialistCard from '../components/SpecialistCard';
-import Navbar from '../components/Navbar';
-import ReactPaginate from 'react-paginate';
+import { useState, useEffect } from "react";
+import SpecialistCard from "../components/SpecialistCard";
+import ReviewsCard from "../components/ReviewsCard"; // ✅ Import ReviewsCard
+import Navbar from "../components/Navbar";
+import ReactPaginate from "react-paginate";
 
 const Landing = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [loggedIn, setLoggedIn] = useState(false);
     const [userProfile, setUserProfile] = useState(null);
     const [specialists, setSpecialists] = useState([]);
+    const [reviews, setReviews] = useState([]); // ✅ State for reviews
     const [currentPage, setCurrentPage] = useState(0);
     const specialistsPerPage = 4;
 
@@ -21,9 +23,7 @@ const Landing = () => {
 
             try {
                 const response = await fetch("https://backend-es6y.onrender.com/api/validate-session", {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
+                    headers: { Authorization: `Bearer ${token}` },
                 });
 
                 if (response.ok) {
@@ -62,6 +62,25 @@ const Landing = () => {
 
         fetchSpecialists();
     }, [searchQuery]);
+
+    // ✅ Fetch all reviews
+    useEffect(() => {
+        const fetchReviews = async () => {
+            try {
+                const response = await fetch("https://backend-es6y.onrender.com/api/reviews");
+                if (response.ok) {
+                    const data = await response.json();
+                    setReviews(data);
+                } else {
+                    console.error("Failed to fetch reviews");
+                }
+            } catch (error) {
+                console.error("Error fetching reviews:", error);
+            }
+        };
+
+        fetchReviews();
+    }, []);
 
     const pageCount = Math.ceil(specialists.length / specialistsPerPage);
     const offset = currentPage * specialistsPerPage;
@@ -123,6 +142,20 @@ const Landing = () => {
                             previousClassName="px-3 py-1 border rounded"
                             nextClassName="px-3 py-1 border rounded"
                         />
+                    </div>
+                </div>
+            </section>
+
+            {/* Reviews Section */}
+            <section className="py-12 md:py-20 px-4 bg-gray-100">
+                <div className="max-w-6xl mx-auto">
+                    <h2 className="text-2xl md:text-3xl font-playfair text-center mb-8 md:mb-12">What Our Clients Say</h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+                        {reviews.length > 0 ? (
+                            reviews.map((review) => <ReviewsCard key={review.id} review={review} />)
+                        ) : (
+                            <p className="text-center text-gray-600 col-span-full">No reviews yet.</p>
+                        )}
                     </div>
                 </div>
             </section>
