@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
-
+import Loader from "../components/Loader";
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
@@ -55,6 +55,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-6">
+      {loading && <Loader />}
       <div className="max-w-md w-full bg-white p-6 rounded-lg shadow-md">
         <h2 className="text-center text-2xl font-bold">Sign in</h2>
 
@@ -89,7 +90,7 @@ const Login = () => {
             className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 flex items-center justify-center"
             disabled={loading}
           >
-            {loading ? "Signing in..." : "Sign In"}
+            {loading ? <img src="/loader.gif" alt="Loading..." className="h-6 w-6" /> : "Sign In"}
           </button>
           Not having an account? <Link to="/sign-up">Sign up</Link>
         </form>

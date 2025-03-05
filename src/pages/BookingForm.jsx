@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import Loader from "../components/Loader";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -133,6 +134,7 @@ const BookingForm = () => {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 px-4">
+      {loading && <Loader />}
       <div className="max-w-md w-full bg-white shadow-lg rounded-2xl p-6 space-y-6">
         <h2 className="text-3xl font-bold text-center">📅 Book an Appointment</h2>
         <form className="space-y-4" onSubmit={handleSubmit}>

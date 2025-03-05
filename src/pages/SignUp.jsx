@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Loader from "../components/Loader";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -51,6 +52,7 @@ const SignUp = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
+      {loading && <Loader />}
       <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
         <h1 className="text-2xl font-bold text-center mb-8 font-roboto">Create an Account</h1>
 
