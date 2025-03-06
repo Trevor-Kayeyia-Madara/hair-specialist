@@ -83,6 +83,11 @@ const updateProfileField = async (field, value) => {
 
   // ✅ Fetch appointments
   const fetchAppointments = useCallback(async () => {
+    if (!id || isNaN(Number(id))) {
+      console.error("Invalid specialist ID:", id);
+      setAppointmentsError("Invalid specialist ID.");
+      return;
+    }
     setAppointmentsLoading(true);
     try {
       const response = await axios.get(
