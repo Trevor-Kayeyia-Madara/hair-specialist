@@ -83,33 +83,39 @@ const updateProfileField = async (field, value) => {
 
   // ✅ Fetch appointments
   const fetchAppointments = useCallback(async () => {
-    if (!id || isNaN(Number(id))) {
-      console.error("Invalid user ID:", id);
-      setAppointmentsError("Invalid user ID.");
-      return;
-    }
-  
     setAppointmentsLoading(true);
     try {
-      const token = localStorage.getItem("token"); // 🔥 Fetch the stored token
-      if (!token) {
-        throw new Error("User is not authenticated.");
-      }
-  
-      const response = await axios.get(
-        `https://backend-es6y.onrender.com/api/appointments/user/${id}`,
-        {
-          headers: { Authorization: `Bearer ${token}` }, // ✅ Send token in headers
+        const token = localStorage.getItem("token"); // 🔥 Get token from storage
+        if (!token) {
+            throw new Error("User is not authenticated.");
         }
-      );
-      setAppointments(response.data);
-      setAppointmentsError(null);
-    } catch {
-      setAppointmentsError("Failed to fetch appointments.");
+
+        console.log("Fetching appointments for user:", id);
+
+        const response = await axios.get(
+            `https://backend-es6y.onrender.com/api/appointments/user/${id}`,
+            {
+                headers: { Authorization: `Bearer ${token}` }, // ✅ Attach token
+            }
+        );
+
+        console.log("Fetched appointments:", response.data); // 🛠 Debugging log
+
+        setAppointments(response.data);
+        setAppointmentsError(null);
+    } catch (error) {
+        console.error("Error fetching appointments:", error.response || error);
+        setAppointmentsError("Failed to fetch appointments.");
     } finally {
-      setAppointmentsLoading(false);
+        setAppointmentsLoading(false);
     }
-  }, [id]);
+}, [id]);
+
+useEffect(() => {
+    if (selectedTab === "appointments") {
+        fetchAppointments();
+    }
+}, [selectedTab, fetchAppointments]);
 
   useEffect(() => {
     if (selectedTab === "appointments") {
