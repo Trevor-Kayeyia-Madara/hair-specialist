@@ -86,7 +86,7 @@ const updateProfileField = async (field, value) => {
     setAppointmentsLoading(true);
     try {
       const response = await axios.get(
-        `https://backend-es6y.onrender.com/api/appointments/specialist/${id}`
+        `https://backend-es6y.onrender.com/api/appointments/${id}`
       );
       setAppointments(response.data);
       setAppointmentsError(null);
