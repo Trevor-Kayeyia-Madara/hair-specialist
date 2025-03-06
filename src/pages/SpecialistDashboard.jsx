@@ -91,8 +91,16 @@ const updateProfileField = async (field, value) => {
   
     setAppointmentsLoading(true);
     try {
+      const token = localStorage.getItem("token"); // 🔥 Fetch the stored token
+      if (!token) {
+        throw new Error("User is not authenticated.");
+      }
+  
       const response = await axios.get(
-        `https://backend-es6y.onrender.com/api/appointments/user/${id}` // 🔥 Updated to use user_id
+        `https://backend-es6y.onrender.com/api/appointments/user/${id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` }, // ✅ Send token in headers
+        }
       );
       setAppointments(response.data);
       setAppointmentsError(null);
