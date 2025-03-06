@@ -84,14 +84,15 @@ const updateProfileField = async (field, value) => {
   // ✅ Fetch appointments
   const fetchAppointments = useCallback(async () => {
     if (!id || isNaN(Number(id))) {
-      console.error("Invalid specialist ID:", id);
-      setAppointmentsError("Invalid specialist ID.");
+      console.error("Invalid user ID:", id);
+      setAppointmentsError("Invalid user ID.");
       return;
     }
+  
     setAppointmentsLoading(true);
     try {
       const response = await axios.get(
-        `https://backend-es6y.onrender.com/api/appointments/${id}`
+        `https://backend-es6y.onrender.com/api/appointments/user/${id}` // 🔥 Updated to use user_id
       );
       setAppointments(response.data);
       setAppointmentsError(null);
