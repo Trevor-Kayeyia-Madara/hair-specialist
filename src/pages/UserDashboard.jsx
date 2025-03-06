@@ -116,7 +116,7 @@ const UserDashboard = () => {
               <ul className="space-y-4">
                 {appointments.map((appointment) => (
                   <li key={appointment.id} className="p-4 border rounded-lg shadow-sm">
-                    <p className="text-lg font-semibold">{appointment.specialist_profile?.full_name} - {appointment.specialist_profile?.speciality}</p>
+                    <p className="text-lg font-semibold">  {appointment.specialist_profile?.users?.full_name} - {appointment.specialist_profile?.speciality}</p>
                     <p className="text-gray-600">📅 {appointment.date} ⏰ {appointment.time}</p>
                     <p className="text-gray-500">Status: <span className="font-semibold">{appointment.status}</span></p>
                   </li>
