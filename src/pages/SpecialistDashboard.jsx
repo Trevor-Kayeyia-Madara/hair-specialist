@@ -23,22 +23,21 @@ const SpecialistDashboard = () => {
     location: "",
   });
 
-  // ✅ Fetch specialist profile
   const fetchProfile = useCallback(async () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `https://backend-es6y.onrender.com/api/specialists/${id}`
+        `https://backend-es6y.onrender.com/api/specialists/user/${id}`
       );
       setProfile(response.data);
-      setUpdatedProfileData(response.data); // ✅ Updates correctly
+      setUpdatedProfileData(response.data);
       setError(null);
     } catch {
       setError("Failed to fetch profile data.");
     } finally {
       setLoading(false);
     }
-  }, [id]);
+}, [id]);
 
   useEffect(() => {
     if (selectedTab === "profile") {
@@ -46,21 +45,26 @@ const SpecialistDashboard = () => {
     }
   }, [selectedTab, fetchProfile]);
 
-  // ✅ Update profile field
-  const updateProfileField = async (field, value) => {
-    setLoading(true);
-    try {
-      await axios.patch(`https://backend-es6y.onrender.com/api/specialists/${id}`, {
-        [field]: value,
-      });
-      setUpdatedProfileData((prev) => ({ ...prev, [field]: value }));
-      setEditingField(null);
-    } catch {
-      setError(`Failed to update ${field}.`);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // ✅ Update profile field (now using PUT)
+const updateProfileField = async (field, value) => {
+  setLoading(true);
+  try {
+    // Prepare the updated data structure
+    const updatedData = { ...updatedProfileData, [field]: value };
+
+    // Send a PUT request with the full updated profile data
+    await axios.put(`https://backend-es6y.onrender.com/api/specialists/user/${id}`, updatedData);
+
+    // Update the state with the new value
+    setUpdatedProfileData(updatedData);
+    setEditingField(null);
+  } catch {
+    setError(`Failed to update ${field}.`);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleEditClick = (field) => {
     setEditingField(field);
