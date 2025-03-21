@@ -1,52 +1,45 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 
 const ChatComponent = () => {
-  const [messages, setMessages] = useState([]);
-  const [newMessage, setNewMessage] = useState('');
+  const [messages, setMessages] = useState([
+    { id: 1, sender: "client", message: "Hi, I need a consultation!" },
+    { id: 2, sender: "specialist", message: "Sure! What would you like to discuss?" },
+  ]);
+  const [newMessage, setNewMessage] = useState("");
 
+  // Simulate polling every 2 seconds (new incoming messages)
   useEffect(() => {
-    const fetchMessages = async () => {
-      try {
-        const response = await fetch('/api/chat'); // Replace with your API endpoint
-        const data = await response.json();
-        setMessages(data);
-      } catch (error) {
-        console.error('Error fetching messages:', error);
-      }
-    };
-
-    fetchMessages();
-    const interval = setInterval(fetchMessages, 2000); // Polling every 2 seconds
+    const interval = setInterval(() => {
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { id: prevMessages.length + 1, sender: "client", message: "Any available slots tomorrow?" },
+      ]);
+    }, 5000); // Simulated new messages every 5 seconds
 
     return () => clearInterval(interval);
   }, []);
 
-  const sendMessage = async () => {
+  // Function to send messages
+  const sendMessage = () => {
     if (!newMessage.trim()) return;
 
-    try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: newMessage }),
-      });
-
-      if (response.ok) {
-        setNewMessage('');
-        // Fetch updated messages immediately after sending
-        const updatedMessages = await response.json();
-        setMessages(updatedMessages);
-      }
-    } catch (error) {
-      console.error('Error sending message:', error);
-    }
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      { id: prevMessages.length + 1, sender: "specialist", message: newMessage },
+    ]);
+    setNewMessage("");
   };
 
   return (
-    <div className="p-4 border rounded-lg w-80">
+    <div className="p-4 border rounded-lg w-80 bg-white shadow-lg">
       <div className="h-64 overflow-y-auto border-b mb-2 p-2">
-        {messages.map((msg, index) => (
-          <div key={index} className="mb-2 p-2 bg-gray-200 rounded">
+        {messages.map((msg) => (
+          <div
+            key={msg.id}
+            className={`mb-2 p-2 rounded ${
+              msg.sender === "specialist" ? "bg-blue-500 text-white self-end" : "bg-gray-200"
+            }`}
+          >
             {msg.message}
           </div>
         ))}
