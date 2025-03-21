@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import ChatComponent from "../components/ChatComponent";
 
 const SpecialistDashboard = () => {
   const [selectedTab, setSelectedTab] = useState("profile");
@@ -239,6 +240,9 @@ useEffect(() => {
               <p className="text-center text-gray-600">No upcoming appointments.</p>
             )}
           </div>
+        )}
+        {selectedTab === 'messages'&&(
+          <ChatComponent/>
         )}
       </main>
     </div>
