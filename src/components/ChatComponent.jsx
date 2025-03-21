@@ -75,7 +75,7 @@ const ChatComponent = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-[70vh] bg-gray-100">
       {/* Left Sidebar - Chat List */}
       <div className="w-1/3 bg-white border-r shadow-lg overflow-y-auto">
         <h2 className="text-xl font-bold p-4 border-b">Chats</h2>
