@@ -11,6 +11,7 @@ import SpecialistProfile from "./pages/SpecialistProfile";
 import Payment from "./pages/Payment";
 
 import InvoiceGenerator from "./pages/InvoiceGenerator";
+import ChatComponent from "./components/ChatComponent";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
           <Route path="/specialist-dashboard/:id" element={<SpecialistDashboard />} />
           <Route path="/specialists/:id" element={<SpecialistProfile />} />
           <Route path="/payment" element={<Payment  />} />
+          <Route path="/chat" element={<ChatComponent  />} />
         </Routes>
     </Router>
   )

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 const mockChats = [
   {
@@ -29,34 +29,51 @@ const mockChats = [
 
 const ChatComponent = () => {
   const [chats, setChats] = useState(mockChats);
-  const [selectedChat, setSelectedChat] = useState(mockChats[0]); // Default to first chat
-  const [newMessage, setNewMessage] = useState("");
+  const [selectedChat, setSelectedChat] = useState(mockChats[0]);
+  const chatContainerRef = useRef(null);
 
-  // Simulate polling every 2 seconds (new incoming messages)
+  // Simulate polling for new messages every 2 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      setChats((prevChats) =>
-        prevChats.map((chat) =>
-          chat.id === selectedChat.id
-            ? {
-                ...chat,
-                messages: [
-                  ...chat.messages,
-                  { id: chat.messages.length + 1, sender: "client", message: "Just checking in!" },
-                ],
-                lastMessage: "Just checking in!",
-                lastMessageTime: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-              }
-            : chat
-        )
-      );
-    }, 5000);
+      fetchNewMessages();
+    }, 2000);
 
     return () => clearInterval(interval);
-  }, [selectedChat]);
+  }, []);
+
+  // Function to fetch new messages
+  const fetchNewMessages = () => {
+    setChats((prevChats) =>
+      prevChats.map((chat) => ({
+        ...chat,
+        messages: [
+          ...chat.messages,
+          {
+            id: chat.messages.length + 1,
+            sender: "client",
+            message: `New message at ${new Date().toLocaleTimeString()}`,
+          },
+        ],
+        lastMessage: `New message at ${new Date().toLocaleTimeString()}`,
+        lastMessageTime: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      }))
+    );
+  };
+
+  // Automatically update selectedChat when chats change
+  useEffect(() => {
+    setSelectedChat((prevChat) => chats.find((chat) => chat.id === prevChat.id) || chats[0]);
+  }, [chats]);
+
+  // Scroll to the bottom when messages update
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [selectedChat.messages]);
 
   // Function to send a message
-  const sendMessage = () => {
+  const sendMessage = (newMessage) => {
     if (!newMessage.trim()) return;
 
     setChats((prevChats) =>
@@ -71,14 +88,13 @@ const ChatComponent = () => {
           : chat
       )
     );
-    setNewMessage("");
   };
 
   return (
-    <div className="flex h-[70vh] bg-gray-100">
+    <div className="flex h-screen bg-gray-100">
       {/* Left Sidebar - Chat List */}
-      <div className="w-1/3 bg-white border-r shadow-lg overflow-y-auto">
-        <h2 className="text-xl font-bold p-4 border-b">Chats</h2>
+      <div className="w-1/3 bg-white shadow-lg overflow-y-auto">
+        <h2 className="h-[70px] text-xl font-bold p-4 shadow">Chats</h2>
         {chats.map((chat) => (
           <div
             key={chat.id}
@@ -100,13 +116,13 @@ const ChatComponent = () => {
       {/* Right Panel - Chat Window */}
       <div className="w-2/3 flex flex-col">
         {/* Chat Header */}
-        <div className="p-4 border-b flex items-center bg-white shadow-md">
+        <div className="h-[70px] p-4 flex items-center bg-white border-l border-gray-300">
           <img src={selectedChat.profilePic} alt={selectedChat.name} className="w-10 h-10 rounded-full mr-3" />
           <h2 className="text-lg font-bold">{selectedChat.name}</h2>
         </div>
 
         {/* Chat Messages */}
-        <div className="flex-1 overflow-y-auto p-4 bg-gray-200">
+        <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 bg-gray-200">
           {selectedChat.messages.map((msg) => (
             <div
               key={msg.id}
@@ -120,15 +136,16 @@ const ChatComponent = () => {
         </div>
 
         {/* Message Input */}
-        <div className="p-4 bg-white border-t flex">
+        <div className="p-4 bg-white flex">
           <input
             type="text"
-            className="flex-grow p-2 border rounded"
+            className="flex-grow p-2 border border-gray-300 rounded"
             placeholder="Type a message..."
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") sendMessage(e.target.value);
+            }}
           />
-          <button className="ml-2 p-2 bg-blue-500 text-white rounded" onClick={sendMessage}>
+          <button className="ml-2 p-2 bg-blue-500 text-white rounded" onClick={() => sendMessage(newMessage)}>
             Send
           </button>
         </div>

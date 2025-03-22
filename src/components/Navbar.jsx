@@ -41,6 +41,14 @@ const Navbar = () => {
               Dashboard
             </Link>
           )}
+          {userId && (
+            <Link
+              to={`/chat`}
+              className="text-white text-lg hover:text-blue-200 transition duration-300"
+            >
+              Chat
+            </Link>
+          )}
 
           {!userId ? (
             <>
@@ -84,7 +92,14 @@ const Navbar = () => {
                 Dashboard
               </Link>
             )}
-
+             {userId && (
+            <Link
+              to={`/chat`}
+              className="text-white text-lg hover:text-blue-200 transition duration-300"
+            >
+              Chat
+            </Link>
+          )}
             {!userId ? (
               <>
                 <Link to="/login" className="text-white text-lg hover:text-blue-200" onClick={() => setMenuOpen(false)}>
