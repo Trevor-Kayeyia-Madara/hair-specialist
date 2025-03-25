@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import ChatComponent from "../components/ChatComponent";
+import SpecialistChat from "../components/SpecialistChat";
 
 const SpecialistDashboard = () => {
   const [selectedTab, setSelectedTab] = useState("profile");
@@ -154,7 +155,7 @@ useEffect(() => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-6">
+      <main className="flex-1 ">
         {selectedTab === "profile" && (
           <div className="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-xl font-bold mb-4 text-center">Specialist Profile</h2>
@@ -242,7 +243,7 @@ useEffect(() => {
           </div>
         )}
         {selectedTab === 'messages'&&(
-          <ChatComponent/>
+          <SpecialistChat/>
         )}
       </main>
     </div>

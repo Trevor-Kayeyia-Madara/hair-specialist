@@ -1,11 +1,11 @@
+import { useState } from "react";
 import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const SpecialistCard = ({ specialist }) => {
   const { id, full_name, speciality, rating, location, created_at } = specialist;
-
-  // Ensure id is always a string (important for route matching)
-  const specialistId = String(id);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const navigate = useNavigate();
 
   // Ensure rating is a float and limit to 1 decimal place
   const formattedRating = rating ? parseFloat(rating).toFixed(1) : "N/A";
@@ -25,8 +25,34 @@ const SpecialistCard = ({ specialist }) => {
     return stars;
   };
 
+  // Handle chat button click
+  const handleChatClick = () => {
+    console.log("Selected Specialist Before Navigating:", specialist);
+    localStorage.setItem("selectedSpecialist", JSON.stringify(specialist)); // Store in localStorage
+    navigate("/chat");
+  };
+
   return (
-    <div className="bg-white shadow-lg rounded-2xl p-6 border border-gray-200 hover:shadow-xl transition duration-300">
+    <div className="bg-white shadow-lg rounded-2xl p-6 border border-gray-200 hover:shadow-xl transition duration-300 relative">
+      {/* Ellipsis Button (Top Right) */}
+      <div className="absolute top-2 right-2">
+        <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="text-gray-500 hover:text-gray-700">
+          ⋮
+        </button>
+
+        {/* Dropdown for Chat */}
+        {isDropdownOpen && (
+          <div className="absolute right-0 mt-2 bg-white border border-gray-200 shadow-lg rounded-lg z-10">
+            <button
+              className="block px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left"
+              onClick={handleChatClick}
+            >
+              Chat
+            </button>
+          </div>
+        )}
+      </div>
+
       <h2 className="text-xl font-bold text-gray-800">{full_name}</h2>
       <p className="text-sm text-gray-600">{speciality}</p>
 
@@ -42,10 +68,10 @@ const SpecialistCard = ({ specialist }) => {
         </p>
       </div>
 
-      {/* ✅ Removed Chat Button, Only "Book Now" Remains */}
+      {/* "Book Now" Button Below */}
       <div className="mt-4">
         <Link
-          to={`/booking/${specialistId}`}
+          to={`/booking/${id}`}
           className="block text-center bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition duration-300"
         >
           Book Now
@@ -58,10 +84,10 @@ const SpecialistCard = ({ specialist }) => {
 // ✅ Define PropTypes for validation
 SpecialistCard.propTypes = {
   specialist: PropTypes.shape({
-    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired, // Ensure compatibility
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     full_name: PropTypes.string.isRequired,
     speciality: PropTypes.string.isRequired,
-    rating: PropTypes.oneOfType([PropTypes.string, PropTypes.number]), // Allow both for conversion
+    rating: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     location: PropTypes.string,
     created_at: PropTypes.string.isRequired,
   }).isRequired,
