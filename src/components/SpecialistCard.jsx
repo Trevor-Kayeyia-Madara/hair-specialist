@@ -2,7 +2,7 @@ import { useState } from "react";
 import PropTypes from "prop-types";
 import { Link, useNavigate } from "react-router-dom";
 
-const SpecialistCard = ({ specialist }) => {
+const SpecialistCard = ({ specialist, startNewChat }) => {
   const { id, full_name, speciality, rating, location, created_at } = specialist;
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
@@ -26,11 +26,21 @@ const SpecialistCard = ({ specialist }) => {
   };
 
   // Handle chat button click
-  const handleChatClick = () => {
-    console.log("Selected Specialist Before Navigating:", specialist);
-    localStorage.setItem("selectedSpecialist", JSON.stringify(specialist)); // Store in localStorage
-    navigate("/chat");
-  };
+  // Handle chat button click
+const handleChatClick = () => {
+  console.log("Navigating to Chat with Specialist:", specialist);
+
+  // Store selected specialist in localStorage
+  localStorage.setItem("selectedSpecialist", JSON.stringify(specialist));
+
+  // Navigate to chat first
+  navigate("/chat");
+
+  // Start the chat in the background after a short delay
+  setTimeout(() => startNewChat(specialist.id), 1000);
+};
+
+  
 
   return (
     <div className="bg-white shadow-lg rounded-2xl p-6 border border-gray-200 hover:shadow-xl transition duration-300 relative">
@@ -91,6 +101,8 @@ SpecialistCard.propTypes = {
     location: PropTypes.string,
     created_at: PropTypes.string.isRequired,
   }).isRequired,
+  startNewChat: PropTypes.func.isRequired, // ✅ Ensure it's passed from parent
+
 };
 
 export default SpecialistCard;

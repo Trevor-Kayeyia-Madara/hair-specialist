@@ -106,7 +106,7 @@ const SpecialistChat = () => {
               onClick={() => handleSelectChat(chat)}
             >
               <div className="flex-1">
-                <h3 className="font-semibold">{chat.counterpart_name}</h3>
+                <h3 className="font-semibold">{chat.client_name}</h3>
                 <p className="text-sm text-gray-600 truncate">{chat.last_message || "No messages yet"}</p>
                 <p className="text-xs text-gray-600 flex justify-end">
                   {chat.last_message_time
@@ -130,7 +130,7 @@ const SpecialistChat = () => {
               <button className="md:hidden text-blue-500 mr-4" onClick={() => setSelectedChat(null)}>
                 ← Back
               </button>
-              <h2 className="text-lg font-bold">{selectedChat.counterpart_name}</h2>
+              <h2 className="text-lg font-bold">{selectedChat.client_name}</h2>
             </div>
 
             {/* Messages Container */}

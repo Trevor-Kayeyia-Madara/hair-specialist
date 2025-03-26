@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 
-const API_BASE_URL = "https://backend-es6y.onrender.com/api";
+export const API_BASE_URL = "https://backend-es6y.onrender.com/api";
 
 const ChatComponent = () => {
   const [chats, setChats] = useState([]);
@@ -54,6 +54,7 @@ const ChatComponent = () => {
     if (pollingRef.current) clearInterval(pollingRef.current);
     pollingRef.current = setInterval(() => fetchMessages(chat.chat_id), 5000);
   };
+
 
   // Scroll to bottom when messages update
   useEffect(() => {
