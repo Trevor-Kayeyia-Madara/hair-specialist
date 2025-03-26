@@ -8,23 +8,32 @@ const SpecialistChat = () => {
   const [newMessage, setNewMessage] = useState("");
   const chatContainerRef = useRef(null);
   const pollingRef = useRef(null);
+  const chatListPollingRef = useRef(null); // Polling for chat list
 
   const specialistId = Number(localStorage.getItem("userId"));
+
+  const fetchChats = async () => {
+    if (!specialistId) return;
+    try {
+      const response = await fetch(`${API_BASE_URL}/chats/${specialistId}`);
+      const data = await response.json();
+      setChats(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Error fetching chats:", error);
+    }
+  };
 
   useEffect(() => {
     if (!specialistId) return;
 
-    const fetchChats = async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/chats/${specialistId}`);
-        const data = await response.json();
-        setChats(Array.isArray(data) ? data : []);
-      } catch (error) {
-        console.error("Error fetching chats:", error);
-      }
-    };
-
     fetchChats();
+
+    // Start polling for chat list updates
+    chatListPollingRef.current = setInterval(fetchChats, 5000);
+
+    return () => {
+      if (chatListPollingRef.current) clearInterval(chatListPollingRef.current);
+    };
   }, [specialistId]);
 
   const fetchMessages = async (chatId) => {
