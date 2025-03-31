@@ -5,11 +5,11 @@ import Loader from "../components/Loader";
 
 const SignUp = () => {
   const navigate = useNavigate();
-  const [userType, setUserType] = useState("customer");
   const [formData, setFormData] = useState({
     full_name: "",
     email: "",
     password: "",
+    userType: "",
     phone_number: "",
     address: "",
     speciality: "",
@@ -69,19 +69,20 @@ const SignUp = () => {
             </button>
           </div>
 
-          <select name="userType" value={userType} onChange={(e) => setUserType(e.target.value)} className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500">
+          <select name="userType" value={formData.userType} onChange={handleInputChange} required className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500">
+            <option value="">Select User Type</option>
             <option value="customer">Customer</option>
             <option value="specialist">Specialist</option>
           </select>
 
-          {userType === "customer" && (
+          {formData.userType === "customer" && (
             <>
               <input type="text" name="phone_number" placeholder="Phone Number" value={formData.phone_number} onChange={handleInputChange} required className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
               <input type="text" name="address" placeholder="Address" value={formData.address} onChange={handleInputChange} required className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
             </>
           )}
 
-          {userType === "specialist" && (
+          {formData.userType === "specialist" && (
             <>
               <input type="text" name="speciality" placeholder="Speciality" value={formData.speciality} onChange={handleInputChange} className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
               <input type="text" name="service_rates" placeholder="Service Rates" value={formData.service_rates} onChange={handleInputChange} className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
@@ -95,7 +96,7 @@ const SignUp = () => {
           {error && <div className="text-red-500 text-sm">{error}</div>}
 
           <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors">
-            {loading ? "Signing Up..." : `Sign Up as ${userType.charAt(0).toUpperCase() + userType.slice(1)}`}
+            {loading ? "Signing Up..." : "Submit"}
           </button>
         </form>
 
