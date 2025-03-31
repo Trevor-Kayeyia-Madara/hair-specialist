@@ -16,8 +16,8 @@ const SignUp = () => {
     service_rates: "",
     location: "",
     rating: "",
-    opening_time: "08:00:00",
-    closing_time: "18:00:00",
+    opening_time: "",
+    closing_time: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -42,7 +42,7 @@ const SignUp = () => {
       if (response.data.token) {
         localStorage.setItem("token", response.data.token);
       }
-      console.log("Submitting Form Data:", formData);
+
       navigate("/login");
     } catch (err) {
       console.error("Signup Error:", err.response?.data || err);
