@@ -42,7 +42,7 @@ const SignUp = () => {
       if (response.data.token) {
         localStorage.setItem("token", response.data.token);
       }
-
+      console.log("Submitting Form Data:", formData);
       navigate("/login");
     } catch (err) {
       console.error("Signup Error:", err.response?.data || err);
