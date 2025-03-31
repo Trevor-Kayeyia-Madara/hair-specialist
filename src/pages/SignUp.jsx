@@ -10,6 +10,14 @@ const SignUp = () => {
     full_name: "",
     email: "",
     password: "",
+    phone_number: "",
+    address: "",
+    speciality: "",
+    service_rates: "",
+    location: "",
+    rating: "",
+    opening_time: "08:00:00",
+    closing_time: "18:00:00",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -29,13 +37,7 @@ const SignUp = () => {
     setLoading(true);
 
     try {
-      // Send user data to the backend API without hashing
-      const response = await axios.post("https://backend-es6y.onrender.com/api/signup", {
-        full_name: formData.full_name,
-        email: formData.email,
-        password: formData.password,
-        userType,
-      });
+      const response = await axios.post("https://backend-es6y.onrender.com/api/signup", formData);
 
       if (response.data.token) {
         localStorage.setItem("token", response.data.token);
@@ -56,19 +58,10 @@ const SignUp = () => {
       <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
         <h1 className="text-2xl font-bold text-center mb-8 font-roboto">Create an Account</h1>
 
-        <div className="flex gap-4 mb-6">
-          <button onClick={() => setUserType("customer")} className={`flex-1 py-3 rounded-lg font-medium ${userType === "customer" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600"}`}>
-            Customer
-          </button>
-          <button onClick={() => setUserType("specialist")} className={`flex-1 py-3 rounded-lg font-medium ${userType === "specialist" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600"}`}>
-            Specialist
-          </button>
-        </div>
-
         <form onSubmit={handleSubmit} className="space-y-4">
           <input type="text" name="full_name" placeholder="Full Name" value={formData.full_name} onChange={handleInputChange} required className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
           <input type="email" name="email" placeholder="Email Address" value={formData.email} onChange={handleInputChange} required className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
-          
+
           <div className="relative">
             <input type={showPassword ? "text" : "password"} name="password" placeholder="Password" value={formData.password} onChange={handleInputChange} required className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
             <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-3 text-gray-600">
@@ -76,10 +69,33 @@ const SignUp = () => {
             </button>
           </div>
 
+          <select name="userType" value={userType} onChange={(e) => setUserType(e.target.value)} className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500">
+            <option value="customer">Customer</option>
+            <option value="specialist">Specialist</option>
+          </select>
+
+          {userType === "customer" && (
+            <>
+              <input type="text" name="phone_number" placeholder="Phone Number" value={formData.phone_number} onChange={handleInputChange} required className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+              <input type="text" name="address" placeholder="Address" value={formData.address} onChange={handleInputChange} required className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+            </>
+          )}
+
+          {userType === "specialist" && (
+            <>
+              <input type="text" name="speciality" placeholder="Speciality" value={formData.speciality} onChange={handleInputChange} className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+              <input type="text" name="service_rates" placeholder="Service Rates" value={formData.service_rates} onChange={handleInputChange} className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+              <input type="text" name="location" placeholder="Location" value={formData.location} onChange={handleInputChange} className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+              <input type="text" name="rating" placeholder="Rating" value={formData.rating} onChange={handleInputChange} className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+              <input type="time" name="opening_time" value={formData.opening_time} onChange={handleInputChange} required className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+              <input type="time" name="closing_time" value={formData.closing_time} onChange={handleInputChange} required className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+            </>
+          )}
+
           {error && <div className="text-red-500 text-sm">{error}</div>}
-          
+
           <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors">
-            {loading ? "Signing Up..." : `Sign Up as ${userType === "customer" ? "Customer" : "Specialist"}`}
+            {loading ? "Signing Up..." : `Sign Up as ${userType.charAt(0).toUpperCase() + userType.slice(1)}`}
           </button>
         </form>
 
