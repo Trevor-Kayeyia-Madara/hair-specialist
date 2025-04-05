@@ -140,7 +140,7 @@ const Landing = () => {
           <div className="flex flex-col md:flex-row bg-white rounded-lg shadow-lg p-2">
             <input
               type="text"
-              placeholder="Enter your location..."
+              placeholder="Enter your location or speciality."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="flex-grow px-4 py-3 text-gray-700 focus:outline-none font-roboto mb-2 md:mb-0"
