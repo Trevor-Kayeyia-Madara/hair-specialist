@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
-const Reviews = () => {
+const ReviewForm = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { customerId, specialistId, specialistName } = location.state || {};
@@ -101,4 +101,4 @@ const Reviews = () => {
     );
 };
 
-export default Reviews;
+export default ReviewForm;

@@ -12,6 +12,7 @@ import SpecialistProfile from "./pages/SpecialistProfile";
 import Payment from "./pages/Payment";
 import InvoiceGenerator from "./pages/InvoiceGenerator";
 import ChatComponent from "./components/ChatComponent";
+import ReviewForm from "./pages/ReviewForm";
 
 function App() {
   return (
@@ -26,7 +27,7 @@ function App() {
           <Route path="/invoice" element={<InvoiceGenerator />} />
           <Route path="/customer-dashboard/:id" element={<UserDashboard />} />
           <Route path="/reviews" element={<Reviews />} />
-          <Route  path="/review"  element={<Reviews />} />
+          <Route path="/review-form" element={<ReviewForm />} /> 
           <Route path="/specialist-dashboard/:id" element={<SpecialistDashboard />} />
           <Route path="/specialists/:id" element={<SpecialistProfile />} />
           <Route path="/payment" element={<Payment />} />
