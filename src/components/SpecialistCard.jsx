@@ -1,6 +1,7 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
+import { FaStar, FaComment } from "react-icons/fa"; // Importing icons
 
 const SpecialistCard = ({ specialist, startNewChat }) => {
   const { id, full_name, speciality, rating, location, created_at } = specialist;
@@ -17,9 +18,7 @@ const SpecialistCard = ({ specialist, startNewChat }) => {
 
     for (let i = 1; i <= 5; i++) {
       stars.push(
-        <span key={i} className={i <= roundedRating ? "text-yellow-500" : "text-gray-300"}>
-          ★
-        </span>
+        <FaStar key={i} className={i <= roundedRating ? "text-yellow-500" : "text-gray-300"} />
       );
     }
     return stars;
@@ -55,10 +54,10 @@ const SpecialistCard = ({ specialist, startNewChat }) => {
         {isDropdownOpen && (
           <div className="absolute right-0 mt-2 bg-white border border-gray-200 shadow-lg rounded-lg z-10">
             <button
-              className="block px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left"
+              className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left"
               onClick={handleChatClick}
             >
-              Chat
+              <FaComment className="mr-2" /> Chat
             </button>
           </div>
         )}
