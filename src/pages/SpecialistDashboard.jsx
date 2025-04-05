@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import ChatComponent from "../components/ChatComponent";
 import SpecialistChat from "../components/SpecialistChat";
 
 const SpecialistDashboard = () => {
@@ -83,35 +82,43 @@ const updateProfileField = async (field, value) => {
     navigate("/login");
   };
 
-  // ✅ Fetch appointments
   const fetchAppointments = useCallback(async () => {
     setAppointmentsLoading(true);
+  
     try {
-        const token = localStorage.getItem("token"); // 🔥 Get token from storage
-        if (!token) {
-            throw new Error("User is not authenticated.");
+      const token = localStorage.getItem("token");
+  
+      if (!token) {
+        console.warn("No token found, redirecting to login...");
+        navigate("/login"); // 🔄 redirect to login
+        return;
+      }
+  
+      console.log("Auth token:", token); // ✅ For debugging
+      console.log("Fetching appointments for user:", id);
+  
+      const response = await axios.get(
+        `https://backend-es6y.onrender.com/api/appointments/user/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // ✅ Send token
+          },
         }
-
-        console.log("Fetching appointments for user:", id);
-
-        const response = await axios.get(
-            `https://backend-es6y.onrender.com/api/appointments/user/${id}`,
-            {
-                headers: { Authorization: `Bearer ${token}` }, // ✅ Attach token
-            }
-        );
-
-        console.log("Fetched appointments:", response.data); // 🛠 Debugging log
-
-        setAppointments(response.data);
-        setAppointmentsError(null);
+      );
+  
+      console.log("Fetched appointments:", response.data);
+      setAppointments(response.data);
+      setAppointmentsError(null);
+  
     } catch (error) {
-        console.error("Error fetching appointments:", error.response || error);
-        setAppointmentsError("Failed to fetch appointments.");
+      const errMsg = error?.response?.data?.message || "Failed to fetch appointments.";
+      console.error("Error fetching appointments:", errMsg);
+      setAppointmentsError(errMsg);
     } finally {
-        setAppointmentsLoading(false);
+      setAppointmentsLoading(false);
     }
-}, [id]);
+  }, [id, navigate]);
+  
 
 useEffect(() => {
     if (selectedTab === "appointments") {
