@@ -141,7 +141,7 @@ const BookingForm = () => {
       });
 
       setTimeout(() => {
-        navigate("/reviews", {
+        navigate("/review", {
           state: {
             appointmentId: bookingData.appointment.id,
             customerId,

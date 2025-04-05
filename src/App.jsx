@@ -26,6 +26,7 @@ function App() {
           <Route path="/invoice" element={<InvoiceGenerator />} />
           <Route path="/customer-dashboard/:id" element={<UserDashboard />} />
           <Route path="/reviews" element={<Reviews />} />
+          <Route  path="/review"  element={<Reviews />} />
           <Route path="/specialist-dashboard/:id" element={<SpecialistDashboard />} />
           <Route path="/specialists/:id" element={<SpecialistProfile />} />
           <Route path="/payment" element={<Payment />} />
