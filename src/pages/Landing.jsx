@@ -6,13 +6,11 @@ import ReviewsPage from "./Reviews";
 
 const Landing = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchBy, setSearchBy] = useState("location"); // Search criterion: location or specialty
   const [loggedIn, setLoggedIn] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
   const [specialists, setSpecialists] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const specialistsPerPage = 4;
-
   const [, setChats] = useState([]);
 
   const handleSelectChat = (chat) => {
@@ -62,8 +60,9 @@ const Landing = () => {
       }
 
       try {
+        // Fetch specialists based on the current searchQuery, assuming it's either location or specialty
         const searchParam =
-          searchBy === "location"
+          searchQuery === "location"
             ? `location=${searchQuery}`
             : `specialty=${searchQuery}`; // Search by specialty
 
@@ -84,7 +83,7 @@ const Landing = () => {
     if (searchQuery.trim() !== "") {
       fetchSpecialists();
     }
-  }, [searchQuery, searchBy]);
+  }, [searchQuery]);
 
   const pageCount = Math.ceil(specialists.length / specialistsPerPage);
   const offset = currentPage * specialistsPerPage;
@@ -148,17 +147,11 @@ const Landing = () => {
           <div className="flex flex-col md:flex-row bg-white rounded-lg shadow-lg p-2">
             <input
               type="text"
-              placeholder={searchBy === "location" ? "Enter your location..." : "Enter a specialty..."}
+              placeholder="Enter location or specialty..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="flex-grow px-4 py-3 text-gray-700 focus:outline-none font-roboto mb-2 md:mb-0"
             />
-            <button
-              onClick={() => setSearchBy(searchBy === "location" ? "specialty" : "location")}
-              className="mt-2 md:mt-0 md:ml-4 bg-blue-500 text-white py-2 px-6 rounded"
-            >
-              Search by {searchBy === "location" ? "Specialty" : "Location"}
-            </button>
           </div>
           <button
             onClick={handleSearch}
