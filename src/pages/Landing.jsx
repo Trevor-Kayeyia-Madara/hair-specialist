@@ -6,16 +6,15 @@ import ReviewsPage from "./Reviews";
 
 const Landing = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [serviceQuery, setServiceQuery] = useState(""); // New state for services
   const [loggedIn, setLoggedIn] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
   const [specialists, setSpecialists] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const specialistsPerPage = 4;
 
-  // ✅ Define chats state
   const [, setChats] = useState([]);
 
-  // ✅ Define handleSelectChat
   const handleSelectChat = (chat) => {
     console.log("Selected chat:", chat);
   };
@@ -59,7 +58,7 @@ const Landing = () => {
     const fetchSpecialists = async () => {
       try {
         const response = await fetch(
-          `https://backend-es6y.onrender.com/api/specialists?search=${searchQuery}`
+          `https://backend-es6y.onrender.com/api/specialists?search=${searchQuery}&service=${serviceQuery}`
         );
         if (response.ok) {
           const data = await response.json();
@@ -73,7 +72,7 @@ const Landing = () => {
     };
 
     fetchSpecialists();
-  }, [searchQuery]);
+  }, [searchQuery, serviceQuery]); // Trigger when either searchQuery or serviceQuery changes
 
   const pageCount = Math.ceil(specialists.length / specialistsPerPage);
   const offset = currentPage * specialistsPerPage;
@@ -139,6 +138,17 @@ const Landing = () => {
               className="flex-grow px-4 py-3 text-gray-700 focus:outline-none font-roboto mb-2 md:mb-0"
               name="location"
             />
+            <select
+              value={serviceQuery}
+              onChange={(e) => setServiceQuery(e.target.value)}
+              className="px-4 py-3 text-gray-700 focus:outline-none font-roboto mb-2 md:mb-0 md:ml-4"
+            >
+              <option value="">Select Service</option>
+              <option value="Haircut">Haircut</option>
+              <option value="Coloring">Coloring</option>
+              <option value="Styling">Styling</option>
+              <option value="Treatment">Treatment</option>
+            </select>
           </div>
         </div>
       </div>
@@ -187,7 +197,7 @@ const Landing = () => {
           <h2 className="text-2xl md:text-3xl font-playfair text-center mb-8 md:mb-12">
             What Our Clients Are Saying
           </h2>
-            <ReviewsPage />
+          <ReviewsPage />
         </div>
       </section>
     </div>
