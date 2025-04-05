@@ -62,10 +62,11 @@ const Landing = () => {
       }
 
       try {
-        const searchParam = searchBy === "location" 
-          ? `location=${searchQuery}` 
-          : `speciality=${searchQuery}`; // Search by specialty
-       
+        const searchParam =
+          searchBy === "location"
+            ? `location=${searchQuery}`
+            : `specialty=${searchQuery}`; // Search by specialty
+
         const response = await fetch(
           `https://backend-es6y.onrender.com/api/specialists?${searchParam}`
         );
@@ -80,7 +81,9 @@ const Landing = () => {
       }
     };
 
-    fetchSpecialists();
+    if (searchQuery.trim() !== "") {
+      fetchSpecialists();
+    }
   }, [searchQuery, searchBy]);
 
   const pageCount = Math.ceil(specialists.length / specialistsPerPage);
@@ -122,9 +125,10 @@ const Landing = () => {
     }
   };
 
-  const handleSearchSubmit = () => {
+  const handleSearch = () => {
     if (searchQuery.trim()) {
-      setSearchQuery(searchQuery); // Perform the search when submit button is clicked
+      // Perform search when button is clicked
+      setSearchQuery(searchQuery); // This triggers the effect to fetch specialists
     }
   };
 
@@ -157,7 +161,7 @@ const Landing = () => {
             </button>
           </div>
           <button
-            onClick={handleSearchSubmit}
+            onClick={handleSearch}
             className="mt-4 bg-blue-600 text-white py-2 px-6 rounded"
           >
             Search
