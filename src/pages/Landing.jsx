@@ -1,4 +1,8 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+
 import SpecialistCard from "../components/SpecialistCard";
 import Navbar from "../components/Navbar";
 import ReactPaginate from "react-paginate";
@@ -12,6 +16,8 @@ const Landing = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const specialistsPerPage = 4;
   const [, setChats] = useState([]);
+
+  const navigate = useNavigate();
 
   const handleSelectChat = (chat) => {
     console.log("Selected chat:", chat);
@@ -56,20 +62,19 @@ const Landing = () => {
     const fetchSpecialists = async () => {
       try {
         let url = "https://backend-es6y.onrender.com/api/specialists";
-  
+
         if (searchQuery.trim() !== "") {
-          // Add query param if there's a search query
           const searchParam = searchQuery.toLowerCase().includes("location")
             ? `location=${searchQuery}`
             : `specialty=${searchQuery}`;
           url += `?${searchParam}`;
         }
-  
+
         const response = await fetch(url);
         if (response.ok) {
           const data = await response.json();
           setSpecialists(data);
-          setCurrentPage(0); // Reset to first page on fetch
+          setCurrentPage(0);
         } else {
           console.error("Failed to fetch specialists");
         }
@@ -77,17 +82,16 @@ const Landing = () => {
         console.error("Error fetching specialists:", error);
       }
     };
-  
-    fetchSpecialists(); // Always fetch on mount or query change
+
+    fetchSpecialists();
   }, [searchQuery]);
-  
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
-      // Trigger the search by updating the searchQuery
       setSearchQuery(searchQuery);
     }
   };
+
   const pageCount = Math.ceil(specialists.length / specialistsPerPage);
   const offset = currentPage * specialistsPerPage;
   const currentSpecialists = specialists.slice(offset, offset + specialistsPerPage);
@@ -97,7 +101,13 @@ const Landing = () => {
   };
 
   const startNewChat = async (specialistId) => {
-    const clientId = Number(localStorage.getItem("userId")); // Get client ID from localStorage
+    if (!loggedIn) {
+      toast.info("Please log in to continue");
+      navigate("/login");
+      return;
+    }
+
+    const clientId = Number(localStorage.getItem("userId"));
 
     if (!specialistId || !clientId) {
       console.error("Specialist ID or Client ID missing");
@@ -127,10 +137,10 @@ const Landing = () => {
     }
   };
 
-
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar isLoggedIn={loggedIn} userProfile={userProfile} />
+      <ToastContainer position="top-center" autoClose={3000} />
 
       {/* Hero Section */}
       <div className="flex flex-col items-center justify-center px-4 py-12 md:py-20 bg-gradient-to-r from-blue-500 to-purple-600 text-white">
@@ -203,7 +213,7 @@ const Landing = () => {
           <h2 className="text-2xl md:text-3xl font-playfair text-center mb-8 md:mb-12">
             What Our Clients Are Saying
           </h2>
-            <ReviewsPage />
+          <ReviewsPage />
         </div>
       </section>
     </div>
