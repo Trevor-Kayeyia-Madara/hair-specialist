@@ -78,7 +78,7 @@ const SignUp = () => {
           {formData.userType === "customer" && (
             <>
               <input type="text" name="phone_number" placeholder="Phone Number" value={formData.phone_number} onChange={handleInputChange} required className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
-              <input type="text" name="location" placeholder="Address" value={formData.address} onChange={handleInputChange} required className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+              <input type="text" name="address" placeholder="Location" value={formData.address} onChange={handleInputChange} required className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
             </>
           )}
 

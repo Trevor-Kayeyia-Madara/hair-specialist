@@ -1,6 +1,6 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const SpecialistCard = ({ specialist, startNewChat }) => {
   const { id, full_name, speciality, rating, location, created_at } = specialist;
@@ -26,21 +26,22 @@ const SpecialistCard = ({ specialist, startNewChat }) => {
   };
 
   // Handle chat button click
-  // Handle chat button click
-const handleChatClick = () => {
-  console.log("Navigating to Chat with Specialist:", specialist);
+  const handleChatClick = () => {
+    console.log("Navigating to Chat with Specialist:", specialist);
+    localStorage.setItem("selectedSpecialist", JSON.stringify(specialist));
+    navigate("/chat");
+    setTimeout(() => startNewChat(specialist.id), 1000);
+  };
 
-  // Store selected specialist in localStorage
-  localStorage.setItem("selectedSpecialist", JSON.stringify(specialist));
-
-  // Navigate to chat first
-  navigate("/chat");
-
-  // Start the chat in the background after a short delay
-  setTimeout(() => startNewChat(specialist.id), 1000);
-};
-
-  
+  // Handle Book Now button click
+  const handleBookNowClick = () => {
+    const isLoggedIn = !!localStorage.getItem("authToken"); // Check if user is logged in
+    if (isLoggedIn) {
+      navigate(`/booking/${id}`); // Navigate to booking form
+    } else {
+      navigate("/login"); // Redirect to login page
+    }
+  };
 
   return (
     <div className="bg-white shadow-lg rounded-2xl p-6 border border-gray-200 hover:shadow-xl transition duration-300 relative">
@@ -80,12 +81,12 @@ const handleChatClick = () => {
 
       {/* "Book Now" Button Below */}
       <div className="mt-4">
-        <Link
-          to={`/booking/${id}`}
+        <button
+          onClick={handleBookNowClick}
           className="block text-center bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition duration-300"
         >
           Book Now
-        </Link>
+        </button>
       </div>
     </div>
   );
@@ -101,8 +102,7 @@ SpecialistCard.propTypes = {
     location: PropTypes.string,
     created_at: PropTypes.string.isRequired,
   }).isRequired,
-  startNewChat: PropTypes.func.isRequired, // ✅ Ensure it's passed from parent
-
+  startNewChat: PropTypes.func.isRequired,
 };
 
 export default SpecialistCard;
