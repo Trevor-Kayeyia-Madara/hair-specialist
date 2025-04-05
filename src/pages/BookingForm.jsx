@@ -126,20 +126,6 @@ const BookingForm = () => {
         time,
         status: "Pending Payment",
       });
-
-      // Navigate to invoice or review
-      navigate("/invoice", {
-        state: {
-          appointmentId: bookingData.appointment.id,
-          customerName,
-          specialistName,
-          selectedService,
-          servicePrice,
-          date,
-          time,
-        },
-      });
-
       setTimeout(() => {
         navigate("/review-form", {
           state: {
