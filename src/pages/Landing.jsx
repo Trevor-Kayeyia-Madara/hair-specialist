@@ -6,17 +6,15 @@ import ReviewsPage from "./Reviews";
 
 const Landing = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchBy, setSearchBy] = useState("location"); // New state for search criteria
+  const [searchBy, setSearchBy] = useState("location"); // Search criterion: location or specialty
   const [loggedIn, setLoggedIn] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
   const [specialists, setSpecialists] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const specialistsPerPage = 4;
 
-  // ✅ Define chats state
   const [, setChats] = useState([]);
 
-  // ✅ Define handleSelectChat
   const handleSelectChat = (chat) => {
     console.log("Selected chat:", chat);
   };
@@ -64,7 +62,10 @@ const Landing = () => {
       }
 
       try {
-        const searchParam = searchBy === "location" ? `location=${searchQuery}` : `service=${searchQuery}`;
+        const searchParam = searchBy === "location" 
+          ? `location=${searchQuery}` 
+          : `specialty=${searchQuery}`; // Search by specialty
+       
         const response = await fetch(
           `https://backend-es6y.onrender.com/api/specialists?${searchParam}`
         );
@@ -84,10 +85,7 @@ const Landing = () => {
 
   const pageCount = Math.ceil(specialists.length / specialistsPerPage);
   const offset = currentPage * specialistsPerPage;
-  const currentSpecialists = specialists.slice(
-    offset,
-    offset + specialistsPerPage
-  );
+  const currentSpecialists = specialists.slice(offset, offset + specialistsPerPage);
 
   const handlePageChange = ({ selected }) => {
     setCurrentPage(selected);
@@ -146,16 +144,16 @@ const Landing = () => {
           <div className="flex flex-col md:flex-row bg-white rounded-lg shadow-lg p-2">
             <input
               type="text"
-              placeholder={searchBy === "location" ? "Enter your location..." : "Enter a service..."}
+              placeholder={searchBy === "location" ? "Enter your location..." : "Enter a specialty..."}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="flex-grow px-4 py-3 text-gray-700 focus:outline-none font-roboto mb-2 md:mb-0"
             />
             <button
-              onClick={() => setSearchBy(searchBy === "location" ? "service" : "location")}
+              onClick={() => setSearchBy(searchBy === "location" ? "specialty" : "location")}
               className="mt-2 md:mt-0 md:ml-4 bg-blue-500 text-white py-2 px-6 rounded"
             >
-              Search by {searchBy === "location" ? "Service" : "Location"}
+              Search by {searchBy === "location" ? "Specialty" : "Location"}
             </button>
           </div>
           <button
