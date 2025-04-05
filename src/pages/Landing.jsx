@@ -55,18 +55,21 @@ const Landing = () => {
   useEffect(() => {
     const fetchSpecialists = async () => {
       try {
-        // Determine if the search query is for location or specialty
-        const searchParam =
-          searchQuery.toLowerCase().includes("location")
+        let url = "https://backend-es6y.onrender.com/api/specialists";
+  
+        if (searchQuery.trim() !== "") {
+          // Add query param if there's a search query
+          const searchParam = searchQuery.toLowerCase().includes("location")
             ? `location=${searchQuery}`
-            : `specialty=${searchQuery}`; // Search by specialty
-
-        const response = await fetch(
-          `https://backend-es6y.onrender.com/api/specialists?${searchParam}`
-        );
+            : `specialty=${searchQuery}`;
+          url += `?${searchParam}`;
+        }
+  
+        const response = await fetch(url);
         if (response.ok) {
           const data = await response.json();
           setSpecialists(data);
+          setCurrentPage(0); // Reset to first page on fetch
         } else {
           console.error("Failed to fetch specialists");
         }
@@ -74,11 +77,10 @@ const Landing = () => {
         console.error("Error fetching specialists:", error);
       }
     };
-
-    if (searchQuery.trim() !== "") {
-      fetchSpecialists();
-    }
+  
+    fetchSpecialists(); // Always fetch on mount or query change
   }, [searchQuery]);
+  
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
