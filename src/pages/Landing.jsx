@@ -58,6 +58,11 @@ const Landing = () => {
 
   useEffect(() => {
     const fetchSpecialists = async () => {
+      if (searchQuery.trim() === "") {
+        setSpecialists([]); // Clear specialists if no search query is entered
+        return;
+      }
+
       try {
         const searchParam = searchBy === "location" ? `location=${searchQuery}` : `service=${searchQuery}`;
         const response = await fetch(
@@ -119,6 +124,12 @@ const Landing = () => {
     }
   };
 
+  const handleSearchSubmit = () => {
+    if (searchQuery.trim()) {
+      setSearchQuery(searchQuery); // Perform the search when submit button is clicked
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar isLoggedIn={loggedIn} userProfile={userProfile} />
@@ -147,6 +158,12 @@ const Landing = () => {
               Search by {searchBy === "location" ? "Service" : "Location"}
             </button>
           </div>
+          <button
+            onClick={handleSearchSubmit}
+            className="mt-4 bg-blue-600 text-white py-2 px-6 rounded"
+          >
+            Search
+          </button>
         </div>
       </div>
 
