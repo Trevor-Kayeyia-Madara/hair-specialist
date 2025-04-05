@@ -10,7 +10,7 @@ const ReviewsPage = () => {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await fetch("https://your-api.com/api/reviews");
+        const response = await fetch("https://backend-es6y.onrender.com/api/reviews");
         if (response.ok) {
           const data = await response.json();
           setReviews(data);
