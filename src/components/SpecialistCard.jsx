@@ -1,7 +1,6 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
-import { FaStar, FaComment } from "react-icons/fa"; // Importing icons
 
 const SpecialistCard = ({ specialist, startNewChat }) => {
   const { id, full_name, speciality, rating, location, created_at } = specialist;
@@ -11,8 +10,6 @@ const SpecialistCard = ({ specialist, startNewChat }) => {
   // Ensure rating is a float and limit to 1 decimal place
   const formattedRating = rating ? parseFloat(rating).toFixed(1) : "N/A";
 
-  
-
   // Generate star icons based on rating (max 5)
   const renderStars = () => {
     const stars = [];
@@ -20,7 +17,9 @@ const SpecialistCard = ({ specialist, startNewChat }) => {
 
     for (let i = 1; i <= 5; i++) {
       stars.push(
-        <FaStar key={i} className={i <= roundedRating ? "text-yellow-500" : "text-gray-300"} />
+        <span key={i} className={i <= roundedRating ? "text-yellow-500" : "text-gray-300"}>
+          ★
+        </span>
       );
     }
     return stars;
@@ -56,10 +55,10 @@ const SpecialistCard = ({ specialist, startNewChat }) => {
         {isDropdownOpen && (
           <div className="absolute right-0 mt-2 bg-white border border-gray-200 shadow-lg rounded-lg z-10">
             <button
-              className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left"
+              className="block px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left"
               onClick={handleChatClick}
             >
-              <FaComment className="mr-2" /> Chat
+              Chat
             </button>
           </div>
         )}
