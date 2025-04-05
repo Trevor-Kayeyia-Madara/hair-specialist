@@ -86,7 +86,7 @@ const updateProfileField = async (field, value) => {
     setAppointmentsLoading(true);
   
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("authToken");
   
       if (!token) {
         console.warn("No token found, redirecting to login...");
