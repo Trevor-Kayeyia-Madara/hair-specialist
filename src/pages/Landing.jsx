@@ -54,11 +54,6 @@ const Landing = () => {
 
   useEffect(() => {
     const fetchSpecialists = async () => {
-      if (searchQuery.trim() === "") {
-        setSpecialists([]); // Clear specialists if no search query is entered
-        return;
-      }
-
       try {
         // Determine if the search query is for location or specialty
         const searchParam =
