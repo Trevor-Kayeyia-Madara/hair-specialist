@@ -6,15 +6,17 @@ import ReviewsPage from "./Reviews";
 
 const Landing = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [serviceQuery, setServiceQuery] = useState(""); // New state for services
+  const [searchBy, setSearchBy] = useState("location"); // New state for search criteria
   const [loggedIn, setLoggedIn] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
   const [specialists, setSpecialists] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const specialistsPerPage = 4;
 
+  // ✅ Define chats state
   const [, setChats] = useState([]);
 
+  // ✅ Define handleSelectChat
   const handleSelectChat = (chat) => {
     console.log("Selected chat:", chat);
   };
@@ -57,8 +59,9 @@ const Landing = () => {
   useEffect(() => {
     const fetchSpecialists = async () => {
       try {
+        const searchParam = searchBy === "location" ? `location=${searchQuery}` : `service=${searchQuery}`;
         const response = await fetch(
-          `https://backend-es6y.onrender.com/api/specialists?search=${searchQuery}&service=${serviceQuery}`
+          `https://backend-es6y.onrender.com/api/specialists?${searchParam}`
         );
         if (response.ok) {
           const data = await response.json();
@@ -72,7 +75,7 @@ const Landing = () => {
     };
 
     fetchSpecialists();
-  }, [searchQuery, serviceQuery]); // Trigger when either searchQuery or serviceQuery changes
+  }, [searchQuery, searchBy]);
 
   const pageCount = Math.ceil(specialists.length / specialistsPerPage);
   const offset = currentPage * specialistsPerPage;
@@ -132,23 +135,17 @@ const Landing = () => {
           <div className="flex flex-col md:flex-row bg-white rounded-lg shadow-lg p-2">
             <input
               type="text"
-              placeholder="Enter your location..."
+              placeholder={searchBy === "location" ? "Enter your location..." : "Enter a service..."}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="flex-grow px-4 py-3 text-gray-700 focus:outline-none font-roboto mb-2 md:mb-0"
-              name="location"
             />
-            <select
-              value={serviceQuery}
-              onChange={(e) => setServiceQuery(e.target.value)}
-              className="px-4 py-3 text-gray-700 focus:outline-none font-roboto mb-2 md:mb-0 md:ml-4"
+            <button
+              onClick={() => setSearchBy(searchBy === "location" ? "service" : "location")}
+              className="mt-2 md:mt-0 md:ml-4 bg-blue-500 text-white py-2 px-6 rounded"
             >
-              <option value="">Select Service</option>
-              <option value="Haircut">Haircut</option>
-              <option value="Coloring">Coloring</option>
-              <option value="Styling">Styling</option>
-              <option value="Treatment">Treatment</option>
-            </select>
+              Search by {searchBy === "location" ? "Service" : "Location"}
+            </button>
           </div>
         </div>
       </div>
@@ -197,7 +194,7 @@ const Landing = () => {
           <h2 className="text-2xl md:text-3xl font-playfair text-center mb-8 md:mb-12">
             What Our Clients Are Saying
           </h2>
-          <ReviewsPage />
+            <ReviewsPage />
         </div>
       </section>
     </div>
