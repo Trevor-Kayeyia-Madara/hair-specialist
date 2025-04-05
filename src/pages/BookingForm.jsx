@@ -77,7 +77,7 @@ const BookingForm = () => {
     try {
       // 🕐 Check availability first
       const availabilityRes = await fetch("https://backend-es6y.onrender.com/api/check-availability", {
-        method: "POST",
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
