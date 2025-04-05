@@ -61,20 +61,12 @@ const Landing = () => {
   useEffect(() => {
     const fetchSpecialists = async () => {
       try {
-        let url = "https://backend-es6y.onrender.com/api/specialists";
-
-        if (searchQuery.trim() !== "") {
-          const searchParam = searchQuery.toLowerCase().includes("location")
-            ? `location=${searchQuery}`
-            : `specialty=${searchQuery}`;
-          url += `?${searchParam}`;
-        }
-
-        const response = await fetch(url);
+        const response = await fetch(
+          `https://backend-es6y.onrender.com/api/specialists?search=${searchQuery}`
+        );
         if (response.ok) {
           const data = await response.json();
           setSpecialists(data);
-          setCurrentPage(0);
         } else {
           console.error("Failed to fetch specialists");
         }
@@ -85,7 +77,6 @@ const Landing = () => {
 
     fetchSpecialists();
   }, [searchQuery]);
-
   const handleSearch = () => {
     if (searchQuery.trim()) {
       setSearchQuery(searchQuery);
