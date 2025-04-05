@@ -11,6 +11,8 @@ const SpecialistCard = ({ specialist, startNewChat }) => {
   // Ensure rating is a float and limit to 1 decimal place
   const formattedRating = rating ? parseFloat(rating).toFixed(1) : "N/A";
 
+  
+
   // Generate star icons based on rating (max 5)
   const renderStars = () => {
     const stars = [];
