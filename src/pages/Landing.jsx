@@ -64,7 +64,7 @@ const Landing = () => {
       try {
         const searchParam = searchBy === "location" 
           ? `location=${searchQuery}` 
-          : `specialty=${searchQuery}`; // Search by specialty
+          : `speciality=${searchQuery}`; // Search by specialty
        
         const response = await fetch(
           `https://backend-es6y.onrender.com/api/specialists?${searchParam}`
