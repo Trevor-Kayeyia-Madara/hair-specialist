@@ -149,33 +149,50 @@ const BookingForm = () => {
       <div className="bg-white p-6 rounded-2xl shadow-md w-full max-w-md">
         <h2 className="text-2xl font-bold text-center mb-6">📅 Book Appointment</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input type="text" value={customerName} readOnly className="input" />
-          <input type="text" value={specialistName} readOnly className="input" />
-
-          <select
-            value={selectedService}
-            onChange={(e) => {
-              setSelectedService(e.target.value);
-              const service = services.find((s) => s.id === parseInt(e.target.value));
-              setServicePrice(service?.prices || 0);
-            }}
-            className="input"
-            required
-          >
-            <option value="">Select a service</option>
-            {services.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name} - KES {s.prices}
-              </option>
-            ))}
-          </select>
-
-          <div className="flex space-x-2">
-            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="input w-1/2" required />
-            <input type="time" value={time} onChange={(e) => setTime(e.target.value)} className="input w-1/2" required />
+          <div className="flex flex-col space-y-2">
+            <label htmlFor="customerName">Customer Name</label>
+            <input type="text" id="customerName" value={customerName} readOnly className="input" />
           </div>
-
-          <button type="submit" disabled={loading} className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600">
+          <div className="flex flex-col space-y-2">
+            <label htmlFor="specialistName">Specialist Name</label>
+            <input type="text" id="specialistName" value={specialistName} readOnly className="input" />
+          </div>
+          <div className="flex flex-col space-y-2">
+            <label htmlFor="selectedService">Select Service</label>
+            <select
+              id="selectedService"
+              value={selectedService}
+              onChange={(e) => {
+                setSelectedService(e.target.value);
+                const service = services.find((s) => s.id === parseInt(e.target.value));
+                setServicePrice(service?.prices || 0);
+              }}
+              className="input"
+              required
+            >
+              <option value="">Select a service</option>
+              {services.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name} - KES {s.prices}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex space-x-2">
+            <div className="flex flex-col space-y-2 w-1/2">
+              <label htmlFor="date">Date</label>
+              <input type="date" id="date" value={date} onChange={(e) => setDate(e.target.value)} className="input" required />
+            </div>
+            <div className="flex flex-col space-y-2 w-1/2">
+              <label htmlFor="time">Time</label>
+              <input type="time" id="time" value={time} onChange={(e) => setTime(e.target.value)} className="input" required />
+            </div>
+          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600"
+          >
             {loading ? "Booking..." : "📌 Book Now"}
           </button>
         </form>

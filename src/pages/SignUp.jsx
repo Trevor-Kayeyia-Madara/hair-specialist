@@ -78,7 +78,7 @@ const SignUp = () => {
           {formData.userType === "customer" && (
             <>
               <input type="text" name="phone_number" placeholder="Phone Number" value={formData.phone_number} onChange={handleInputChange} required className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
-              <input type="text" name="address" placeholder="Address" value={formData.address} onChange={handleInputChange} required className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+              <input type="text" name="location" placeholder="Address" value={formData.address} onChange={handleInputChange} required className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
             </>
           )}
 
@@ -88,8 +88,8 @@ const SignUp = () => {
               <input type="text" name="service_rates" placeholder="Service Rates" value={formData.service_rates} onChange={handleInputChange} className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
               <input type="text" name="location" placeholder="Location" value={formData.location} onChange={handleInputChange} className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
               <input type="text" name="rating" placeholder="Rating" value={formData.rating} onChange={handleInputChange} className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
-              <input type="time" name="opening_time" value={formData.opening_time} onChange={handleInputChange} required className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
-              <input type="time" name="closing_time" value={formData.closing_time} onChange={handleInputChange} required className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+              <input type="time" name="opening_time" placeholder="Opening time" value={formData.opening_time} onChange={handleInputChange} required className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+              <input type="time" name="closing_time" placeholder="Opening time" value={formData.closing_time} onChange={handleInputChange} required className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" />
             </>
           )}
 
