@@ -4,6 +4,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import Loader from "../components/Loader";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 const BookingForm = () => {
   const { id } = useParams(); // Specialist ID
@@ -17,7 +19,29 @@ const BookingForm = () => {
   const [time, setTime] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // ✅ Fetch logged-in user's name & ID
+  // 🧾 Generate PDF Invoice
+  const generateInvoicePDF = (details) => {
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text("📄 Appointment Invoice", 14, 22);
+
+    doc.setFontSize(12);
+    doc.text(`Customer: ${details.customerName}`, 14, 35);
+    doc.text(`Specialist: ${details.specialistName}`, 14, 42);
+    doc.text(`Service: ${details.selectedService}`, 14, 49);
+    doc.text(`Price: KES ${details.servicePrice}`, 14, 56);
+    doc.text(`Date: ${details.date}`, 14, 63);
+    doc.text(`Time: ${details.time}`, 14, 70);
+    doc.text(`Status: ${details.status}`, 14, 77);
+    doc.text(`Invoice ID: INV-${details.appointmentId}`, 14, 84);
+
+    doc.setDrawColor(0);
+    doc.setLineWidth(0.5);
+    doc.line(14, 89, 196, 89);
+
+    doc.save(`Invoice_${details.appointmentId}.pdf`);
+  };
+
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     if (!token) return;
@@ -27,7 +51,6 @@ const BookingForm = () => {
         const res = await fetch("https://backend-es6y.onrender.com/api/validate-session", {
           headers: { Authorization: `Bearer ${token}` },
         });
-
         const data = await res.json();
         setCustomerName(data.user.full_name);
         localStorage.setItem("customerId", data.customerId);
@@ -39,7 +62,6 @@ const BookingForm = () => {
     fetchUser();
   }, []);
 
-  // ✅ Fetch specialist + services
   useEffect(() => {
     if (!id) return toast.error("⚠️ Invalid Specialist ID");
 
@@ -60,7 +82,6 @@ const BookingForm = () => {
     fetchSpecialist();
   }, [id]);
 
-  // ✅ Submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -75,24 +96,6 @@ const BookingForm = () => {
     }
 
     try {
-      // 🕐 Check availability first
-      const availabilityRes = await fetch("https://backend-es6y.onrender.com/api/check-availability", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ specialist_id: id, date, time }),
-      });
-
-      const availabilityData = await availabilityRes.json();
-      if (!availabilityData.available) {
-        toast.warning("⛔ Time slot is already booked.");
-        setLoading(false);
-        return;
-      }
-
-      // ✅ Proceed with booking
       const bookingRes = await fetch("https://backend-es6y.onrender.com/api/appointments", {
         method: "POST",
         headers: {
@@ -112,7 +115,19 @@ const BookingForm = () => {
       const bookingData = await bookingRes.json();
       toast.success("✅ Appointment booked!");
 
-      // Navigate to invoice page
+      // 📄 Generate invoice PDF
+      generateInvoicePDF({
+        appointmentId: bookingData.appointment.id,
+        customerName,
+        specialistName,
+        selectedService,
+        servicePrice,
+        date,
+        time,
+        status: "Pending Payment",
+      });
+
+      // Navigate to invoice or review
       navigate("/invoice", {
         state: {
           appointmentId: bookingData.appointment.id,
@@ -125,7 +140,6 @@ const BookingForm = () => {
         },
       });
 
-      // Optional: redirect to review after delay
       setTimeout(() => {
         navigate("/reviews", {
           state: {
