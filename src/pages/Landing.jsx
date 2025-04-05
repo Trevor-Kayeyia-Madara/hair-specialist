@@ -60,9 +60,9 @@ const Landing = () => {
       }
 
       try {
-        // Fetch specialists based on the current searchQuery, assuming it's either location or specialty
+        // Determine if the search query is for location or specialty
         const searchParam =
-          searchQuery === "location"
+          searchQuery.toLowerCase().includes("location")
             ? `location=${searchQuery}`
             : `specialty=${searchQuery}`; // Search by specialty
 
@@ -85,6 +85,12 @@ const Landing = () => {
     }
   }, [searchQuery]);
 
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      // Trigger the search by updating the searchQuery
+      setSearchQuery(searchQuery);
+    }
+  };
   const pageCount = Math.ceil(specialists.length / specialistsPerPage);
   const offset = currentPage * specialistsPerPage;
   const currentSpecialists = specialists.slice(offset, offset + specialistsPerPage);
@@ -124,12 +130,6 @@ const Landing = () => {
     }
   };
 
-  const handleSearch = () => {
-    if (searchQuery.trim()) {
-      // Perform search when button is clicked
-      setSearchQuery(searchQuery); // This triggers the effect to fetch specialists
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
