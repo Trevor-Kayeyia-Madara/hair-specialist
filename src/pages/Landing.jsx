@@ -77,11 +77,6 @@ const Landing = () => {
 
     fetchSpecialists();
   }, [searchQuery]);
-  const handleSearch = () => {
-    if (searchQuery.trim()) {
-      setSearchQuery(searchQuery);
-    }
-  };
 
   const pageCount = Math.ceil(specialists.length / specialistsPerPage);
   const offset = currentPage * specialistsPerPage;
@@ -145,18 +140,13 @@ const Landing = () => {
           <div className="flex flex-col md:flex-row bg-white rounded-lg shadow-lg p-2">
             <input
               type="text"
-              placeholder="Enter location or specialty..."
+              placeholder="Enter your location..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="flex-grow px-4 py-3 text-gray-700 focus:outline-none font-roboto mb-2 md:mb-0"
+              name="location"
             />
           </div>
-          <button
-            onClick={handleSearch}
-            className="mt-4 bg-blue-600 text-white py-2 px-6 rounded"
-          >
-            Search
-          </button>
         </div>
       </div>
 
