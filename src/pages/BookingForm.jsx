@@ -144,21 +144,40 @@ const BookingForm = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-100 px-4 py-10">
       {loading && <Loader />}
-      <div className="bg-white p-6 rounded-2xl shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold text-center mb-6">📅 Book Appointment</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex flex-col space-y-2">
-            <label htmlFor="customerName">Customer Name</label>
-            <input type="text" id="customerName" value={customerName} readOnly className="input" />
+      <div className="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-lg">
+        <h2 className="text-3xl font-extrabold text-center text-blue-600 mb-8">
+          📅 Book Appointment
+        </h2>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Customer Name */}
+          <div>
+            <label htmlFor="customerName" className="block text-sm font-medium text-gray-700 mb-1">Customer Name</label>
+            <input
+              type="text"
+              id="customerName"
+              value={customerName}
+              readOnly
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-400 focus:outline-none bg-gray-100 text-gray-700"
+            />
           </div>
-          <div className="flex flex-col space-y-2">
-            <label htmlFor="specialistName">Specialist Name</label>
-            <input type="text" id="specialistName" value={specialistName} readOnly className="input" />
+  
+          {/* Specialist Name */}
+          <div>
+            <label htmlFor="specialistName" className="block text-sm font-medium text-gray-700 mb-1">Specialist Name</label>
+            <input
+              type="text"
+              id="specialistName"
+              value={specialistName}
+              readOnly
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-400 focus:outline-none bg-gray-100 text-gray-700"
+            />
           </div>
-          <div className="flex flex-col space-y-2">
-            <label htmlFor="selectedService">Select Service</label>
+  
+          {/* Service Selection */}
+          <div>
+            <label htmlFor="selectedService" className="block text-sm font-medium text-gray-700 mb-1">Select Service</label>
             <select
               id="selectedService"
               value={selectedService}
@@ -167,10 +186,10 @@ const BookingForm = () => {
                 const service = services.find((s) => s.id === parseInt(e.target.value));
                 setServicePrice(service?.prices || 0);
               }}
-              className="input"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-400 focus:outline-none bg-white text-gray-700"
               required
             >
-              <option value="">Select a service</option>
+              <option value="">-- Select a service --</option>
               {services.map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.name} - KES {s.prices}
@@ -178,20 +197,38 @@ const BookingForm = () => {
               ))}
             </select>
           </div>
-          <div className="flex space-x-2">
-            <div className="flex flex-col space-y-2 w-1/2">
-              <label htmlFor="date">Date</label>
-              <input type="date" id="date" value={date} onChange={(e) => setDate(e.target.value)} className="input" required />
+  
+          {/* Date & Time */}
+          <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
+            <div className="w-full">
+              <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+              <input
+                type="date"
+                id="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                required
+              />
             </div>
-            <div className="flex flex-col space-y-2 w-1/2">
-              <label htmlFor="time">Time</label>
-              <input type="time" id="time" value={time} onChange={(e) => setTime(e.target.value)} className="input" required />
+            <div className="w-full">
+              <label htmlFor="time" className="block text-sm font-medium text-gray-700 mb-1">Time</label>
+              <input
+                type="time"
+                id="time"
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                required
+              />
             </div>
           </div>
+  
+          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600"
+            className="w-full bg-blue-600 hover:bg-blue-700 transition-all duration-200 text-white font-semibold py-3 rounded-xl shadow-md hover:shadow-lg"
           >
             {loading ? "Booking..." : "📌 Book Now"}
           </button>
@@ -199,6 +236,7 @@ const BookingForm = () => {
       </div>
     </div>
   );
+  
 };
 
 export default BookingForm;
