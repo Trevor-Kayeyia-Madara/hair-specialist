@@ -1,9 +1,9 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const SpecialistCard = ({ specialist, startNewChat }) => {
-  const { id, full_name, speciality, rating, location, opening_time, closing_time, created_at } = specialist;
+  const { id, full_name, speciality, rating, location, created_at, opening_time, closing_time } = specialist;
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -28,19 +28,15 @@ const SpecialistCard = ({ specialist, startNewChat }) => {
   // Handle chat button click
   const handleChatClick = () => {
     console.log("Navigating to Chat with Specialist:", specialist);
-    localStorage.setItem("selectedSpecialist", JSON.stringify(specialist));
-    navigate("/chat");
-    setTimeout(() => startNewChat(specialist.id), 1000);
-  };
 
-  // Handle Book Now button click
-  const handleBookNowClick = () => {
-    const isLoggedIn = !!localStorage.getItem("authToken"); // Check if user is logged in
-    if (isLoggedIn) {
-      navigate(`/booking/${id}`); // Navigate to booking form
-    } else {
-      navigate("/login"); // Redirect to login page
-    }
+    // Store selected specialist in localStorage
+    localStorage.setItem("selectedSpecialist", JSON.stringify(specialist));
+
+    // Navigate to chat first
+    navigate("/chat");
+
+    // Start the chat in the background after a short delay
+    setTimeout(() => startNewChat(specialist.id), 1000);
   };
 
   return (
@@ -74,31 +70,31 @@ const SpecialistCard = ({ specialist, startNewChat }) => {
         <p className="text-gray-700">
           <strong>Location:</strong> {location || "Not specified"}
         </p>
+        <p className="text-gray-700">
+          <strong>Opening Time:</strong> {opening_time || "Not specified"}
+        </p>
+        <p className="text-gray-700">
+          <strong>Closing Time:</strong> {closing_time || "Not specified"}
+        </p>
         <p className="text-gray-500 text-sm">
           <strong>Joined On:</strong> {new Date(created_at).toLocaleDateString()}
-        </p>
-        <p className="text-gray-500 text-sm">
-          <strong>Opens at:</strong> {opening_time}
-        </p>
-        <p className="text-gray-500 text-sm">
-          <strong>Closes by:</strong> {closing_time}
         </p>
       </div>
 
       {/* "Book Now" Button Below */}
       <div className="mt-4">
-        <button
-          onClick={handleBookNowClick}
+        <Link
+          to={`/booking/${id}`}
           className="block text-center bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition duration-300"
         >
           Book Now
-        </button>
+        </Link>
       </div>
     </div>
   );
 };
 
-// ✅ Define PropTypes for validation
+// Define PropTypes for validation
 SpecialistCard.propTypes = {
   specialist: PropTypes.shape({
     id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
@@ -106,11 +102,11 @@ SpecialistCard.propTypes = {
     speciality: PropTypes.string.isRequired,
     rating: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     location: PropTypes.string,
-    opening_time: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    closing_time: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     created_at: PropTypes.string.isRequired,
+    opening_time: PropTypes.string, // Add opening_time and closing_time PropTypes
+    closing_time: PropTypes.string,
   }).isRequired,
-  startNewChat: PropTypes.func.isRequired,
+  startNewChat: PropTypes.func.isRequired, // Ensure it's passed from parent
 };
 
 export default SpecialistCard;
