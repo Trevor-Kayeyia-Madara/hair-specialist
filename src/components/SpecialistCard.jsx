@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 
 const SpecialistCard = ({ specialist, startNewChat }) => {
-  const { id, full_name, speciality, rating, location, created_at } = specialist;
+  const { id, full_name, speciality, rating, location, opening_time, closing_time, created_at } = specialist;
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -77,6 +77,12 @@ const SpecialistCard = ({ specialist, startNewChat }) => {
         <p className="text-gray-500 text-sm">
           <strong>Joined On:</strong> {new Date(created_at).toLocaleDateString()}
         </p>
+        <p className="text-gray-500 text-sm">
+          <strong>Opens at:</strong> {opening_time}
+        </p>
+        <p className="text-gray-500 text-sm">
+          <strong>Closes by:</strong> {closing_time}
+        </p>
       </div>
 
       {/* "Book Now" Button Below */}
@@ -100,6 +106,8 @@ SpecialistCard.propTypes = {
     speciality: PropTypes.string.isRequired,
     rating: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     location: PropTypes.string,
+    opening_time: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    closing_time: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     created_at: PropTypes.string.isRequired,
   }).isRequired,
   startNewChat: PropTypes.func.isRequired,
