@@ -1,8 +1,8 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
-import { Link, useNavigate } from "react-router-dom";
+import {useNavigate } from "react-router-dom";
 
-const SpecialistCard = ({ specialist, startNewChat }) => {
+const SpecialistCard = ({ specialist, startNewChat, isAuthenticated }) => {
   const { id, full_name, speciality, rating, location, created_at, opening_time, closing_time } = specialist;
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
@@ -37,6 +37,16 @@ const SpecialistCard = ({ specialist, startNewChat }) => {
 
     // Start the chat in the background after a short delay
     setTimeout(() => startNewChat(specialist.id), 1000);
+  };
+
+  // Handle "Book Now" button click
+  const handleBookNowClick = () => {
+    if (isAuthenticated) {
+      navigate(`/booking/${id}`);
+    } else {
+      // Redirect to login if not authenticated
+      navigate("/login"); // Adjust this path based on your application's routing
+    }
   };
 
   return (
@@ -83,12 +93,12 @@ const SpecialistCard = ({ specialist, startNewChat }) => {
 
       {/* "Book Now" Button Below */}
       <div className="mt-4">
-        <Link
-          to={`/booking/${id}`}
+        <button
+          onClick={handleBookNowClick}
           className="block text-center bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition duration-300"
         >
           Book Now
-        </Link>
+        </button>
       </div>
     </div>
   );
@@ -107,6 +117,7 @@ SpecialistCard.propTypes = {
     closing_time: PropTypes.string,
   }).isRequired,
   startNewChat: PropTypes.func.isRequired, // Ensure it's passed from parent
+  isAuthenticated: PropTypes.bool.isRequired, // Check if user is authenticated
 };
 
 export default SpecialistCard;
