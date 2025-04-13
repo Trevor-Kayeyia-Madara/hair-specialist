@@ -36,7 +36,7 @@ const UserDashboard = () => {
         setCustomer(customerData);
 
         // ✅ Fetch appointments for this customer
-        const appointmentsRes = await fetch(`https://backend-es6y.onrender.com/api/appointments/user${id}`, {
+        const appointmentsRes = await fetch(`https://backend-es6y.onrender.com/api/customers/${id}/appointments`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const appointmentsData = await appointmentsRes.json();
