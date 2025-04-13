@@ -98,7 +98,7 @@ const updateProfileField = async (field, value) => {
       console.log("Fetching appointments for user:", id);
   
       const response = await axios.get(
-        `https://backend-es6y.onrender.com/api/appointments/user/${id}`,
+        `https://backend-es6y.onrender.com/api/appointments/specialist/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`, // ✅ Send token
