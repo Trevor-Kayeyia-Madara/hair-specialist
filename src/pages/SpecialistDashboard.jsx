@@ -11,6 +11,7 @@ const SpecialistDashboard = () => {
   const [appointmentsError, setAppointmentsError] = useState(null);
   const [editingField, setEditingField] = useState(null);
   const [fieldValue, setFieldValue] = useState("");
+  const [specialistId, setSpecialistId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { id } = useParams();
@@ -30,15 +31,18 @@ const SpecialistDashboard = () => {
       const response = await axios.get(
         `https://backend-es6y.onrender.com/api/specialists/user/${id}`
       );
-      setProfile(response.data);
-      setUpdatedProfileData(response.data);
+      const data = response.data;
+      setProfile(data);
+      setUpdatedProfileData(data);
+      setSpecialistId(data.id); // This is the actual specialist ID
       setError(null);
     } catch {
       setError("Failed to fetch profile data.");
     } finally {
       setLoading(false);
     }
-}, [id]);
+  }, [id]);
+  
 
   useEffect(() => {
     if (selectedTab === "profile") {
@@ -83,33 +87,29 @@ const updateProfileField = async (field, value) => {
   };
 
   const fetchAppointments = useCallback(async () => {
+    if (!specialistId) return; // Don't fetch if specialist ID isn't ready
+  
     setAppointmentsLoading(true);
   
     try {
       const token = localStorage.getItem("authToken");
   
       if (!token) {
-        console.warn("No token found, redirecting to login...");
-        navigate("/login"); // 🔄 redirect to login
+        navigate("/login");
         return;
       }
   
-      console.log("Auth token:", token); // ✅ For debugging
-      console.log("Fetching appointments for user:", id);
-  
       const response = await axios.get(
-        `https://backend-es6y.onrender.com/api/appointments/specialist/${id}`,
+        `https://backend-es6y.onrender.com/api/appointments/specialist/${specialistId}`,
         {
           headers: {
-            Authorization: `Bearer ${token}`, // ✅ Send token
+            Authorization: `Bearer ${token}`,
           },
         }
       );
   
-      console.log("Fetched appointments:", response.data);
       setAppointments(response.data);
       setAppointmentsError(null);
-  
     } catch (error) {
       const errMsg = error?.response?.data?.message || "Failed to fetch appointments.";
       console.error("Error fetching appointments:", errMsg);
@@ -117,7 +117,8 @@ const updateProfileField = async (field, value) => {
     } finally {
       setAppointmentsLoading(false);
     }
-  }, [id, navigate]);
+  }, [specialistId, navigate]);
+  
   
 
 useEffect(() => {
