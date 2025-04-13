@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 const ReviewForm = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { customerId, specialistId, specialistName } = location.state || {};
+    const { userId, specialistId, specialistName } = location.state || {};
     
     const [rating, setRating] = useState(0);  // ✅ Default rating set to 0
     const [review, setReview] = useState("");
@@ -13,10 +13,10 @@ const ReviewForm = () => {
 
     useEffect(() => {
         // ✅ Prevent redirect until state is properly loaded
-        if (customerId && specialistId) return;
+        if (userId && specialistId) return;
         toast.error("Invalid review request.");
         navigate("/");
-    }, [customerId, specialistId, navigate]);
+    }, [userId, specialistId, navigate]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -36,7 +36,7 @@ const ReviewForm = () => {
                     Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify({
-                    customer_id: customerId,
+                    customer_id: userId,
                     specialist_id: specialistId,
                     rating,
                     review: review
