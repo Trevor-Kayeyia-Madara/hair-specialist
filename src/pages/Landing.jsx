@@ -163,6 +163,7 @@ const Landing = () => {
                   key={index}
                   specialist={specialist}
                   startNewChat={startNewChat}
+                  isAuthenticated={loggedIn}
                 />
               ))
             ) : (
