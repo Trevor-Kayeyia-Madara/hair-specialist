@@ -53,7 +53,7 @@ const BookingForm = () => {
         });
         const data = await res.json();
         setCustomerName(data.user.full_name);
-        localStorage.setItem("customerId", data.customerId);
+        localStorage.setItem("customerId", data.user.id);
       } catch (err) {
         toast.error("❌ Failed to fetch user details.");
       }
