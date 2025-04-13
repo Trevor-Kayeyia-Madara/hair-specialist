@@ -10,7 +10,7 @@ import "jspdf-autotable";
 const BookingForm = () => {
   const { id } = useParams(); // Specialist ID
   const navigate = useNavigate();
-  const [customerName, setCustomerName] = useState("");
+  const [userName, setUserName] = useState(""); // Changed from customerName to userName
   const [specialistName, setSpecialistName] = useState("");
   const [services, setServices] = useState([]);
   const [selectedService, setSelectedService] = useState("");
@@ -26,7 +26,7 @@ const BookingForm = () => {
     doc.text("📄 Appointment Invoice", 14, 22);
 
     doc.setFontSize(12);
-    doc.text(`Customer: ${details.customerName}`, 14, 35);
+    doc.text(`User: ${details.userName}`, 14, 35); // Changed from customerName to userName
     doc.text(`Specialist: ${details.specialistName}`, 14, 42);
     doc.text(`Service: ${details.selectedService}`, 14, 49);
     doc.text(`Price: KES ${details.servicePrice}`, 14, 56);
@@ -52,8 +52,8 @@ const BookingForm = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
-        setCustomerName(data.user.full_name);
-        localStorage.setItem("customerId", data.user.id);
+        setUserName(data.user.full_name); // Changed from customerName to userName
+        localStorage.setItem("userId", data.user.id); // Changed from customerId to userId
       } catch (err) {
         toast.error("❌ Failed to fetch user details.");
       }
@@ -87,9 +87,9 @@ const BookingForm = () => {
     setLoading(true);
 
     const token = localStorage.getItem("authToken");
-    const customerId = localStorage.getItem("customerId");
+    const userId = localStorage.getItem("userId"); // Changed from customerId to userId
 
-    if (!customerId || !selectedService || !date || !time) {
+    if (!userId || !selectedService || !date || !time) {
       toast.warning("⚠️ All fields are required.");
       setLoading(false);
       return;
@@ -103,7 +103,7 @@ const BookingForm = () => {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          customer_id: customerId,
+          user_id: userId, // Changed from customer_id to user_id
           specialist_id: id,
           service_id: selectedService,
           date,
@@ -118,7 +118,7 @@ const BookingForm = () => {
       // 📄 Generate invoice PDF
       generateInvoicePDF({
         appointmentId: bookingData.appointment.id,
-        customerName,
+        userName, // Changed from customerName to userName
         specialistName,
         selectedService,
         servicePrice,
@@ -130,7 +130,7 @@ const BookingForm = () => {
         navigate("/review-form", {
           state: {
             appointmentId: bookingData.appointment.id,
-            customerId,
+            userId, // Changed from customerId to userId
             specialistId: id,
             specialistName,
           },
@@ -151,13 +151,13 @@ const BookingForm = () => {
           📅 Book Appointment
         </h2>
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Customer Name */}
+          {/* User Name */}
           <div>
-            <label htmlFor="customerName" className="block text-sm font-medium text-gray-700 mb-1">Customer Name</label>
+            <label htmlFor="userName" className="block text-sm font-medium text-gray-700 mb-1">User Name</label>
             <input
               type="text"
-              id="customerName"
-              value={customerName}
+              id="userName"
+              value={userName} // Changed from customerName to userName
               readOnly
               className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-400 focus:outline-none bg-gray-100 text-gray-700"
             />
@@ -230,13 +230,12 @@ const BookingForm = () => {
             disabled={loading}
             className="w-full bg-blue-600 hover:bg-blue-700 transition-all duration-200 text-white font-semibold py-3 rounded-xl shadow-md hover:shadow-lg"
           >
-            {loading ? "Booking..." : "📌 Book Now"}
+            {loading ? "Booking..." : "Book Appointment"}
           </button>
         </form>
       </div>
     </div>
   );
-  
 };
 
 export default BookingForm;
