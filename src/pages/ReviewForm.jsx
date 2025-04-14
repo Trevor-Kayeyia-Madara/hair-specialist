@@ -36,7 +36,7 @@ const ReviewForm = () => {
                     Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify({
-                    customer_id: userId,
+                    user_id: userId,
                     specialist_id: specialistId,
                     rating,
                     review: review
