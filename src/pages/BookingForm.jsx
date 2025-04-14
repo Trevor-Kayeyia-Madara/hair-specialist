@@ -10,7 +10,7 @@ import "jspdf-autotable";
 const BookingForm = () => {
   const { id } = useParams(); // Specialist ID
   const navigate = useNavigate();
-  const [userName, setUserName] = useState(""); // Changed from customerName to userName
+  const [customerName, setCustomerName] = useState(""); // Changed from customerName to userName
   const [specialistName, setSpecialistName] = useState("");
   const [services, setServices] = useState([]);
   const [selectedService, setSelectedService] = useState("");
@@ -52,7 +52,7 @@ const BookingForm = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
-        setUserName(data.user.full_name); // Changed from customerName to userName
+        setCustomerName(data.user.full_name); // Changed from customerName to userName
         localStorage.setItem("userId", data.user.id); // Changed from customerId to userId
       } catch (err) {
         toast.error("❌ Failed to fetch user details.");
@@ -118,7 +118,7 @@ const BookingForm = () => {
       // 📄 Generate invoice PDF
       generateInvoicePDF({
         appointmentId: bookingData.appointment.id,
-        userName, // Changed from customerName to userName
+        customerName, // Changed from customerName to userName
         specialistName,
         selectedService,
         servicePrice,
