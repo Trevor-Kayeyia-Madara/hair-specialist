@@ -18,7 +18,6 @@ const Booking = () => {
         setServices(data);
       } catch (error) {
         console.error("Error fetching services:", error);
-        alert("Error fetching services. Please try again later.");
       }
     };
 
@@ -26,7 +25,6 @@ const Booking = () => {
   }, []);
 
   const handleBooking = async () => {
-    console.log("handleBooking called"); // Debugging line to ensure function is triggered
     if (!serviceId || !date || !time) {
       alert("Please select a service, date, and time");
       return;
@@ -38,48 +36,25 @@ const Booking = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          service_id: serviceId,
-          date,
-          time,
-          status: "booked",
-        }),
+        body: JSON.stringify({ service_id: serviceId, date, time, status: "booked" }),
       });
 
-      // Debugging to check response status
-      console.log("Response Status:", response.status);
-
-      if (response.status === 409) {
-        alert("The selected appointment time is already taken. Please choose another time.");
-        return;
-      }
-
       if (!response.ok) {
-        const errorData = await response.json();
-        alert(errorData?.error || "Failed to book the appointment. Please try again later.");
-        return;
+        throw new Error("Failed to book appointment");
       }
 
       alert("Booking confirmed!");
     } catch (error) {
       console.error("Error booking appointment:", error);
-      alert("Something went wrong while booking. Please try again later.");
+      alert("Failed to book appointment. Try again later.");
     }
   };
 
   return (
     <div>
       <h1>Book an Appointment</h1>
-      <input
-        type="date"
-        onChange={(e) => setDate(e.target.value)}
-        required
-      />
-      <input
-        type="time"
-        onChange={(e) => setTime(e.target.value)}
-        required
-      />
+      <input type="date" onChange={(e) => setDate(e.target.value)} required />
+      <input type="time" onChange={(e) => setTime(e.target.value)} required />
 
       <select onChange={(e) => setServiceId(e.target.value)} required>
         <option value="">Select Service</option>
