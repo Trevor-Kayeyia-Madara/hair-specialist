@@ -111,12 +111,7 @@ const BookingForm = () => {
           status: "Booked",
         }),
       });
-      console.log("Submitting review with:", {
-        userId,
-        specialistId,
-        rating,
-        review,
-      });
+
       const bookingData = await bookingRes.json();
       toast.success("✅ Appointment booked!");
 
