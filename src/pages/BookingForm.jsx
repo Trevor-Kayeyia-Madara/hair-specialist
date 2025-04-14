@@ -26,7 +26,7 @@ const BookingForm = () => {
     doc.text("📄 Appointment Invoice", 14, 22);
 
     doc.setFontSize(12);
-    doc.text(`User: ${details.userName}`, 14, 35); // Changed from customerName to userName
+    doc.text(`Customer: ${details.userName}`, 14, 35); // Changed from customerName to userName
     doc.text(`Specialist: ${details.specialistName}`, 14, 42);
     doc.text(`Service: ${details.selectedService}`, 14, 49);
     doc.text(`Price: KES ${details.servicePrice}`, 14, 56);
